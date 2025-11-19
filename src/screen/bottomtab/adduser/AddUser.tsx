@@ -9,13 +9,13 @@ import {
   Text,
   View,
   useWindowDimensions,
-  SafeAreaView,
 
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import ProgressBarRTL from "../../components/ProgressLine";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const AccountTypeScreen = () => {
   const [selected, setSelected] = useState("user");
@@ -196,7 +196,7 @@ nextText: {
 
 
 
-  container: {
+  container1: {
     width: "100%",
     paddingHorizontal: 16,
     marginTop: 20,

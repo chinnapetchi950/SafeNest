@@ -6,20 +6,28 @@ import {
   Dimensions,
   TouchableOpacity,
   Image,
+  StatusBar
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { images } from "../../utils/images";
 import { string } from "../../utils/String";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import globalstyles from "../../styles/globalstyles";
-import { SafeAreaView } from "react-native-safe-area-context";
+//import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 
 
 const { width } = Dimensions.get("window");
 
 export default function SplashScreen() {
+  const navigation =useNavigation()
   return (
-    <SafeAreaView style={{flex:1}}>
+    <>
+      <StatusBar
+    translucent
+    backgroundColor="#A774F0"
+    barStyle="light-content"
+  />
     <LinearGradient colors={["#A774F0", "#8064E9"]} style={styles.container}>
    
           <Image
@@ -29,13 +37,12 @@ export default function SplashScreen() {
           />
 
       <Text style={[globalstyles.regular_FontMedium,styles.title]}>{string.splash_center1}</Text>
-      <Text style={[,globalstyles.  regular_Fontblack
-,styles.subtitle]}>
+      <Text style={[globalstyles.regular_Fontblack,styles.subtitle]}>
     {string.splash_cente}
       </Text>
       {/* Button */}
       <View style={styles.bottomContainer}>
-  <TouchableOpacity style={styles.button}>
+  <TouchableOpacity onPress={()=> navigation.navigate('Login')} style={styles.button}>
     <View style={styles.iconCircle}>
         <View style={{flexDirection:"row"}}>
    <Ionicons name="chevron-back-outline" size={18} color="#fff" />
@@ -48,7 +55,7 @@ export default function SplashScreen() {
 </View>
 
     </LinearGradient>
-    </SafeAreaView>
+    </>
   );
 }
 

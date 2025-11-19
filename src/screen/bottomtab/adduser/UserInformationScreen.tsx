@@ -45,7 +45,7 @@ export const UserInformationScreen = () => {
                   onChangeText={(text) =>
                     viewModel.handleInputChange("secondName", text)
                   }
-                  label="Second Name"
+                  label="Second Name (Optional)"
                   placeholder="Second Name"
                   error={viewModel.errors.secondName}
                 />
@@ -71,7 +71,7 @@ export const UserInformationScreen = () => {
                   onChangeText={(text) =>
                     viewModel.handleInputChange("fourthName", text)
                   }
-                  label="Fourth Name"
+                  label="Fourth Name (Optional)"
                   placeholder="Fourth Name"
                 />
               </View>
@@ -81,7 +81,7 @@ export const UserInformationScreen = () => {
                   onChangeText={(text) =>
                     viewModel.handleInputChange("thirdName", text)
                   }
-                  label="Third Name"
+                  label="Third Name (Optional)"
                   placeholder="Third Name"
                 />
               </View>

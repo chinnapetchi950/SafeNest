@@ -11,9 +11,9 @@ const { height } = Dimensions.get("window");
 
 const AddMenuModal = ({ visible, onClose }) => {
   const options = [
-    { id: 1, label: "Add a new game", icon: "game-controller-outline" , screen: "UserInformationScreen",},
-    { id: 2, label: "Add a new user", icon: "person-add-outline" , screen: "UserInformationScreen",},
-    { id: 3, label: "Register a new child", icon: "people-outline", screen: "UserInformationScreen", },
+    { id: 1, label: "Add a new game", icon: "game-controller-outline" , screen: "UserInformationScreen"},
+    { id: 2, label: "Add a new user", icon: "person-add-outline" , screen: "UserInformationScreen"},
+    { id: 3, label: "Register a new child", icon: "people-outline", screen: "UserInformationScreen" },
   ];
   const navigation=useNavigation()
   const handleSelect = (item) => {
@@ -303,19 +303,19 @@ arrowDown: {
   //   color: "#000",
   //   fontWeight: "600",
   // },
-  genderRow: {
+  genderRow1: {
     marginTop: 15,
   },
  
-  genderOptions: {
+  genderOptions1: {
     flexDirection: "row",
     justifyContent: "space-around",
   },
-  genderOption: {
+  genderOption1: {
     flexDirection: "row",
     alignItems: "center",
   },
-  genderText: {
+  genderText1: {
     fontSize: 16,
     color: "#777",
   },

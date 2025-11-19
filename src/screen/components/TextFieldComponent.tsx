@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 20,
   },
-  label: {
+  label1: {
     fontSize: 13,
     fontWeight: '700',
     color: '#000',
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginBottom: 6,
   },
-  inputContainer: {
+  inputContainer1: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,

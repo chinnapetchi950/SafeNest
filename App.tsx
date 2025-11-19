@@ -29,7 +29,7 @@ export default function App() {
     <SafeAreaProvider>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="AccountTypeScreen"
+          initialRouteName="splashScreen"
           screenOptions={{
             headerShown: false,           // Fullscreen, no top header
             animation: 'slide_from_right' // Smooth transition
