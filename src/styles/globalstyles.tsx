@@ -65,7 +65,8 @@ padding:10
   semibold_black: {
     fontSize: fontSize.fs15,
     color: colors.black,
-    fontFamily: fontFamily.poppin_semibold
+    fontFamily: fontFamily.poppin_semibold,
+    fontWeight:'700'
   },
   bold_white: {
     fontSize: fontSize.fs15,

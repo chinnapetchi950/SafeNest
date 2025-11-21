@@ -70,8 +70,8 @@ const viewModel=loginViewModel()
       <View style={styles.bottomContainer}>
         <TouchableOpacity
         onPress={viewModel?.handleLogin}
-          style={[styles.button, styles.buttonDisabled]}
-          // disabled={isDisabled}
+          style={[styles.button, viewModel.isButtonDisabled&&styles.buttonDisabled]}
+           disabled={viewModel.isButtonDisabled}
         >
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '85%',
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#A278F4',
     borderRadius: 25,
     paddingVertical: 14,
     alignItems: 'center',

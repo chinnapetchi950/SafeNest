@@ -43,7 +43,7 @@ export default function SplashScreen() {
         {/* Button */}
         <View style={styles.bottomContainer}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('Login')}
+            onPress={() => navigation.navigate('RegisterChildScreen')}
             style={styles.button}
           >
             <View style={styles.iconCircle}>

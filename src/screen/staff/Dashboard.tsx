@@ -1,59 +1,67 @@
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import globalstyles from "../../styles/globalstyles";
-import { string } from "../../utils/String";
-import { colors } from "../../styles/colors";
-import SearchBar from "../components/Searchcomponent";
-import React from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import globalstyles from '../../styles/globalstyles';
+import { string } from '../../utils/String';
+import { colors } from '../../styles/colors';
+import SearchBar from '../components/Searchcomponent';
+import React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-
 export default function Dashboard() {
-    const sampleData = [
-  {
-    id: '1',
-    name: 'Maryam Hassan Kadhem',
-    guardian: 'Hassan Kadhem Abdulhussain',
-    playtime: '1 hour, 45 minutes',
-    timer: '0:00:00',
-    status: 'waiting',
-  },
-  {
-    id: '2',
-    name: 'Maryam Hassan Kadhem',
-    guardian: 'Hassan Kadhem Abdulhussain',
-    playtime: '1 hour, 45 minutes',
-    timer: '0:15:59',
-    status: 'active',
-  },
-];
-const renderItem = React.useCallback(({ item }) => (
-    <ChildSessionCard
-      name={item.name}
-      guardian={item.guardian}
-      playtime={item.playtime}
-      timer={item.timer}
-      status={item.status as 'active' | 'waiting'}
-      onDeliver={() => console.log('Deliver', item.name)}
-      onEndSession={() => console.log('End session', item.name)}
-      onCall={() => console.log('Call', item.name)}
-      onMessage={() => console.log('Message', item.name)}
-    />
-  ), []);
-    return(
-        <View style={globalstyles.mainbg}>
-            <Text style={[globalstyles.semibold_black, styles.title]}>
-                {string.game}
-            </Text>
-            <SearchBar
-  placeholder="Search for a child"
-  onChangeText={(text) => console.log(text)}
-  onSearchPress={() => console.log('Search clicked')}
-  onFilterPress={() => console.log('Filter clicked')}
-/>
+  const sampleData = [
+    {
+      id: '1',
+      name: 'Maryam Hassan Kadhem',
+      guardian: 'Hassan Kadhem Abdulhussain',
+      playtime: '1 hour, 45 minutes',
+      timer: '0:00:00',
+      status: 'waiting',
+    },
+    {
+      id: '2',
+      name: 'Maryam Hassan Kadhem',
+      guardian: 'Hassan Kadhem Abdulhussain',
+      playtime: '1 hour, 45 minutes',
+      timer: '0:15:59',
+      status: 'active',
+    },
+  ];
+  const renderItem = React.useCallback(
+    ({ item }) => (
+      <ChildSessionCard
+        name={item.name}
+        guardian={item.guardian}
+        playtime={item.playtime}
+        timer={item.timer}
+        status={item.status as 'active' | 'waiting'}
+        onDeliver={() => console.log('Deliver', item.name)}
+        onEndSession={() => console.log('End session', item.name)}
+        onCall={() => console.log('Call', item.name)}
+        onMessage={() => console.log('Message', item.name)}
+      />
+    ),
+    [],
+  );
+  return (
+    <View style={globalstyles.mainbg}>
+      <Text style={[globalstyles.semibold_black, styles.title]}>
+        {string.game}
+      </Text>
+      <SearchBar
+        placeholder="Search for a child"
+        onChangeText={text => console.log(text)}
+        onSearchPress={() => console.log('Search clicked')}
+        onFilterPress={() => console.log('Filter clicked')}
+      />
 
- <FlatList
+      <FlatList
         data={sampleData}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         getItemLayout={(_, index) => ({
@@ -66,12 +74,9 @@ const renderItem = React.useCallback(({ item }) => (
         initialNumToRender={3}
         windowSize={5}
       />
-
-        </View>
-    )
+    </View>
+  );
 }
-
-
 
 interface ChildSessionCardProps {
   name: string;
@@ -113,7 +118,9 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
               ]}
             >
               <Ionicons
-                name={isActive ? 'checkmark-circle-outline' : 'alert-circle-outline'}
+                name={
+                  isActive ? 'checkmark-circle-outline' : 'alert-circle-outline'
+                }
                 color={isActive ? '#2ECC71' : '#F4B400'}
                 size={14}
               />
@@ -140,9 +147,7 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
           <View style={styles.infoContainer}>
             <Text style={styles.nameText}>{name}</Text>
             <Text style={[styles.guardianText]}>Guardian: {guardian}</Text>
-            <Text style={styles.playtimeText}>
-              Total Playtime: {playtime}
-            </Text>
+            <Text style={styles.playtimeText}>Total Playtime: {playtime}</Text>
           </View>
         </View>
 
@@ -168,12 +173,22 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity style={[styles.iconButton, { backgroundColor: '#4CAF50' }]} onPress={onCall}>
+            <TouchableOpacity
+              style={[styles.iconButton, { backgroundColor: '#4CAF50' }]}
+              onPress={onCall}
+            >
               <Ionicons name="call-outline" size={18} color="#fff" />
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.iconButton, { backgroundColor: '#EAF4FF' }]} onPress={onMessage}>
-              <Ionicons name="chatbubble-ellipses-outline" size={18} color="#4A90E2" />
+            <TouchableOpacity
+              style={[styles.iconButton, { backgroundColor: '#EAF4FF' }]}
+              onPress={onMessage}
+            >
+              <Ionicons
+                name="chatbubble-ellipses-outline"
+                size={18}
+                color="#4A90E2"
+              />
             </TouchableOpacity>
           </View>
 
@@ -181,9 +196,8 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
         </View>
       </View>
     );
-  }
+  },
 );
-
 
 const styles = StyleSheet.create({
   card: {
@@ -290,18 +304,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
   },
-  title:{
-    color:colors.primary,
-    alignSelf:"flex-end",
-    fontWeight:"700"
-
-}
+  title: {
+    color: colors.primary,
+    alignSelf: 'flex-end',
+    fontWeight: '700',
+  },
 });
-
-
-
-
-
 
 // const style=StyleSheet.create({
 // title:{

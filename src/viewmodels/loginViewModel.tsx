@@ -13,6 +13,16 @@ export const loginViewModel = () => {
 const navigation=useNavigation()
   // ✅ email regex for username validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // const isButtonDisabled =
+  //   !form.email ||
+  //   !form.password ||
+  //   formError.email ||
+  //   formError.password;
+    const isButtonDisabled =
+  !form.email?.trim() ||
+  !form.password?.trim() ||
+  !!formError.email ||
+  !!formError.password;
  const validateForm = () => {
     let isValid = true;
     const errors = { email: "", password: "" };
@@ -59,5 +69,6 @@ const navigation=useNavigation()
     loading,
     error,
     data,
+    isButtonDisabled
   };
 };

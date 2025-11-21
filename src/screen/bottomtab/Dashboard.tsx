@@ -4,6 +4,7 @@ import DashboardCard from "../components/DashboarCard";
 import { colors } from "../../styles/colors";
 import LineChartCard from "../components/LineChart";
 import BarChartCard from "../components/BarChart";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const DashboardScreen = () => {
@@ -20,7 +21,8 @@ const DashboardScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={{flex:1}}>
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.cardRow}>
         <DashboardCard
           title="Number of Children Registered Weekly"
@@ -58,6 +60,7 @@ const DashboardScreen = () => {
       <LineChartCard title="Budget" data={lineData} />
       <BarChartCard title="عدد الأطفال" data={barData} />
     </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -65,10 +68,11 @@ export default DashboardScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    //flex: 1,
     backgroundColor: colors.background,
     paddingHorizontal: 10,
     paddingTop: 10,
+    paddingBottom:80,
   },
   cardRow: {
     flexDirection: "row",

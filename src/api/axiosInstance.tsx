@@ -81,14 +81,14 @@ axiosInstance.interceptors.response.use(
     store.dispatch(setLoading(false)); // ✅ Stop loader even on error
 
     if (response) {
-      console.error("❌ [API Error Response]:", {
-        url: response.config?.url,
-        status: response.status,
-        data: response.data,
-      });
+      // console.error("❌ [API Error Response]:", {
+      //   url: response.config?.url,
+      //   status: response.status,
+      //   data: response.data,
+      // });
 
       if (response.status === 401) {
-        console.warn("⚠️ Unauthorized — token invalid or expired");
+        //console.warn("⚠️ Unauthorized — token invalid or expired");
         // await AsyncStorage.removeItem("token");
         // global.token = null;
       }
