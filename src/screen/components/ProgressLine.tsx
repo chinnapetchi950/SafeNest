@@ -8,8 +8,10 @@ const ProgressBarRTL = ({
   inactiveColor = "#D1D5DB", // gray
 }) => {
   // Force right-to-left
+if (!I18nManager.isRTL) {
+  I18nManager.allowRTL(true);
   I18nManager.forceRTL(true);
-
+}
   return (
     <View style={styles.container}>
       {/* Line container */}
@@ -43,7 +45,7 @@ const ProgressBarRTL = ({
               key={index}
               style={[
                 styles.dot,
-                { backgroundColor: isActive ? activeColor : inactiveColor },
+                { backgroundColor: isActive ? activeColor : inactiveColor }
               ]}
             />
           );

@@ -1,4 +1,4 @@
-import Ionicons from "@react-native-vector-icons/ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import LinearGradient from "react-native-linear-gradient";

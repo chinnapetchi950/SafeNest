@@ -1,4 +1,4 @@
-import Ionicons from "@react-native-vector-icons/ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { colors } from "../../styles/colors";
@@ -21,7 +21,7 @@ const DashboardCard = ({ title, subtitle, value, percent, trend }) => {
         <Text
           style={[
             styles.percent,
-            { color: isPositive ? colors.success : colors.danger },
+            { color: isPositive ? colors.success : colors.danger }
           ]}
         >
           {percent}

@@ -1,5 +1,5 @@
 // src/components/AddMenuModal.js
-import Ionicons from "@react-native-vector-icons/ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated, Dimensions, TextInput } from "react-native";
 import { colors } from "../../styles/colors";

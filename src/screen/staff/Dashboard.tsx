@@ -4,7 +4,7 @@ import { string } from "../../utils/String";
 import { colors } from "../../styles/colors";
 import SearchBar from "../components/Searchcomponent";
 import React from "react";
-import Ionicons from "@react-native-vector-icons/ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
 export default function Dashboard() {
@@ -41,7 +41,7 @@ const renderItem = React.useCallback(({ item }) => (
   ), []);
     return(
         <View style={globalstyles.mainbg}>
-            <Text style={[globalstyles.semibold_black, style.title]}>
+            <Text style={[globalstyles.semibold_black, styles.title]}>
                 {string.game}
             </Text>
             <SearchBar
@@ -290,6 +290,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
   },
+  title:{
+    color:colors.primary,
+    alignSelf:"flex-end",
+    fontWeight:"700"
+
+}
 });
 
 
@@ -297,11 +303,11 @@ const styles = StyleSheet.create({
 
 
 
-const style=StyleSheet.create({
-title:{
-    color:colors.primary,
-    alignSelf:"flex-end",
-    fontWeight:"700"
+// const style=StyleSheet.create({
+// title:{
+//     color:colors.primary,
+//     alignSelf:"flex-end",
+//     fontWeight:"700"
 
-}
-})
+// }
+// })

@@ -8,7 +8,7 @@ import {
   TextInputProps,
   I18nManager,
 } from 'react-native';
-import Ionicons from "@react-native-vector-icons/ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import globalstyles from '../../styles/globalstyles';
 import LinearGradient from 'react-native-linear-gradient';
 import { colors } from '../../styles/colors';
@@ -171,24 +171,24 @@ const styles = StyleSheet.create({
   inputContainer1: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1, 
     borderColor: '#D9D9D9',
     borderRadius: 25,
     backgroundColor: '#fff',
     height: 50,
     paddingHorizontal: 14,
   },
-  input: {
+  input1: {
     flex: 1,
     fontSize: 15,
     color: '#000',
     textAlign: 'right',
     paddingVertical: 0,
   },
-  iconLeft: {
+  iconLeft1: {
     marginRight: 8,
   },
-  iconRight: {
+  iconRight1: {
     marginLeft: 8,
   },
     buttonWrapper: {

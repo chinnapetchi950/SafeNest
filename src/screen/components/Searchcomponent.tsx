@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   I18nManager,
 } from 'react-native';
-import Ionicons from "@react-native-vector-icons/ionicons";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Enable RTL text layout support
 I18nManager.allowRTL(true);
