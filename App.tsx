@@ -16,6 +16,7 @@ import BottomTabsStaff from './src/screen/staff/BottomTabStaff';
 import { RegisterChildScreen } from './src/screen/staff/registerchild/RegisterChild';
 import SessionDetailsScreen from './src/screen/staff/registerchild/SessionDetailsScreen';
 
+
 // Import your screens
 
 const Stack = createNativeStackNavigator();

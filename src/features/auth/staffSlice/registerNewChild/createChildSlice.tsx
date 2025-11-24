@@ -1,0 +1,75 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import authService from "../../authService";
+import { createAsyncThunkHandlers } from "../../../../utils/asyncThunkHandler";
+
+import { Alert } from "react-native";
+
+/**
+ * createChildUser USER (multipart/form-data)
+ * values may include: firstName, lastName, email, password, profileImage
+ */
+export const createChildUser = createAsyncThunk(
+  "api/user/children",
+  async (formData, thunkAPI) => {
+    try {
+      const res = await authService.createChild(formData);
+      return res.data;
+
+    } catch (err) {
+      console.log("error.....", err?.response?.data);
+
+      const message =
+        err?.response?.data?.message ||
+        err.message ||
+        "Something went wrong";
+
+      Alert.alert("Error", message);
+      return thunkAPI.rejectWithValue(err?.response?.data);
+    }
+  }
+);
+
+
+
+export const fetchGameTypes = createAsyncThunk(
+  "api/user/gameTypes",
+  async (_, thunkAPI) => {
+    try {
+      const res = await authService.getuserGameTypes(); // call service
+      console.log("Game Types Response:", res.data);
+
+      return res.data;
+    } catch (err) {
+      console.log("Game Types Error:", err);
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
+    }
+  }
+);
+
+
+const authSlice = createSlice({
+  name: "auth",
+  initialState: {
+    user: null,
+    loading: {},
+    error: {},
+    data: {},
+  },
+  reducers: {
+    logout: (state) => {
+      state.user = null;
+     
+    },
+  },
+  extraReducers: (builder) => {
+    // automatically manage loading, error, and success states
+    createAsyncThunkHandlers(builder, createChildUser, "createChildUser");
+    createAsyncThunkHandlers(builder, fetchGameTypes, "fetchGameTypes");
+
+  },
+});
+
+//export const { logout } = authSlice.actions;
+export default authSlice.reducer;

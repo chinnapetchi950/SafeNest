@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { images } from '../../utils/images';
 import { string } from '../../utils/String';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import globalstyles from '../../styles/globalstyles';
+import Storage from '../../utils/storage';
 //import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from '@react-navigation/native';
 
@@ -20,6 +21,39 @@ const { width } = Dimensions.get('window');
 
 export default function SplashScreen() {
   const navigation = useNavigation();
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const user = await Storage.getItem("token"); 
+        const role=await Storage.getItem('role');
+        // or saved user data key
+
+        if (user) {
+          // Already logged in ➜ Go to Dashboard
+           if(role==='user'){
+      navigation.navigate("BottomTabsStaff"); 
+
+      }else{
+        navigation.navigate("BottomTabs"); 
+
+      }
+          // navigation.reset({
+          //   index: 0,
+          //   routes: [{ name: 'Dashboard' }],
+          // });
+        } else {
+          // No login → Stay in splash for 2 sec then show login
+          // setTimeout(() => {
+          //   navigation.navigate('Login');
+          // }, 2000);
+        }
+      } catch (error) {
+        console.log("Error reading storage:", error);
+      }
+    };
+
+    checkLogin();
+  }, []);
   return (
     <>
       <StatusBar
@@ -43,7 +77,7 @@ export default function SplashScreen() {
         {/* Button */}
         <View style={styles.bottomContainer}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('RegisterChildScreen')}
+            onPress={() => navigation.navigate('Login')}
             style={styles.button}
           >
             <View style={styles.iconCircle}>

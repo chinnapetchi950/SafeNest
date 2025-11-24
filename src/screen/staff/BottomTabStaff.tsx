@@ -6,18 +6,21 @@ import LoginScreen from "../login/Login";
 import DashboardScreen from "./Dashboard";
 import AddMenuModal, { AddMenuModalStaff } from "../bottomtab/AddMenu";
 import Dashboard from "./Dashboard";
-
+import { RegisterChildScreen } from "./registerchild/RegisterChild";
+import { useNavigation } from "@react-navigation/native";
+import SettingsScreen from '../Settings/SettingsScreen'
 
 const Tab = createBottomTabNavigator();
 
 const BottomTabsStaff = () => {
   const [isMenuVisible, setMenuVisible] = useState(false);
+  const navigation=useNavigation()
 
   const CenterButton = ({ children }) => (
     <TouchableOpacity
       style={styles.centerButtonWrapper}
       activeOpacity={0.9}
-      onPress={() => setMenuVisible(!isMenuVisible)}
+      onPress={() => navigation.navigate('RegisterChildScreen')}
     >
       <View style={styles.centerButton}>{children}</View>
     </TouchableOpacity>
@@ -38,15 +41,19 @@ const BottomTabsStaff = () => {
   return (
     <>
       <Tab.Navigator
+        // initialRouteName="SettingsScreen"
+
+      initialRouteName="Dashboard"
         screenOptions={{
           headerShown: false,
           tabBarShowLabel: false,
           tabBarStyle: styles.tabBar,
+          
         }}
       >
         <Tab.Screen
           name="Settings"
-          component={Dashboard}
+          component={SettingsScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon name="settings-outline" focused={focused} />
@@ -66,7 +73,7 @@ const BottomTabsStaff = () => {
 
         <Tab.Screen
           name="Add"
-          component={LoginScreen}
+          component={RegisterChildScreen}
           options={{
             tabBarIcon: () => <Ionicons name="add" size={26} color="#fff" />,
             tabBarButton: (props) => <CenterButton {...props} />,
@@ -84,8 +91,8 @@ const BottomTabsStaff = () => {
         />
 
         <Tab.Screen
-          name="Home"
-          component={LoginScreen}
+          name="Dashboard"
+          component={Dashboard}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon name="home-outline" focused={focused} />
@@ -126,7 +133,8 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     alignItems: "center",
-    justifyContent: "center",
+    marginTop:4
+    //justifyContent: "center",
   
   },
   dot: {
@@ -140,7 +148,7 @@ const styles = StyleSheet.create({
   centerButtonWrapper: {
     justifyContent: "center",
     alignItems: "center",
-    top: 0,
+    top: -3,
   },
   centerButton: {
     width: 56,

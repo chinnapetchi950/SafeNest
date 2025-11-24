@@ -30,7 +30,8 @@ export default StyleSheet.create({
   mainbg:{
 backgroundColor:"#FFFFFF",
 flex:1,
-padding:10
+padding:10,
+paddingVertical:20
   },
   center: { alignSelf: "center", },
   

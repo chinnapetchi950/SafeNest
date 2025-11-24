@@ -8,6 +8,7 @@ import {
   Platform,
   ScrollView,
   FlatList,
+  KeyboardAvoidingView
 } from 'react-native';
 import CustomTextField, {
   CommonButton,
@@ -19,7 +20,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import globalstyles from '../../../styles/globalstyles';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import useRegisterChildViewModel from '../../../viewmodels/useRegisterChildViewModel';
 export const RegisterChildScreen = () => {
   const navigation = useNavigation();
   const viewModel = useFilterBottomSheetViewModel();
@@ -28,43 +29,40 @@ export const RegisterChildScreen = () => {
   };
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [images, setImages] = useState([]);
-
+  const formatDate = date => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
       const date = new Date(selectedDate);
+      const formateDate = formatDate(date);
       const formatted = `${date.getFullYear()}/${String(
         date.getMonth() + 1,
       ).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
-      viewModel.handleInputChange('dob', formatted);
+      viewModel.handleInputChange('date_of_birth', formateDate);
     }
   };
 
-  const pickImage = async () => {
-  launchImageLibrary({ mediaType: 'photo', selectionLimit: 5 }, response => {
-    if (response.didCancel || response.errorCode) return;
+  const pickImage = viewModel.pickImages;
 
-    const selected = response.assets.map(item => ({
-      uri: item.uri,
-      fileName: item.fileName,
-      fileSize: (item.fileSize / (1024 * 1024)).toFixed(1) + 'MB',
-      progress: 100,
-    }));
-
-    setImages(prev => [...prev, ...selected]);  // FIXED
-  });
-};
-
-//   const removeImage = (index: number) => {
-//     //let list = [...images];
-//     // list.splice(index, 1);
-//     // setImages(list);
-//     const updated = images.filter((_, i) => i !== index);
-// setImages([...updated]);
-//   };
-  const removeImage = (index) => {
-  setImages(prev => prev.filter((_, i) => i !== index));
-};
+  //   const removeImage = (index: number) => {
+  //     //let list = [...images];
+  //     // list.splice(index, 1);
+  //     // setImages(list);
+  //     const updated = images.filter((_, i) => i !== index);
+  // setImages([...updated]);
+  //   };
+  //   const removeImage = (index) => {
+  //   setImages(prev => prev.filter((_, i) => i !== index));
+  // };
+  const removeImage = index => {
+    viewModel.removeImage(index);
+  };
 
   const renderItem = ({ item, index }) => (
     <View style={styles.uploadCard}>
@@ -75,9 +73,8 @@ export const RegisterChildScreen = () => {
         </TouchableOpacity>
         <View>
           <Text style={styles.fileName}>{item.fileName} - Attachment</Text>
-          <View style={{flexDirection:'row',justifyContent:'flex-end'}}>
-          <Text style={styles.fileSize}>{item.fileSize}</Text>
-
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+            <Text style={styles.fileSize}>{item.fileSize}</Text>
           </View>
         </View>
       </View>
@@ -92,6 +89,11 @@ export const RegisterChildScreen = () => {
   );
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0} 
+    >
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -100,27 +102,27 @@ export const RegisterChildScreen = () => {
         </View>
 
         {/* Step Progress */}
-       <View style={styles.progressWrapper}>
-        {/* Left Circle */}
-        <View style={styles.leftCircle} />
+        <View style={styles.progressWrapper}>
+          {/* Left Circle */}
+          <View style={styles.leftCircle} />
 
-        {/* Line */}
-        <View style={styles.line} />
+          {/* Line */}
+          <View style={styles.line} />
 
-        {/* Right Active Circle */}
-        <View style={styles.activeCircle} />
-      </View>
+          {/* Right Active Circle */}
+          <View style={styles.activeCircle} />
+        </View>
 
-      {/* Texts Under Progress Bar */}
-      <View style={styles.labelRow}>
-        <Text style={styles.inactiveLabel}>Session Details</Text>
-        {/* <Text style={styles.activeLabel}>Child Details</Text> */}
-      </View>
+        {/* Texts Under Progress Bar */}
+        <View style={styles.labelRow}>
+          <Text style={styles.inactiveLabel}>Session Details</Text>
+          {/* <Text style={styles.activeLabel}>Child Details</Text> */}
+        </View>
 
         <Text style={styles.sectionTitle}>Child Details</Text>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40 }}
+          contentContainerStyle={{ paddingBottom: 80 }}
         >
           <View style={{ flex: 1 }}>
             <CustomTextField
@@ -129,27 +131,28 @@ export const RegisterChildScreen = () => {
               label="Phone Number"
               placeholder="xxxxxxxxxx"
               prefixIcon="call-outline"
+              keyboardType="number-pad"
               error={viewModel.errors.phone}
             />
 
             <CustomTextField
-              value={viewModel.form.status}
-              onChangeText={text => viewModel.handleInputChange('status', text)}
+              value={viewModel.form.guardian_name}
+              onChangeText={text =>
+                viewModel.handleInputChange('guardian_name', text)
+              }
               label="Guardian Name"
               placeholder="Guardian Name"
               prefixIcon="person-sharp"
-              error={viewModel.errors.status}
+              error={viewModel.errors.guardian_name}
             />
 
             <CustomTextField
-              value={viewModel.form.sessionPrice}
-              onChangeText={text =>
-                viewModel.handleInputChange('Child_name', text)
-              }
+              value={viewModel.form.name}
+              onChangeText={text => viewModel.handleInputChange('name', text)}
               label="Child Name"
               placeholder="Child Name"
               prefixIcon="person-sharp"
-              error={viewModel.errors.sessionPrice}
+              error={viewModel.errors.name}
             />
 
             {/* <CustomTextField
@@ -168,19 +171,30 @@ export const RegisterChildScreen = () => {
               onPress={() => setShowDatePicker(true)}
             >
               <CustomTextField
-                value={viewModel.form.dob}
+                value={viewModel.form.date_of_birth}
                 label="Date of Birth"
                 placeholder="YYYY/MM/DD"
                 prefixIcon="calendar-outline"
-                error={viewModel.errors.dob}
+                error={viewModel.errors.date_of_birth}
                 editable={false} // disable manual typing
               />
             </TouchableOpacity>
-
+            <CustomTextField
+              value={viewModel.form.address}
+              onChangeText={text =>
+                viewModel.handleInputChange('address', text)
+              }
+              label="Address"
+              placeholder="Address"
+              prefixIcon="location-outline"
+              error={viewModel.errors.address}
+            />
             {showDatePicker && (
               <DateTimePicker
                 value={
-                  viewModel.form.dob ? new Date(viewModel.form.dob) : new Date()
+                  viewModel.form.date_of_birth
+                    ? new Date(viewModel.form.date_of_birth)
+                    : new Date()
                 }
                 mode="date"
                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
@@ -236,17 +250,17 @@ export const RegisterChildScreen = () => {
               {/* Female */}
               <TouchableOpacity
                 style={[styles.genderOption, { marginRight: 30 }]}
-                onPress={() => viewModel?.handleSelectGender('Female')}
+                onPress={() => viewModel?.handleSelectGender('female')}
               >
                 <Text style={styles.optionText}>Female</Text>
                 <View
                   style={[
                     styles.checkbox,
-                    viewModel?.selectedGender === 'Female' &&
+                    viewModel?.selectedGender === 'female' &&
                       styles.checkboxSelected,
                   ]}
                 >
-                  {viewModel?.selectedGender === 'Female' && (
+                  {viewModel?.selectedGender === 'female' && (
                     <Ionicons name="checkmark" size={14} color="#fff" />
                   )}
                 </View>
@@ -255,17 +269,17 @@ export const RegisterChildScreen = () => {
               {/* Male */}
               <TouchableOpacity
                 style={styles.genderOption}
-                onPress={() => viewModel?.handleSelectGender('Male')}
+                onPress={() => viewModel?.handleSelectGender('male')}
               >
                 <Text style={styles.optionText}>Male</Text>
                 <View
                   style={[
                     styles.checkbox,
-                    viewModel?.selectedGender === 'Male' &&
+                    viewModel?.selectedGender === 'male' &&
                       styles.checkboxSelected,
                   ]}
                 >
-                  {viewModel?.selectedGender === 'Male' && (
+                  {viewModel?.selectedGender === 'male' && (
                     <Ionicons name="checkmark" size={14} color="#fff" />
                   )}
                 </View>
@@ -296,31 +310,47 @@ export const RegisterChildScreen = () => {
 
               {/* Uploaded List */}
               <FlatList
-                data={images}
+                data={viewModel.form.pictures}
                 keyExtractor={(_, i) => i.toString()}
                 renderItem={renderItem}
-                  extraData={images}
-
+                extraData={viewModel.form.pictures}
               />
 
               {/* Add More Button */}
-              {images.length < 5 && (
-                <TouchableOpacity onPress={pickImage} style={styles.addMoreBtn}>
-                  <Text style={styles.addMoreText}>+ Add More</Text>
-                </TouchableOpacity>
-              )}
+              {viewModel.form.pictures.length < 5 &&
+                viewModel.form.pictures.length != 0 && (
+                  <TouchableOpacity
+                    onPress={pickImage}
+                    style={styles.addMoreBtn}
+                  >
+                    <Text style={styles.addMoreText}>+ Add More</Text>
+                  </TouchableOpacity>
+                )}
             </View>
           </View>
         </ScrollView>
-        <CommonButton
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity
+            onPress={viewModel?.handleNext}
+            style={[
+              styles.button,
+              viewModel.isnextButtonDisabled && styles.buttonDisabled,
+            ]}
+            disabled={viewModel.isnextButtonDisabled}
+          >
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </View>
+        {/* <CommonButton
           title={'Next'}
           onPress={() => {
             navigation.navigate('SessionDetailsScreen');
           }}
           style={{}}
           textStyle={undefined}
-        />
+        /> */}
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -403,13 +433,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
-    marginRight:10,
+    marginRight: 10,
   },
   stepContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,
-   // marginHorizontal:40,
+    // marginHorizontal:40,
   },
   stepBarActive: {
     flex: 1,
@@ -427,12 +457,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#A37BFF',
     fontWeight: '700',
-    fontSize:18,
+    fontSize: 18,
     marginBottom: 15,
-    flexDirection:'row',
-    justifyContent:'center',
-      textAlign: 'center',
-
+    flexDirection: 'row',
+    justifyContent: 'center',
+    textAlign: 'center',
   },
   label: {
     marginTop: 10,
@@ -639,12 +668,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 15,
   },
-   progressWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
+  progressWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     //marginBottom: 15,
-    marginHorizontal:50,
-    marginVertical:10
+    marginHorizontal: 50,
+    marginVertical: 10,
   },
 
   leftCircle: {
@@ -652,14 +681,14 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: "#D0D0D0",
-    backgroundColor: "#fff",
+    borderColor: '#D0D0D0',
+    backgroundColor: '#fff',
   },
 
   line: {
     flex: 1,
     height: 2,
-    backgroundColor: "#D0D0D0",
+    backgroundColor: '#D0D0D0',
     marginHorizontal: 4,
   },
 
@@ -667,24 +696,47 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: "#A278F4",
+    backgroundColor: '#A278F4',
   },
 
   /* labels below bar */
   labelRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingHorizontal: 5,
   },
 
   inactiveLabel: {
     fontSize: 11,
-    color: "#C4C4C4",
+    color: '#C4C4C4',
   },
 
   activeLabel: {
     fontSize: 13,
-    color: "#A278F4",
-    fontWeight: "600",
+    color: '#A278F4',
+    fontWeight: '600',
+  },
+  bottomContainer: {
+    position: 'absolute',
+    bottom: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  button: {
+    width: '95%',
+    backgroundColor: '#A278F4',
+    borderRadius: 25,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginLeft: 30,
+    justifyContent: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
   },
 });

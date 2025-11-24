@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser, logout } from "../features/auth/authSlice";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import Storage from "../utils/storage";
 
 export const loginViewModel = () => {
   const dispatch = useDispatch();
@@ -51,8 +52,15 @@ const navigation=useNavigation()
     if (!validateForm()) return;
 
      const res = await dispatch(loginUser(form)).unwrap(); // <-- unwrap() returns actual result or throws error
-      console.log("Login successful:", res);
-      navigation.navigate("BottomTabs"); 
+      console.log("Login successful:", res.role);
+      Storage.setItem('role',res.role);
+      if(res.role==='user'){
+      navigation.navigate("BottomTabsStaff"); 
+
+      }else{
+        navigation.navigate("BottomTabs"); 
+
+      }
   };
  // optional helper to simplify updates
   const handleInputChange = (key, value) => {

@@ -15,9 +15,10 @@ import globalstyles from '../../styles/globalstyles';
 import { loginViewModel } from '../../viewmodels/loginViewModel';
 
 export default function LoginScreen() {
-  
+ 
 
 const viewModel=loginViewModel()
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
@@ -45,7 +46,7 @@ const viewModel=loginViewModel()
       ) : null}
 
       {/* Password Field */}
-      <CustomTextField
+      {/* <CustomTextField
         value={viewModel.form.password}
         onChangeText={(text) => viewModel.handleInputChange("password", text)}
         label="Password"
@@ -53,7 +54,17 @@ const viewModel=loginViewModel()
         prefixIcon="eye-outline"
         onPrefixPress={() => console.log("Toggle password")}
         isPassword
-      />
+      /> */}
+      <CustomTextField
+  value={viewModel.form.password}
+  onChangeText={(text) => viewModel.handleInputChange("password", text)}
+  label="Password"
+  placeholder="Enter password"
+  prefixIcon={showPassword ? "eye-off-outline" : "eye-outline"}
+  onPrefixPress={() => setShowPassword(!showPassword)}
+  isPassword
+  secureTextEntry={!showPassword}
+/>
       {viewModel.formError.password ? (
         <Text style={{ color: "red", marginBottom: 8 }}>
           {viewModel.formError.password}
