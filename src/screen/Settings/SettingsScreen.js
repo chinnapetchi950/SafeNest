@@ -4,7 +4,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import globalstyles from "../../styles/globalstyles";
 
-export default function SettingsScreen() {
+export default function SettingsScreen({navigation}) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerSpace} />
@@ -16,9 +16,9 @@ export default function SettingsScreen() {
        
       </View>
       <View style={{marginHorizontal:20}}>
- <Text style={[globalstyles.regular_FontblackFontWeight,{margin:5,textAlign:'right',fontSize:18}]}>Sarah Saad Kadhem</Text>
-        <Text style={[globalstyles.regular_Fontblack,{margin:5,textAlign:'right',fontSize:14}]}>sarasaad@gmail.com</Text>
-        <Text style={[globalstyles.regular_Fontblack,{marginRight:5,textAlign:'right',fontSize:14}]}>077XXXXXXX</Text>
+ <Text style={[globalstyles.regular_FontblackFontWeight,{margin:5,textAlign:'right',fontSize:16}]}>Sarah Saad Kadhem</Text>
+        <Text style={[globalstyles.regular_Fontblack,{margin:5,textAlign:'right',fontSize:12}]}>sarasaad@gmail.com</Text>
+        <Text style={[globalstyles.regular_Fontblack,{marginRight:5,textAlign:'right',fontSize:12}]}>077XXXXXXX</Text>
       </View>
 <View style={{marginTop:20}}></View>
       {/* Options */}
@@ -28,7 +28,7 @@ export default function SettingsScreen() {
 
         </View>
         <View style={{flexDirection:'row'}}>
-        <Text style={[globalstyles.regular_FontblackFontWeight,{textAlign:'right',fontSize:19,marginRight:20}]}>Change Password</Text>
+        <Text style={[globalstyles.regular_FontblackFontWeight,{textAlign:'right',fontSize:18,marginRight:20}]}>Change Password</Text>
         <Ionicons name="lock-closed-outline" size={22} color="#A78BFA" />
         </View>
       </TouchableOpacity>
@@ -38,7 +38,7 @@ export default function SettingsScreen() {
  <Ionicons name="chevron-back-outline" size={22} color="#A4A3A9" />
         </View>
        <View style={{flexDirection:'row'}}>
-        <Text style={[globalstyles.regular_FontblackFontWeight,{textAlign:'right',fontSize:19,marginRight:20}]}>Delete Account</Text>
+        <Text style={[globalstyles.regular_FontblackFontWeight,{textAlign:'right',fontSize:18,marginRight:20}]}>Delete Account</Text>
         <Ionicons name="trash-outline" size={22} color="#A78BFA" />
        </View>
 
@@ -51,12 +51,12 @@ export default function SettingsScreen() {
       </TouchableOpacity> */}
 
       <View style={styles.bottomSpace} />
-      <TouchableOpacity style={styles.row}>
+      <TouchableOpacity  onPress={()=>{navigation.navigate('Login')}} style={styles.row}>
         <View>
    <Ionicons name="chevron-back-outline" size={22} color="#A4A3A9" />
         </View>
        <View style={{flexDirection:'row'}}>
-        <Text style={[globalstyles.regular_FontblackFontWeight,{textAlign:'right',color:'red',fontSize:19,marginRight:20}]}>Log Out</Text>
+        <Text style={[globalstyles.regular_FontblackFontWeight,{textAlign:'right',color:'red',fontSize:18,marginRight:20}]}>Log Out</Text>
         <Ionicons name="log-out-outline" size={24} color="red" />
        </View>
        </TouchableOpacity>

@@ -10,13 +10,14 @@ import {
   ScrollView,
   TextInput,
   Modal,
-  Platform
+  Platform,
 } from 'react-native';
 import globalstyles from '../../styles/globalstyles';
 import { string } from '../../utils/String';
 import { colors } from '../../styles/colors';
 import SearchBar from '../components/Searchcomponent';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDashboardViewModel } from '../../viewmodels/useDashboardViewModel';
 import BottomModal from '../components/BottomModal';
@@ -29,22 +30,44 @@ export default function Dashboard() {
   // modal visible state
   const [visible, setVisible] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-const [open, setOpen] = useState(false);
-  const [statusType, setstatusType] = useState(null);
-const [items, setItems] = useState([]);
+  const [openHour, setOpenHour] = useState(false);
+  const [selectedHour, setSelectedHour] = useState(null);
+
+  const [openMinute, setOpenMinute] = useState(false);
+  const [selectedMinute, setSelectedMinute] = useState(null);
+
+  const [items, setItems] = useState([]);
+  //  const [picker, setPicker] = useState({
+  //   show: false,
+  //   mode: "time",
+  //   field: "",
+  // });
+
+ 
+
+ // Hours & Minutes arrays
+  const hours = Array.from({ length: 24 }, (_, i) => ({
+    label: `${i}`,
+    value: i,
+  }));
+
+  const minutes = Array.from({ length: 60 }, (_, i) => ({
+    label: `${i}`,
+    value: i,
+  }));
   // load API on mount
   useEffect(() => {
     viewModel.loadChildren();
   }, []);
   useEffect(() => {
-  setItems([
-    { label: "Football", value: "Football" },
-    { label: "Cricket", value: "Cricket" },
-    { label: "Badminton", value: "Badminton" },
-    { label: "Chess", value: "Chess" },
-  ]);
-}, []);
- const formatDate = date => {
+    setItems([
+      { label: 'Football', value: 'Football' },
+      { label: 'Cricket', value: 'Cricket' },
+      { label: 'Badminton', value: 'Badminton' },
+      { label: 'Chess', value: 'Chess' },
+    ]);
+  }, []);
+  const formatDate = date => {
     const d = new Date(date);
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -62,31 +85,65 @@ const [items, setItems] = useState([]);
       viewModel.handleInputChange('date_of_birth', formateDate);
     }
   };
-  const renderItem = React.useCallback(
-    ({ item }) => (
+   const openPicker = (mode, field) => {
+    setPicker({ show: true, mode, field });
+  };
+
+  const renderItem = React.useCallback(({ item }) => {
+    if (item.type === 'header') {
+      return (
+        <Text style={[globalstyles.semibold_black, styles.listheader]}>
+          {item.title}
+        </Text>
+      );
+    }
+    return (
       <ChildSessionCard
         name={item.name}
         guardian={item.guardian_name}
         playtime={item.total_play_duration}
         timer={item.timer}
-        status={item.status}
+        status={item.session_status}
         onDeliver={() => {}}
         onEndSession={() => {}}
         onCall={() => {}}
         onMessage={() => {}}
       />
-    ),
-    [],
-  );
+    );
+  });
 
   const onClose = () => setVisible(false);
 
   const onApply = async () => {
-    await viewModel.applyFilter();
+    await viewModel.handleSearch();
     setVisible(false);
   };
-console.log("childList===>",viewModel?.childList);
+  // console.log("childList===>",viewModel?.childList);
+  const combinedData = [
+    // ---- Expired Children ----
+    ...(viewModel?.childList?.expired_children?.length
+      ? [
+          { type: 'header', title: 'Children Waiting for Handover' },
+          ...viewModel.childList.expired_children.map(item => ({
+            ...item,
+            type: 'item',
+          })),
+        ]
+      : []),
 
+    // ---- Active Children ----
+    ...(viewModel?.childList?.active_children?.length
+      ? [
+          { type: 'header', title: 'Active Children' },
+          ...viewModel.childList.active_children.map(item => ({
+            ...item,
+            type: 'item',
+          })),
+        ]
+      : []),
+  ];
+
+  
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={globalstyles.mainbg}>
@@ -96,61 +153,68 @@ console.log("childList===>",viewModel?.childList);
 
         <SearchBar
           placeholder="Search for a child"
-          onChangeText={text => {}}
-          onSearchPress={() => {}}
-          onFilterPress={() => setVisible(true)}
+          onChangeText={text => viewModel.handleSearchChange(text)}
+          // onChangeText={text => {}}
+          onSearchPress={() => viewModel.handleSearch()}
+          onFilterPress={() => {viewModel.resetFilter(),setVisible(true)}}
         />
 
         <FlatList
-          data={viewModel.childList?.expired_children}
+          data={combinedData}
           keyExtractor={item => item.id}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
         />
       </View>
 
-     {/* Modal */}
-<Modal transparent visible={visible} animationType="fade">
-  <View style={styles.overlay}>
-    
-    {/* BACKDROP (Tap to close) */}
-    <TouchableOpacity style={styles.backdrop} onPress={onClose} />
+      {/* Modal */}
+      <Modal transparent visible={visible} animationType="fade">
+        <View style={styles.overlay}>
+          {/* BACKDROP (Tap to close) */}
+          <TouchableOpacity style={styles.backdrop} onPress={onClose} />
 
-    {/* BOTTOM SHEET */}
-    <View style={styles.bottomSheet}>
+          {/* BOTTOM SHEET */}
+          <View style={styles.bottomSheet}>
+            {/* Header Row */}
+            <View style={styles.headerRow}>
+              <TouchableOpacity onPress={viewModel.resetFilter}>
+                <Text style={styles.reset}>Reset</Text>
+              </TouchableOpacity>
 
-      {/* Header Row */}
-      <View style={styles.headerRow}>
-        <TouchableOpacity onPress={viewModel.resetFilter}>
-          <Text style={styles.reset}>Reset</Text>
-        </TouchableOpacity>
+              <Text style={styles.headerTitle}>Filter</Text>
 
-        <Text style={styles.headerTitle}>Filter</Text>
-
-        {/* <TouchableOpacity onPress={onClose}>
+              {/* <TouchableOpacity onPress={onClose}>
           <Ionicons name="close" size={24} color="#333" />
         </TouchableOpacity> */}
-      </View>
-      <View style={{  borderBottomWidth:1,
-  borderColor:'#ccc',
-  marginTop:10,
-  marginBottom:20}}></View>
+            </View>
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderColor: '#ccc',
+                marginTop: 10,
+                marginBottom: 20,
+              }}
+            ></View>
 
-      {/* Scrollable Content */}
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+            {/* Scrollable Content */}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 40 }}
+            >
+              <View style={{ flex: 1 }}>
+                <CustomTextField
+                  value={viewModel.filters.phone}
+                  onChangeText={text =>
+                    viewModel.handleInputChange('phone', text)
+                  }
+                  label="Phone Number"
+                  placeholder="xxxxxxxxxx"
+                  prefixIcon="call-outline"
+                  keyboardType="number-pad"
+                  error={viewModel.errors.phone}
+                />
 
-       <View style={{ flex: 1 }}>
-            <CustomTextField
-              value={viewModel.filters.phone}
-              onChangeText={text => viewModel.handleInputChange('phone', text)}
-              label="Phone Number"
-              placeholder="xxxxxxxxxx"
-              prefixIcon="call-outline"
-              keyboardType="number-pad"
-              error={viewModel.errors.phone}
-            />
-
-            {/* <CustomTextField
+                {/* <CustomTextField
               value={viewModel.filters.guardian_name}
               onChangeText={text =>
                 viewModel.handleInputChange('guardian_name', text)
@@ -170,7 +234,7 @@ console.log("childList===>",viewModel?.childList);
               error={viewModel.errors.name}
             /> */}
 
-            {/* <CustomTextField
+                {/* <CustomTextField
             value={viewModel.form.playHours}
             onChangeText={text =>
               viewModel.handleInputChange('playHours', text)
@@ -181,20 +245,20 @@ console.log("childList===>",viewModel?.childList);
             error={viewModel.errors.playHours}
           /> */}
 
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <CustomTextField
-                value={viewModel.filters.date_of_birth}
-                label="Date of Birth"
-                placeholder="YYYY/MM/DD"
-                prefixIcon="calendar-outline"
-                error={viewModel.errors.date_of_birth}
-                editable={false} // disable manual typing
-              />
-            </TouchableOpacity>
-             <Text
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <CustomTextField
+                    value={viewModel.filters.date_of_birth}
+                    label="Date of Birth"
+                    placeholder="YYYY/MM/DD"
+                    prefixIcon="calendar-outline"
+                    error={viewModel.errors.date_of_birth}
+                    editable={false} // disable manual typing
+                  />
+                </TouchableOpacity>
+                {/* <Text
             style={{
               fontSize: 14,
               fontWeight: '500',
@@ -204,9 +268,9 @@ console.log("childList===>",viewModel?.childList);
             }}
           >
             Status
-          </Text>
+          </Text> */}
 
-          <DropDownPicker
+                {/* <DropDownPicker
             open={open}
             value={statusType}
             items={items}
@@ -219,13 +283,7 @@ console.log("childList===>",viewModel?.childList);
 
   if (selectedItem) {
     viewModel?.handleInputChangeForm("statusType", val);
-    // viewModel?.handleInputChangeForm("price", selectedItem.price);
-
-    // 🔥 highlight relevant duration
-    // setSelected(selectedItem.duration);
-
-    // 🔥 send duration to API
-    // viewModel?.handleInputChangeForm("play_duration", selectedItem.duration);
+    
   }
 }}
             setItems={setItems}
@@ -244,110 +302,245 @@ console.log("childList===>",viewModel?.childList);
               fontSize: 16,
               textAlign: 'right',
             }]}
-            /** 🔥 Label text style */
             labelStyle={[globalstyles.regular_FontMediumblack,{
               color: '#000',
               fontSize: 18,
               textAlign: 'right',
             }]}
-            /** 🔥 Move arrow to right side */
             arrowIconContainerStyle={{
               position: 'absolute',
               left: 15,
               //textAlign: "left",
             }}
-            /** 🔥 Rotate arrow if needed */
             arrowIconStyle={
               {
                 //transform: [{ rotate: "180deg" }],
               }
             }
-          />
-            <CustomTextField
-              value={viewModel.filters.sessionPrice}
-              onChangeText={text =>
-                viewModel.handleInputChange('sessionPrice', text)
+          /> */}
+                <CustomTextField
+                  value={viewModel.filters.price}
+                  onChangeText={text =>
+                    viewModel.handleInputChange('price', text)
+                  }
+                  label="session Price"
+                  placeholder="sessionPrice"
+                  //prefixIcon="location-outline"
+                  error={viewModel.errors.price}
+                />
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={
+                      viewModel.filters.date_of_birth
+                        ? new Date(viewModel.filters.date_of_birth)
+                        : new Date()
+                    }
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={handleDateChange}
+                  />
+                )}
+                 <Text
+                  style={[
+                    globalstyles.semibold_black,
+                    {
+                      alignSelf: 'flex-end',
+                      fontWeight: '700',
+                      marginRight: 6,
+                      marginBottom:10
+                    },
+                  ]}
+                >
+                  Play Hours
+                </Text>
+ <View style={styles.timerow}>
+         <View style={{ flexDirection: "row", gap: 10 }}>
+           <View style={{ flex: 1 }}>
+    <DropDownPicker
+      open={openMinute}
+      value={selectedMinute}
+      items={minutes}
+      setOpen={setOpenMinute}
+      setValue={(callback) => {
+  const val = callback(selectedMinute);
+  setSelectedMinute(val);
+
+  const selectedItem = minutes.find(i => i.value === val);
+
+  if (selectedItem) {
+    viewModel?.handleInputChangeForm("play_minutes", val);
+    
+  }
+}}
+      //setValue={setSelectedMinute}
+      placeholder="Minutes"
+      listMode="SCROLLVIEW"
+
+       ArrowDownIconComponent={() => (
+    <MaterialIcon name="arrow-drop-down" size={22} color="#999" />
+  )}
+
+  ArrowUpIconComponent={() => (
+    <MaterialIcon name="arrow-drop-up" size={22} color="#999" />
+  )}
+      style={{
+              borderColor: '#D0D0D0',
+              borderRadius: 10,
+              height: 50,
+            }}
+            dropDownContainerStyle={{
+              borderColor: '#D0D0D0',
+              borderRadius: 10,
+            }}
+            placeholderStyle={[globalstyles.regular_FontMediumblack,{
+              color: '#999',
+              fontSize: 16,
+              textAlign: 'right',
+            }]}
+            labelStyle={[globalstyles.regular_FontMediumblack,{
+              color: '#000',
+              fontSize: 18,
+              textAlign: 'right',
+            }]}
+            arrowIconContainerStyle={{
+              position: 'absolute',
+              left: 15,
+              //textAlign: "left",
+            }}
+            arrowIconStyle={
+              {
+                //transform: [{ rotate: "180deg" }],
               }
-              label="session Price"
-              placeholder="sessionPrice"
-              prefixIcon="location-outline"
-              error={viewModel.errors.sessionPrice}
-            />
-            {showDatePicker && (
-              <DateTimePicker
-                value={
-                  viewModel.filters.date_of_birth
-                    ? new Date(viewModel.filters.date_of_birth)
-                    : new Date()
-                }
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={handleDateChange}
-              />
-            )}
-
-            
-            <Text
-              style={[
-                globalstyles.semibold_black,
-                { alignSelf: 'flex-end', fontWeight: '700', marginRight: 6 },
-              ]}
-            >
-              Gender
-            </Text>
-            <View style={styles.genderRow}>
-              {/* Female */}
-              <TouchableOpacity
-                style={[styles.genderOption, { marginRight: 30 }]}
-                onPress={() => viewModel?.handleSelectGender('female')}
-              >
-                <Text style={styles.optionText}>Female</Text>
-                <View
-                  style={[
-                    styles.checkbox,
-                    viewModel?.selectedGender === 'female' &&
-                      styles.checkboxSelected,
-                  ]}
-                >
-                  {viewModel?.selectedGender === 'female' && (
-                    <Ionicons name="checkmark" size={14} color="#fff" />
-                  )}
-                </View>
-              </TouchableOpacity>
-
-              {/* Male */}
-              <TouchableOpacity
-                style={styles.genderOption}
-                onPress={() => viewModel?.handleSelectGender('male')}
-              >
-                <Text style={styles.optionText}>Male</Text>
-                <View
-                  style={[
-                    styles.checkbox,
-                    viewModel?.selectedGender === 'male' &&
-                      styles.checkboxSelected,
-                  ]}
-                >
-                  {viewModel?.selectedGender === 'male' && (
-                    <Ionicons name="checkmark" size={14} color="#fff" />
-                  )}
-                </View>
-              </TouchableOpacity>
-            </View>
-
-           
-          </View>
-
-        {/* Apply Filter */}
-        <TouchableOpacity style={styles.applyBtn} onPress={onApply}>
-          <Text style={styles.applyText}>Apply Filter</Text>
-        </TouchableOpacity>
-
-      </ScrollView>
-    </View>
+            }
+    />
   </View>
-</Modal>
+  
+  <View style={{ flex: 1 }}>
+    
+    <DropDownPicker
+      open={openHour}
+      value={selectedHour}
+      items={hours}
+      setOpen={setOpenHour}
+      setValue={(callback) => {
+  const val = callback(selectedHour);
+  setSelectedHour(val);
 
+  const selectedItem = hours.find(i => i.value === val);
+
+  if (selectedItem) {
+    viewModel?.handleInputChangeForm("play_hours", val);
+    
+  }
+}}
+      placeholder="Hours"
+listMode="SCROLLVIEW"
+
+       ArrowDownIconComponent={() => (
+    <MaterialIcon name="arrow-drop-down" size={22} color="#999" />
+  )}
+
+  ArrowUpIconComponent={() => (
+    <MaterialIcon name="arrow-drop-up" size={22} color="#999" />
+  )}
+      style={{
+              borderColor: '#D0D0D0',
+              borderRadius: 10,
+              height: 50,
+              marginBottom:10
+            }}
+            dropDownContainerStyle={{
+              borderColor: '#D0D0D0',
+              borderRadius: 10,
+            }}
+            placeholderStyle={[globalstyles.regular_FontMediumblack,{
+              color: '#999',
+              fontSize: 16,
+              textAlign: 'right',
+            }]}
+            labelStyle={[globalstyles.regular_FontMediumblack,{
+              color: '#000',
+              fontSize: 18,
+              textAlign: 'right',
+            }]}
+            arrowIconContainerStyle={{
+              position: 'absolute',
+              left: 15,
+              //textAlign: "left",
+            }}
+            arrowIconStyle={
+              {
+                //transform: [{ rotate: "180deg" }],
+              }
+            }
+    />
+  </View>
+
+</View>
+
+        </View>
+        
+                <Text
+                  style={[
+                    globalstyles.semibold_black,
+                    {
+                      alignSelf: 'flex-end',
+                      fontWeight: '700',
+                      marginRight: 6,
+                    },
+                  ]}
+                >
+                  Gender
+                </Text>
+                <View style={styles.genderRow}>
+                  {/* Female */}
+                  <TouchableOpacity
+                    style={[styles.genderOption, { marginRight: 30 }]}
+                    onPress={() => viewModel?.handleSelectGender('female')}
+                  >
+                    <Text style={styles.optionText}>Female</Text>
+                    <View
+                      style={[
+                        styles.checkbox,
+                        viewModel?.selectedGender === 'female' &&
+                          styles.checkboxSelected,
+                      ]}
+                    >
+                      {viewModel?.selectedGender === 'female' && (
+                        <Ionicons name="checkmark" size={14} color="#fff" />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* Male */}
+                  <TouchableOpacity
+                    style={styles.genderOption}
+                    onPress={() => viewModel?.handleSelectGender('male')}
+                  >
+                    <Text style={styles.optionText}>Male</Text>
+                    <View
+                      style={[
+                        styles.checkbox,
+                        viewModel?.selectedGender === 'male' &&
+                          styles.checkboxSelected,
+                      ]}
+                    >
+                      {viewModel?.selectedGender === 'male' && (
+                        <Ionicons name="checkmark" size={14} color="#fff" />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Apply Filter */}
+              <TouchableOpacity   style={styles.applyBtn} onPress={onApply}>
+                <Text style={styles.applyText}>Apply Filter</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -357,7 +550,7 @@ interface ChildSessionCardProps {
   guardian: string;
   playtime: string;
   timer: string;
-  status: 'active' | 'waiting';
+  status: string;
   onDeliver?: () => void;
   onEndSession?: () => void;
   onCall?: () => void;
@@ -375,7 +568,7 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
     onCall,
     onMessage,
   }) => {
-    const isActive = status === 'active';
+    const isActive = status == 'active';
     return (
       <View style={styles.card}>
         {' '}
@@ -474,7 +667,20 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
   },
 );
 const styles = StyleSheet.create({
-  
+  timerow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems:'center',
+    verticalAlign:'auto'
+  },
+  halfField: {
+    flex: 0.48,
+  },
+  listheader: {
+    textAlign: 'right',
+    marginVertical: 15,
+  },
+
   genderOption: {
     flexDirection: 'row',
     borderRadius: 8,
@@ -482,7 +688,7 @@ const styles = StyleSheet.create({
     //paddingHorizontal: 4,
     marginRight: 10,
   },
-    option: {
+  option: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -616,91 +822,89 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   overlay: {
-  flex: 1,
-  backgroundColor: "rgba(0,0,0,0.4)",
-  justifyContent: "flex-end",
-},
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
 
-backdrop: {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-},
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
 
-bottomSheet: {
-  width: "100%",
-  maxHeight: "80%",     // 👈 Your half screen / 80% screen
-  backgroundColor: "#fff",
-  borderTopLeftRadius: 22,
-  borderTopRightRadius: 22,
-  paddingHorizontal: 20,
-  paddingTop: 15,
-  paddingBottom: 5,
-},
+  bottomSheet: {
+    width: '100%',
+    maxHeight: '80%', // 👈 Your half screen / 80% screen
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    paddingBottom: 5,
+  },
 
-headerRow: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-between",
-  paddingBottom: 10,
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 10,
+  },
 
-},
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+  },
 
-headerTitle: {
-  fontSize: 16,
-  fontWeight: "700",
-  color: "#333",
-},
+  reset: {
+    color: '#8B5CF6',
+    fontWeight: '600',
+  },
 
-reset: {
-  color: "#8B5CF6",
-  fontWeight: "600",
-},
+  label: {
+    marginTop: 18,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'right',
+  },
 
-label: {
-  marginTop: 18,
-  fontWeight: "600",
-  color: "#333",
-  textAlign:'right'
-},
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 6,
+    textAlign: 'right',
+  },
 
-input: {
-  borderWidth: 1,
-  borderColor: "#ddd",
-  borderRadius: 10,
-  padding: 12,
-  marginTop: 6,
-  textAlign:'right'
-},
+  genderRow: {
+    flexDirection: 'row',
+    gap: 25,
+    marginTop: 10,
+    alignSelf: 'flex-end',
+  },
 
-genderRow: {
-  flexDirection: "row",
-  gap: 25,
-  marginTop: 10,
-  alignSelf: 'flex-end'
-},
+  genderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
 
-genderBtn: {
-  flexDirection: "row",
-  alignItems: "center",
-  gap: 5,
-},
+  applyBtn: {
+    backgroundColor: '#8B5CF6',
+    padding: 14,
+    borderRadius: 12,
+    marginTop: 35,
+    alignItems: 'center',
+  },
 
-applyBtn: {
-  backgroundColor: "#8B5CF6",
-  padding: 14,
-  borderRadius: 12,
-  marginTop: 35,
-  alignItems: "center",
-},
-
-applyText: {
-  color: "#fff",
-  fontWeight: "700",
-},
-
+  applyText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
 });
 
 // const style=StyleSheet.create({

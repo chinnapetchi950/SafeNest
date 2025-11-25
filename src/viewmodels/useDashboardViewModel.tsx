@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { fetchDashboardChildren } from "../features/auth/dashboardSlice/dashboardSlice";
+import { fetchDashboardChildrenfilter } from "../features/auth/dashboardSlice/dashboardfilterslice";
 
 export const useDashboardViewModel = () => {
   const dispatch = useDispatch();
@@ -12,23 +13,23 @@ export const useDashboardViewModel = () => {
     phone: "",
     date_of_birth: "",
     status: "",
-    sessionPrice: "",
-    playHour: "",
-    playMinute: "",
+    price: "",
+    play_hours: "",
+    play_minutes: "",
     gender: "",
   });
   const [errors, seterrors] = useState({
     phone: "",
     date_of_birth: "",
     status: "",
-    sessionPrice: "",
-    playHour: "",
-    playMinute: "",
+    price: "",
+    play_hours: "",
+    play_minutes: "",
     gender: "",
   });
 const [selectedGender, setSelectedGender] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
-
+const [search, setSearch] = useState("");
   const handleChange = (key: string, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
@@ -38,12 +39,13 @@ const [selectedGender, setSelectedGender] = useState(null);
       phone: "",
       date_of_birth: "",
       status: "",
-      sessionPrice: "",
-      playHour: "",
-      playMinute: "",
+      price: "",
+      play_hours: "",
+      play_minutes: "",
       gender: "",
 
     });
+    setSelectedGender(null)
   };
 
  const handleSelectGender = (gender) => {
@@ -56,6 +58,10 @@ const [selectedGender, setSelectedGender] = useState(null);
   const handleInputChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
+ const handleSearchChange = (value: string) => {
+  setSearch(value);
+};
+
 const handleInputChangeForm = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -86,6 +92,39 @@ const handleInputChangeForm = (key, value) => {
     // Dummy return — replace with API call
     return { status: true, data: filters };
   };
+ const handleSearch = async () => {
+  try {
+    setLoading(true);
+
+    const payload = {
+      search: search,                 // text search
+      phone: filters.phone,           // phone number
+      date_of_birth: filters.date_of_birth, // dob
+      gender: filters.gender,
+      price:filters.price,
+      play_hours: filters.play_hours,
+      play_minutes:filters.play_minutes
+      //status: filters.status,
+    };
+   console.log('payload===>',payload)
+    const res = await dispatch(fetchDashboardChildrenfilter(payload)).unwrap();
+
+    if (res?.status) {
+      setChildList(res);
+      console.log("Filter Response:", res);
+    }
+
+    return res;
+
+  } catch (err) {
+    console.log("Filter Error:", err);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   return {
     loading,
     childList,
@@ -101,6 +140,9 @@ const handleInputChangeForm = (key, value) => {
     selectedGender,
     handleSelectGender,
     handleInputChange,
-    handleInputChangeForm
+    handleInputChangeForm,
+    handleSearchChange,
+    search,setSearch,
+    handleSearch,
   };
 };
