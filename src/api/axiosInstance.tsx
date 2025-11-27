@@ -17,7 +17,7 @@ axiosInstance.interceptors.request.use(
   async (config) => {
     try {
        store.dispatch(setLoading(true));
-      const publicEndpoints = ["api/admin/login"];
+      const publicEndpoints = ["api/login"];
 
       const isPublic = publicEndpoints.some((endpoint) =>
         config.url?.includes(endpoint)

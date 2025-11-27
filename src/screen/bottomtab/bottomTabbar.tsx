@@ -5,6 +5,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import LoginScreen from "../login/Login";
 import AddMenuModal from "./AddMenu";
 import DashboardScreen from "./Dashboard";
+import ChildListScreen from "../ChildrenList/ChildListScreen";
+import SettingsScreen from "../Settings/SettingsScreen";
+import UserlistScreen from "../User/Userlist";
+
 
 
 const Tab = createBottomTabNavigator();
@@ -37,6 +41,8 @@ const BottomTabs = () => {
   return (
     <>
       <Tab.Navigator
+      initialRouteName="Home"
+
         screenOptions={{
           headerShown: false,
           tabBarShowLabel: false,
@@ -45,7 +51,7 @@ const BottomTabs = () => {
       >
         <Tab.Screen
           name="Settings"
-          component={DashboardScreen}
+          component={SettingsScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon name="settings-outline" focused={focused} />
@@ -55,7 +61,7 @@ const BottomTabs = () => {
 
         <Tab.Screen
           name="Users"
-          component={LoginScreen}
+          component={ChildListScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon name="person-add-outline" focused={focused} />
@@ -74,7 +80,7 @@ const BottomTabs = () => {
 
         <Tab.Screen
           name="Profile"
-          component={LoginScreen}
+          component={UserlistScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon name="person-outline" focused={focused} />
@@ -84,7 +90,7 @@ const BottomTabs = () => {
 
         <Tab.Screen
           name="Home"
-          component={LoginScreen}
+          component={DashboardScreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon name="home-outline" focused={focused} />

@@ -6,6 +6,8 @@ import loadingSlices from "../features/auth/loadingSlice.tsx/loadingSlices";
 import gameTypesReducer from "../features/auth/staffSlice/registerNewChild/gameTypesSlice";
 import dashboardReducer  from "../features/auth/dashboardSlice/dashboardSlice";
 import dashboardReducerfilter from "../features/auth/dashboardSlice/dashboardfilterslice";
+import childlistReducer from '../features/auth/children/childrenListslice';
+import userListReducer from '../features/auth/User/userSlice'
 
 export const store = configureStore({
   reducer: {
@@ -14,7 +16,9 @@ export const store = configureStore({
   loadingSlice:loadingSlices,
   gameTypes: gameTypesReducer,
   dashboard:dashboardReducer,
-  dashboardReducerfilter:dashboardReducerfilter
+  dashboardReducerfilter:dashboardReducerfilter,
+  childrenlist:childlistReducer,
+  userList:userListReducer
   
  
   },

@@ -2,12 +2,17 @@ import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { fetchDashboardChildren } from "../features/auth/dashboardSlice/dashboardSlice";
 import { fetchDashboardChildrenfilter } from "../features/auth/dashboardSlice/dashboardfilterslice";
+import { fetchChildrenList } from "../features/auth/children/childrenListslice";
+import { fetchUserList } from "../features/auth/User/userSlice";
 
 export const useDashboardViewModel = () => {
   const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
   const [childList, setChildList] = useState([]);
+    const [childrenList, setChildrenList] = useState([]);
+        const [UserList, setUserList] = useState([]);
+
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filters, setFilters] = useState({
     phone: "",
@@ -86,6 +91,45 @@ const handleInputChangeForm = (key, value) => {
     }
   }, []);
 
+  const loadChildrenlist = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const res: any = await dispatch(fetchChildrenList()).unwrap();
+
+      if (res?.status === true) {
+        setChildrenList(res?.data); // PASS DATA TO SCREEN
+        return res;
+      }
+
+      return null;
+    } catch (err) {
+      console.log("childrenlist API Error:", err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  const loadUserlist = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const res: any = await dispatch(fetchUserList()).unwrap();
+
+      if (res?.status === true) {
+        setUserList(res?.data?.data); // PASS DATA TO SCREEN
+        return res;
+      }
+
+      return null;
+    } catch (err) {
+      console.log("userlist API Error:", err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
    const applyFilter = async () => {
     console.log("Sending Filter to API:", filters);
 
@@ -144,5 +188,8 @@ const handleInputChangeForm = (key, value) => {
     handleSearchChange,
     search,setSearch,
     handleSearch,
+    childrenList,
+    loadChildrenlist,
+    UserList,loadUserlist
   };
 };

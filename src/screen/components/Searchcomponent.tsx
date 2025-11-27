@@ -50,7 +50,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
         {/* Right search icon */}
         <TouchableOpacity onPress={onSearchPress}>
-          <Ionicons name="search-outline" size={18} color="#999" />
+          <Ionicons name="search-outline" size={20} color="#999" />
         </TouchableOpacity>
       </View>
     </View>
@@ -93,5 +93,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#000',
     textAlign: 'right',
+    marginRight:10
   },
 });

@@ -9,6 +9,7 @@ import Dashboard from "./Dashboard";
 import { RegisterChildScreen } from "./registerchild/RegisterChild";
 import { useNavigation } from "@react-navigation/native";
 import SettingsScreen from '../Settings/SettingsScreen'
+import ChildListscreen from '../ChildrenList/ChildListScreen' ;
 
 const Tab = createBottomTabNavigator();
 
@@ -63,7 +64,7 @@ const BottomTabsStaff = () => {
 
         <Tab.Screen
           name="Users"
-          component={LoginScreen}
+          component={ChildListscreen}
           options={{
             tabBarIcon: ({ focused }) => (
               <TabIcon name="person-add-outline" focused={focused} />
