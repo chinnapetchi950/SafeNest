@@ -8,6 +8,7 @@ import dashboardReducer  from "../features/auth/dashboardSlice/dashboardSlice";
 import dashboardReducerfilter from "../features/auth/dashboardSlice/dashboardfilterslice";
 import childlistReducer from '../features/auth/children/childrenListslice';
 import userListReducer from '../features/auth/User/userSlice'
+import gameTypeReducer from "../features/auth/Game/addGameSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,8 +19,9 @@ export const store = configureStore({
   dashboard:dashboardReducer,
   dashboardReducerfilter:dashboardReducerfilter,
   childrenlist:childlistReducer,
-  userList:userListReducer
-  
+  userList:userListReducer,
+  createGameType:gameTypeReducer,
+
  
   },
 });

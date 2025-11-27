@@ -11,7 +11,7 @@ const { height } = Dimensions.get("window");
 
 const AddMenuModal = ({ visible, onClose }) => {
   const options = [
-    { id: 1, label: "Add a new game", icon: "game-controller-outline" , screen: "UserInformationScreen"},
+    { id: 1, label: "Add a new game", icon: "game-controller-outline" , screen: "RegisterNewGame"},
     { id: 2, label: "Add a new user", icon: "person-add-outline" , screen: "UserInformationScreen"},
     { id: 3, label: "Register a new child", icon: "people-outline", screen: "UserInformationScreen" },
   ];

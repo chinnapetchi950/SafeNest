@@ -11,8 +11,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import SearchBar from "../components/Searchcomponent";
 import { useDashboardViewModel } from "../../viewmodels/useDashboardViewModel";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useFocusEffect } from "@react-navigation/native";
+import Feather from 'react-native-vector-icons/Feather';
 
+import { useFocusEffect } from "@react-navigation/native";
+import Storage from "../../utils/storage";
 export default function ChildListScreen() {
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,10 +24,19 @@ const pageSize = 10; // items per page
   const viewModel=useDashboardViewModel();
 
   const [children, setChildren] = useState([]);
+  const [role, setRole] = useState(null);
+
 useEffect(() => {
     viewModel.loadChildrenlist();
   }, []);
 
+  useEffect(() => {
+    const loadRole = async () => {
+      const r = await Storage.getItem('admin'); // contains "admin" or "user"
+      setRole(r);
+    };
+    loadRole();
+  }, []);
  //Reset to Page 1 When Search Changes
 // useEffect(() => {
 //   setCurrentPage(1);
@@ -85,18 +96,29 @@ const paginatedData = filtered.slice(
 
         <Text style={styles.childName}>{item.name}</Text>
         <Text style={styles.childName}>{item.guardian_name}</Text>
+        <Text style={styles.childName}>
+          {[item?.user?.firstname, item?.user?.secondname, item?.user?.thirdname, item?.user?.fourthname]
+    .filter(Boolean)   
+    .join(" ")} </Text>
         <Text style={styles.childName}>{item.phone}</Text>
         <Text style={styles.childName}>{item.address}</Text>
         <Text style={styles.childName}>{item.total_play_duration}</Text>
-        <View style={styles.activeBadge}>
-          <Text style={styles.activeText}>Active Now</Text>
-          <Text style={styles.check}>✔</Text>
+        <View style={[styles.activeBadge,{backgroundColor:item?.session_status!="expired"?'#D8F3DC':"#FDFBF6"}]}>
+          <Text style={[styles.activeText,{color:item?.session_status!="expired"?'#3AB54A':"#D69E2E"}]}>{item?.session_status!="expired"?"Active Now":"Waiting"}</Text>
+          
+    {item?.session_status!="expired"?
+        <Ionicons name="checkmark-circle" size={16} color="#3AB54A" />
+:    <Feather name="alert-triangle" size={16} color="#D69E2E" />}
+
+
+          {/* <Text style={styles.check}>✔</Text> */}
         </View>
       </View>
       <View style={styles.labels}>
           <Text style={styles.label}>No.</Text>
           <Text style={styles.label}>Child Name</Text>
           <Text style={styles.label}>Guerdian Name</Text>
+          <Text style={styles.label}>User Name</Text>
           <Text style={styles.label}>Phone Number</Text>
           <Text style={styles.label}>Address</Text>
           <Text style={styles.label}>Play Hours</Text>
@@ -132,11 +154,12 @@ const paginatedData = filtered.slice(
 
     <View style={styles.container}>
       {/* Header */}
+      {role!='admin'&&
       <View style={styles.headerRow}>
         <Text style={styles.title}>game management</Text>
         <Text style={styles.userName}>Sarah Saad</Text>
       </View>
-
+}
       {/* Search */}
       <View style={styles.searchWrapper}>
         <SearchBar
@@ -208,13 +231,13 @@ const paginatedData = filtered.slice(
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <Text style={styles.navIcon}></Text>
+        {/* <Text style={styles.navIcon}></Text>
         <Text style={styles.navIcon}></Text>
         <View style={styles.addButton}>
           <Text style={{ color: "#fff", fontSize: 24 }}></Text>
         </View>
         <Text style={styles.navIcon}>''</Text>
-        <Text style={styles.navIcon}>''</Text>
+        <Text style={styles.navIcon}>''</Text> */}
       </View>
     </View>
         </SafeAreaView>
@@ -319,12 +342,12 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   activeText: {
-    color: "#0A8A25",
+    color: "#3AB54A",
     fontWeight: "600",
     marginRight: 6
   },
   check: {
-    color: "#0A8A25",
+    color: "#3AB54A",
     fontWeight: "700",
   },
 
@@ -371,6 +394,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginVertical: 20,
+    marginBottom:'20%'
   },
   pageBtn: {
     width: 40,

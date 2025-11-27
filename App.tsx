@@ -16,7 +16,8 @@ import BottomTabsStaff from './src/screen/staff/BottomTabStaff';
 import { RegisterChildScreen } from './src/screen/staff/registerchild/RegisterChild';
 import SessionDetailsScreen from './src/screen/staff/registerchild/SessionDetailsScreen';
 
-
+import RegisterNewGame from './src/screen/bottomtab/addGame/RegisterNewGame';
+import { navigationRef } from './src/navigations/Appnavigator';
 // Import your screens
 
 const Stack = createNativeStackNavigator();
@@ -26,7 +27,7 @@ export default function App() {
     // ✅ Ensures SafeArea works across screens (top/bottom insets)
     <Provider store={store}>
       <SafeAreaProvider>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <Stack.Navigator
             initialRouteName="splashScreen"
             screenOptions={{
@@ -52,7 +53,10 @@ export default function App() {
               name="RegisterChildScreen"
               component={RegisterChildScreen}
             />
-
+<Stack.Screen
+              name="RegisterNewGame"
+              component={RegisterNewGame}
+            />
             <Stack.Screen name="Dashboard" component={Dashboard} />
             <Stack.Screen name="BottomTabs" component={BottomTabs} />
             <Stack.Screen name="BottomTabsStaff" component={BottomTabsStaff} />

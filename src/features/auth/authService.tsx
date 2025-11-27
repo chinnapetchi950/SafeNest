@@ -36,6 +36,9 @@ getchildrenListApi: async () => {
 
     return apiClient.post(url)},
       getUserList: async () => {return apiClient.get("api/admin/users")},
+      getMessagelist:async () => {return apiClient.get("api/admin/messages")},
+      createGame:(data:any)=>apiClient.post("api/admin/game-types",data,true),
+
 
 
   //  profile: () => apiClient.get("/auth/profile"),

@@ -84,8 +84,11 @@ const paginatedData = filtered.slice(
       <View style={styles.leftBox}>
         <Text style={styles.number}>{index+1}</Text>
 
-        <Text style={styles.childName}>{item.firstname}</Text>
-        <Text style={styles.childName}>{item.phone}</Text>
+<Text style={styles.childName}>
+  {[item?.firstname, item?.secondname, item?.thirdname, item?.fourthname]
+    .filter(Boolean)   
+    .join(" ")}                 
+</Text>        <Text style={styles.childName}>{item.phone}</Text>
         <Text style={styles.childName}>{item.email}</Text>
         
         
@@ -126,10 +129,10 @@ const paginatedData = filtered.slice(
 
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.headerRow}>
+      {/* <View style={styles.headerRow}>
         <Text style={styles.title}>game management</Text>
         <Text style={styles.userName}>Sarah Saad</Text>
-      </View>
+      </View> */}
 
       {/* Search */}
       <View style={styles.searchWrapper}>
@@ -202,13 +205,13 @@ const paginatedData = filtered.slice(
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <Text style={styles.navIcon}></Text>
+        {/* <Text style={styles.navIcon}></Text>
         <Text style={styles.navIcon}></Text>
         <View style={styles.addButton}>
           <Text style={{ color: "#fff", fontSize: 24 }}></Text>
         </View>
         <Text style={styles.navIcon}>''</Text>
-        <Text style={styles.navIcon}>''</Text>
+        <Text style={styles.navIcon}>''</Text> */}
       </View>
     </View>
         </SafeAreaView>
@@ -365,6 +368,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginVertical: 20,
+        marginBottom:'20%'
+
   },
   pageBtn: {
     width: 40,
