@@ -22,6 +22,7 @@ getchildrenListApi: async () => {
     return apiClient.get(url);
   }, 
   getdashboardchildren_filterApi: async (fullUrl: string) => {return apiClient.get(fullUrl)},
+  getchildrenlist_filterApi: async (fullUrl: string) => {return apiClient.get(fullUrl)},
 
   logout:async()=>{
     const role = await Storage.getItem("admin");  // or get user role from state

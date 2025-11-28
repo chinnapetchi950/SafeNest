@@ -1,4 +1,4 @@
-package com.gamemanagement
+package com.safenest
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

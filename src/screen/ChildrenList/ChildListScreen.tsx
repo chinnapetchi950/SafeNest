@@ -12,6 +12,7 @@ import SearchBar from "../components/Searchcomponent";
 import { useDashboardViewModel } from "../../viewmodels/useDashboardViewModel";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
+import FilterBottomSheet from "../components/FilterModal";
 
 import { useFocusEffect } from "@react-navigation/native";
 import Storage from "../../utils/storage";
@@ -25,6 +26,13 @@ const pageSize = 10; // items per page
 
   const [children, setChildren] = useState([]);
   const [role, setRole] = useState(null);
+  const [visible, setVisible] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [openHour, setOpenHour] = useState(false);
+    const [selectedHour, setSelectedHour] = useState(null);
+  
+    const [openMinute, setOpenMinute] = useState(false);
+    const [selectedMinute, setSelectedMinute] = useState(null);
 
 useEffect(() => {
     viewModel.loadChildrenlist();
@@ -75,7 +83,15 @@ const toggleSelectAll = () => {
     return newValue;
   });
 };
+const hours = Array.from({ length: 24 }, (_, i) => ({
+    label: `${i}`,
+    value: i,
+  }));
 
+  const minutes = Array.from({ length: 60 }, (_, i) => ({
+    label: `${i}`,
+    value: i,
+  }));
 // search filter
 const filtered = children.filter((child) =>
   child.name?.toLowerCase().includes(searchText.toLowerCase())
@@ -87,6 +103,24 @@ const paginatedData = filtered.slice(
   (currentPage - 1) * pageSize,
   currentPage * pageSize
 );
+ const formatDate = date => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const date = new Date(selectedDate);
+      const formateDate = formatDate(date);
+      const formatted = `${date.getFullYear()}/${String(
+        date.getMonth() + 1,
+      ).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+      viewModel.handleInputChange('date_of_birth', formateDate);
+    }
+  };
   const renderCard = ({ item,index }) => (
     <View style={styles.card}>
 
@@ -166,8 +200,12 @@ const paginatedData = filtered.slice(
                  placeholder="Search for a child"
                  onChangeText={text => viewModel?.handleSearchChange(text)}
                  // onChangeText={text => {}}
-                 onSearchPress={() => {}}
-                 onFilterPress={() => {}}
+                 onSearchPress={() => viewModel.handlechildrenSearch()}
+          onFilterPress={() => {
+            viewModel.resetFilter(), setVisible(true);
+          }}
+                //  onSearchPress={() => {}}
+                //  onFilterPress={() => {viewModel?.handlechildrenSearch}}
                />
       </View>
 
@@ -240,6 +278,25 @@ const paginatedData = filtered.slice(
         <Text style={styles.navIcon}>''</Text> */}
       </View>
     </View>
+    <FilterBottomSheet
+        visible={visible}
+        onClose={() => setVisible(false)}
+        onApply={()=>{setVisible(false),viewModel.handlechildrenSearch}}
+        viewModel={viewModel}
+        minutes={minutes}
+        hours={hours}
+        openHour={openHour}
+        openMinute={openMinute}
+        selectedHour={selectedHour}
+        selectedMinute={selectedMinute}
+        setOpenHour={setOpenHour}
+        setOpenMinute={setOpenMinute}
+        setSelectedHour={setSelectedHour}
+        setSelectedMinute={setSelectedMinute}
+        showDatePicker={showDatePicker}
+        setShowDatePicker={setShowDatePicker}
+        handleDateChange={handleDateChange}
+      />
         </SafeAreaView>
 
   );

@@ -15,6 +15,7 @@ import CommonLoader from './src/screen/components/CommanLoader';
 import BottomTabsStaff from './src/screen/staff/BottomTabStaff';
 import { RegisterChildScreen } from './src/screen/staff/registerchild/RegisterChild';
 import SessionDetailsScreen from './src/screen/staff/registerchild/SessionDetailsScreen';
+import ManualHandoverScanner from './src/screen/staff/ManualHandoverScanner';
 
 import RegisterNewGame from './src/screen/bottomtab/addGame/RegisterNewGame';
 import { navigationRef } from './src/navigations/Appnavigator';
@@ -56,6 +57,10 @@ export default function App() {
 <Stack.Screen
               name="RegisterNewGame"
               component={RegisterNewGame}
+            />
+            <Stack.Screen
+              name="ManualHandoverScanner"
+              component={ManualHandoverScanner}
             />
             <Stack.Screen name="Dashboard" component={Dashboard} />
             <Stack.Screen name="BottomTabs" component={BottomTabs} />

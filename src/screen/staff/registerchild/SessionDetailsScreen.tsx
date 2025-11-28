@@ -60,7 +60,7 @@ useEffect(() => {
       label: item.name,
       value: item.id,
       price: item.session_price,
-      duration: item.session_duration,
+      duration: item.sessions,
     }));
 
     setItems(formatted);
@@ -73,15 +73,14 @@ useEffect(() => {
 //       label: `${d} hrs`,
 //       value: d,
 //     }));
-// console.log(durationOptions,'durationOptions');
-const durationOptions = gameTypesApiResponse.map(item => ({
-  label: `${item.session_duration} hrs`,
-  value: item.session_duration,
-}));
+console.log(gameTypesApiResponse,'durationOptions');
+// const durationOptions = gameTypesApiResponse?.session.map(item => ({
+//   label: `${item.session_duration} min`,
+//   value: item.session_duration,
+// }));
 
-setduration(durationOptions);
 
-    setduration(durationOptions);
+//     setduration(durationOptions);
   }
 }, [gameTypesApiResponse]);
 
@@ -210,13 +209,17 @@ const closemodal=()=>{
 
   if (selectedItem) {
     viewModel?.handleInputChangeForm("game_type_id", val);
-    viewModel?.handleInputChangeForm("price", selectedItem.price);
-
+    
     // 🔥 highlight relevant duration
-    setSelected(selectedItem.duration);
+    // setSelected(selectedItem.duration);
+    console.log(selectedItem,'selectedItem?.sessions');
+    
 
     // 🔥 send duration to API
-    viewModel?.handleInputChangeForm("play_duration", selectedItem.duration);
+    // 
+
+    setduration(selectedItem?.duration);
+
   }
 }}
             setItems={setItems}
@@ -313,6 +316,7 @@ onPress={() => openPicker('time', 'play_to')}
           )}
 
           {/* Duration Buttons */}
+          {duration.length!=0?
           <Text
             style={[
               styles.labelplay,
@@ -326,8 +330,9 @@ onPress={() => openPicker('time', 'play_to')}
           >
             Play Duration
           </Text>
+          :null}
           {/* <View style={styles.durationContainer}>
-          {["45 min", "30 min", "15 min"].map((dur) => (
+          {duration.map((dur) => (
             <TouchableOpacity
               key={dur}
               style={[
@@ -342,35 +347,41 @@ onPress={() => openPicker('time', 'play_to')}
                   viewModel?.childform?.duration === dur && styles.durationTextActive,
                 ]}
               >
-                {dur}
+                {dur?.duration}
               </Text>
             </TouchableOpacity>
           ))}
-        </View> */}
+        </View>  */}
+        {duration.length!=0?
           <View style={styles.containerslot}>
   {duration.map((item, index) => (
     <TouchableOpacity
       key={index}
       style={[
-        styles.item,
-        selected === item.value && styles.activeItem,
+        styles.item,{paddingHorizontal:duration.length===3? 35:duration.length===2?65:25
+},
+        selected === item.duration && 
+        styles.activeItem,
       ]}
       onPress={() => {
-        setSelected(item.value);
-        viewModel.handleDurationSelect(item.value);
+        setSelected(item.duration);
+        viewModel?.handleInputChangeForm("price", item.price);
+        viewModel?.handleInputChangeForm("play_duration", item.duration);
+        viewModel.handleDurationSelect(item.duration);
       }}
     >
       <Text
         style={[
           styles.text,
-          selected === item.value && styles.activeText,
+          selected === item.duration && styles.activeText,
         ]}
       >
-        {item.label}
+        {item.duration}
       </Text>
     </TouchableOpacity>
   ))}
 </View>
+:null}
 
 
           {/* Add Button */}
@@ -463,7 +474,7 @@ onPress={() => openPicker('time', 'play_to')}
             <View style={styles.rowmodal}>
               <View style={styles.col}>
                 <Text style={styles.labelmodal}>Session Price</Text>
-                <Text style={styles.value}>{childData?.data?.game_type?.session_price}</Text>
+                <Text style={styles.value}>{viewModel?.childform?.price}</Text>
               </View>
 
               <View style={styles.col}>
@@ -566,21 +577,22 @@ export const styles = StyleSheet.create({
   },
   durationBox: {
     flex: 1,
-    backgroundColor: '#E4E4E7',
+    backgroundColor: '#EFF0F2',
     borderRadius: 20,
     alignItems: 'center',
     paddingVertical: 10,
     marginHorizontal: 4,
   },
   durationBoxActive: {
-    backgroundColor: '#A78BFA',
+    backgroundColor: '#FFFFFF',
+    elevation:2
   },
   durationText: {
-    color: '#555',
+    color: '#D9D9D9',
     fontWeight: '500',
   },
   durationTextActive: {
-    color: '#fff',
+    color: '#000',
   },
   addBtn: {
     backgroundColor: '#A78BFA',
@@ -655,7 +667,7 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   item: {
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 25,
     borderRadius: 50,
   },

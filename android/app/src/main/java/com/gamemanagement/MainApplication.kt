@@ -1,4 +1,4 @@
-package com.gamemanagement
+package com.safenest
 
 import android.app.Application
 import com.facebook.react.PackageList

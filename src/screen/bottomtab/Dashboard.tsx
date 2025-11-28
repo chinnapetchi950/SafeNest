@@ -26,7 +26,7 @@ const DashboardScreen = () => {
           <View style={styles.headercontainer}>
       
       {/* Title */}
-      <Text style={styles.title}>game management</Text>
+      <Text style={styles.title}>SafeNest</Text>
 
       {/* Notification + User */}
       <View style={styles.row}>

@@ -11,6 +11,8 @@ import {
   TextInput,
   Modal,
   Platform,
+  Alert,
+  Linking,
 } from 'react-native';
 import globalstyles from '../../styles/globalstyles';
 import { string } from '../../utils/String';
@@ -24,7 +26,9 @@ import FilterBottomSheet from '../components/FilterModal';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomTextField from '../components/TextFieldComponent';
 import DropDownPicker from 'react-native-dropdown-picker';
-export default function Dashboard() {
+import moment from 'moment';
+
+export default function Dashboard({navigation}) {
   const viewModel = useDashboardViewModel();
 
   // modal visible state
@@ -37,15 +41,16 @@ export default function Dashboard() {
   const [selectedMinute, setSelectedMinute] = useState(null);
 
   const [items, setItems] = useState([]);
+  const [timers, setTimers] = useState({}); // timer per child
+  const [firstUsername, setFirstUsername] = useState('');
+
   //  const [picker, setPicker] = useState({
   //   show: false,
   //   mode: "time",
   //   field: "",
   // });
 
- 
-
- // Hours & Minutes arrays
+  // Hours & Minutes arrays
   const hours = Array.from({ length: 24 }, (_, i) => ({
     label: `${i}`,
     value: i,
@@ -67,6 +72,69 @@ export default function Dashboard() {
       { label: 'Chess', value: 'Chess' },
     ]);
   }, []);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const updatedTimers = {};
+      const getFullName = child => {
+        if (!child) return '';
+        return [
+          child.firstname,
+          child.secondname,
+          child.thirdname,
+          child.fourthname,
+        ]
+          .filter(Boolean)
+          .join(' ');
+      };
+      if (viewModel.childList?.active_children?.length > 0) {
+        const fullName = getFullName(
+          viewModel.childList.active_children[0].user,
+        );
+
+        setFirstUsername(fullName);
+      }
+      // or get from expired children
+      else if (viewModel.childList?.expired_children?.length > 0) {
+        const fullName = getFullName(
+          viewModel.childList.expired_children[0].user,
+        );
+
+        setFirstUsername(fullName);
+      }
+      viewModel.childList?.active_children?.forEach(child => {
+        const now = moment();
+        const sessionDate = moment(child.session_date, 'YYYY-MM-DD');
+        const playToTime = moment(
+          `${child.session_date} ${child.play_to}`,
+          'YYYY-MM-DD HH:mm:ss',
+        );
+
+        if (
+          child.session_status === 'active' &&
+          sessionDate.isSame(now, 'day')
+        ) {
+          const duration = moment.duration(playToTime.diff(now)); // play_to_time - current_time
+          if (duration.asMilliseconds() > 0) {
+            const hours = Math.floor(duration.asHours());
+            const minutes = duration.minutes();
+            const seconds = duration.seconds();
+            updatedTimers[child.id] = `${hours}:${minutes
+              .toString()
+              .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          } else {
+            updatedTimers[child.id] = '0:00:00';
+          }
+        } else {
+          updatedTimers[child.id] = '0:00:00';
+        }
+      });
+
+      setTimers(updatedTimers);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [viewModel.childList]);
+
   const formatDate = date => {
     const d = new Date(date);
     const year = d.getFullYear();
@@ -85,10 +153,31 @@ export default function Dashboard() {
       viewModel.handleInputChange('date_of_birth', formateDate);
     }
   };
-   const openPicker = (mode, field) => {
+  const openPicker = (mode, field) => {
     setPicker({ show: true, mode, field });
   };
+  const onCall = phone => {
+    // const phone = phone?.toString().trim();
 
+    // 🔥 1. Check if number exists
+
+    if (!phone) {
+      Alert.alert('No Phone Number', 'User phone number is missing.');
+      return;
+    }
+    const phoneRegex = /^[+]?[\d]{6,15}$/;
+
+    if (!phoneRegex.test(phone)) {
+      Alert.alert('Invalid Number', 'The phone number is invalid.');
+      return;
+    }
+
+    const phoneNumber = `tel:${phone}`;
+
+    Linking.openURL(phoneNumber).catch(() => {
+      Alert.alert('Error', 'Unable to place the call.');
+    });
+  };
   const renderItem = React.useCallback(({ item }) => {
     if (item.type === 'header') {
       return (
@@ -97,16 +186,19 @@ export default function Dashboard() {
         </Text>
       );
     }
+
     return (
       <ChildSessionCard
         name={item.name}
         guardian={item.guardian_name}
         playtime={item.total_play_duration}
-        timer={item.timer}
+        timer={timers[item.id] || '0:00:00'} // per child timer
         status={item.session_status}
-        onDeliver={() => {}}
+        onDeliver={() => {navigation.navigate('ManualHandoverScanner')}}
         onEndSession={() => {}}
-        onCall={() => {}}
+        onCall={() => {
+          onCall(item?.phone);
+        }}
         onMessage={() => {}}
       />
     );
@@ -143,20 +235,24 @@ export default function Dashboard() {
       : []),
   ];
 
-  
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={globalstyles.mainbg}>
         <Text style={[globalstyles.semibold_black, styles.title]}>
           {string.game}
         </Text>
-
+        <View style={styles.row}>
+          {/* <Icon name="bell" size={20} color="#B3B3B3" /> */}
+          <Text style={styles.userName}>{firstUsername}</Text>
+        </View>
         <SearchBar
           placeholder="Search for a child"
           onChangeText={text => viewModel.handleSearchChange(text)}
           // onChangeText={text => {}}
           onSearchPress={() => viewModel.handleSearch()}
-          onFilterPress={() => {viewModel.resetFilter(),setVisible(true)}}
+          onFilterPress={() => {
+            viewModel.resetFilter(), setVisible(true);
+          }}
         />
 
         <FlatList
@@ -168,28 +264,25 @@ export default function Dashboard() {
       </View>
 
       {/* Modal */}
-     <FilterBottomSheet
-  visible={visible}
-  onClose={() => setVisible(false)}
-  onApply={viewModel.handleSearch}
-  viewModel={viewModel}
-
-  minutes={minutes}
-  hours={hours}
-  openHour={openHour}
-  openMinute={openMinute}
-  selectedHour={selectedHour}
-  selectedMinute={selectedMinute}
-  setOpenHour={setOpenHour}
-  setOpenMinute={setOpenMinute}
-  setSelectedHour={setSelectedHour}
-  setSelectedMinute={setSelectedMinute}
-
-  showDatePicker={showDatePicker}
-  setShowDatePicker={setShowDatePicker}
-  handleDateChange={handleDateChange}
-/>
-
+      <FilterBottomSheet
+        visible={visible}
+        onClose={() => setVisible(false)}
+        onApply={()=>{setVisible(false),viewModel.handleSearch}}
+        viewModel={viewModel}
+        minutes={minutes}
+        hours={hours}
+        openHour={openHour}
+        openMinute={openMinute}
+        selectedHour={selectedHour}
+        selectedMinute={selectedMinute}
+        setOpenHour={setOpenHour}
+        setOpenMinute={setOpenMinute}
+        setSelectedHour={setSelectedHour}
+        setSelectedMinute={setSelectedMinute}
+        showDatePicker={showDatePicker}
+        setShowDatePicker={setShowDatePicker}
+        handleDateChange={handleDateChange}
+      />
     </SafeAreaView>
   );
 }
@@ -317,10 +410,10 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
 );
 const styles = StyleSheet.create({
   timerow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems:'center',
-    verticalAlign:'auto'
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    verticalAlign: 'auto',
   },
   halfField: {
     flex: 0.48,
@@ -553,6 +646,22 @@ const styles = StyleSheet.create({
   applyText: {
     color: '#fff',
     fontWeight: '700',
+  },
+  row: {
+    marginTop: 5,
+    marginBottom: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    //justifyContent: 'space-between',
+    gap: 10,
+  },
+
+  userName: {
+    color: '#B3B3B3',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'right',
   },
 });
 

@@ -4,6 +4,7 @@ import { fetchDashboardChildren } from "../features/auth/dashboardSlice/dashboar
 import { fetchDashboardChildrenfilter } from "../features/auth/dashboardSlice/dashboardfilterslice";
 import { fetchChildrenList } from "../features/auth/children/childrenListslice";
 import { fetchUserList } from "../features/auth/User/userSlice";
+import { fetchchildrenlistfilter } from "../features/auth/children/childrenfilterSlice";
 
 export const useDashboardViewModel = () => {
   const dispatch = useDispatch();
@@ -73,7 +74,7 @@ const handleInputChangeForm = (key, value) => {
   // Fetch API Data
   const loadChildren = useCallback(async () => {
     try {
-      setLoading(true);
+      // setLoading(true);
 
       const res: any = await dispatch(fetchDashboardChildren()).unwrap();
 
@@ -87,7 +88,7 @@ const handleInputChangeForm = (key, value) => {
       console.log("Dashboard API Error:", err);
       return null;
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   }, []);
 
@@ -167,6 +168,37 @@ const handleInputChangeForm = (key, value) => {
     setLoading(false);
   }
 };
+const handlechildrenSearch = async () => {
+  try {
+    setLoading(true);
+
+    const payload = {
+      search: search,                 // text search
+      phone: filters.phone,           // phone number
+      date_of_birth: filters.date_of_birth, // dob
+      gender: filters.gender,
+      price:filters.price,
+      play_hours: filters.play_hours,
+      play_minutes:filters.play_minutes
+      //status: filters.status,
+    };
+   console.log('payload===>',payload)
+    const res = await dispatch(fetchchildrenlistfilter(payload)).unwrap();
+
+    if (res?.status) {
+      setChildrenList(res?.data);
+      console.log("Filter Response:", res);
+    }
+
+    return res;
+
+  } catch (err) {
+    console.log("Filter Error:", err);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   return {
@@ -190,6 +222,7 @@ const handleInputChangeForm = (key, value) => {
     handleSearch,
     childrenList,
     loadChildrenlist,
-    UserList,loadUserlist
+    UserList,loadUserlist,
+    handlechildrenSearch
   };
 };

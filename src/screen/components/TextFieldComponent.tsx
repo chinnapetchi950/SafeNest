@@ -132,6 +132,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent:'flex-end',
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 10,
@@ -159,6 +160,8 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     marginBottom: 20,
+    justifyContent:'flex-end',
+    marginLeft:0
   },
   label1: {
     fontSize: 13,
