@@ -215,6 +215,8 @@ const styles = StyleSheet.create({
   sideButtons: { width: 40, marginTop: 25 },
   circleBtn: {
     width: 32, height: 32, borderRadius: 17,
+    borderWidth:0.6,
+    borderColor:'#bbb',
     justifyContent: "center", alignItems: "center", marginTop: 8
   },
   sessionRight: { flex: 1 },
