@@ -1,13 +1,16 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authService from "../authService";
+import { createAsyncThunkHandlers } from "../../../utils/asyncThunkHandler";
 
+// ----------------------------------------------
+// 🔥 ASYNC THUNKS
+// ----------------------------------------------
 export const fetchDashboardChildren = createAsyncThunk(
   "api/user/home",
   async (_, thunkAPI) => {
     try {
-      const res = await authService.getdashboardchildren(); // call service
+      const res = await authService.getdashboardchildren();
       console.log("dashboardlist Response:", res.data);
-
       return res.data;
     } catch (err) {
       console.log("dashboardlist Error:", err);
@@ -17,6 +20,9 @@ export const fetchDashboardChildren = createAsyncThunk(
     }
   }
 );
+
+
+
 // ----------------------------------------------
 // 🔥 SLICE
 // ----------------------------------------------
@@ -25,34 +31,28 @@ const dashboardSlice = createSlice({
   initialState: {
     loading: false,
     list: [],
+    data:{},
     error: null,
   },
-
   reducers: {},
-
   extraReducers: (builder) => {
     builder
-
-      //Loading
+      // FETCH DASHBOARD CHILDREN
       .addCase(fetchDashboardChildren.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
-      //Success
       .addCase(fetchDashboardChildren.fulfilled, (state, action) => {
         state.loading = false;
-
         if (action.payload?.status === true) {
-          state.list = action.payload.data; // STORE API DATA
+          state.list = action.payload.data;
         }
       })
-
-      // Error
       .addCase(fetchDashboardChildren.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to load data";
       });
+
   },
 });
 

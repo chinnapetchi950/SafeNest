@@ -1,15 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity,Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import globalstyles from '../../styles/globalstyles';
-import { useDispatch } from 'react-redux';
-import { logoutUser } from '../../features/auth/authSlice';
+import { logoutUser,deleteUserAccount } from '../../features/auth/authSlice';
 import Storage from '../../utils/storage';
+import { useDispatch, useSelector } from "react-redux";
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { Dispatch } from '@reduxjs/toolkit';
+import { uploadProfileImage } from '../../features/auth/SettingProfile/ProfileimageSlice';
 
 export default function SettingsScreen({ navigation }) {
   const dispatch = useDispatch();
   const [role, setRole] = useState(null);
+  const [userData,setUserData]=useState({})
+
+
+const userdata = useSelector(
+  (state) => state.auth?.data?.login
+);
+ console.log(userdata,'userdata==>');
+
+useEffect(() => {
+  if (userdata?.data) {
+    setUserData(userdata?.data)
+
+
+  }
+}, [userData]);
+ console.log(userData,'usrdata');
 
   useEffect(() => {
     const loadRole = async () => {
@@ -23,6 +42,76 @@ export default function SettingsScreen({ navigation }) {
       navigation.replace('Login'); // optional navigation
     });
   };
+  const handleDelete = () => {
+   
+
+    dispatch(deleteUserAccount()).then(() => {
+    navigation.replace('Login'); // optional navigation
+    });
+  };
+const pickImage = () => {
+  Alert.alert(
+    "Select Option",
+    "Choose image source",
+    [
+      { text: "Camera", onPress: openCamera },
+      { text: "Gallery", onPress: openGallery },
+      { text: "Cancel", style: "cancel" }
+    ]
+  );
+};
+
+const openCamera = () => {
+  launchCamera(
+    {
+      mediaType: 'photo',
+      quality: 0.8,
+    },
+    response => handleImageResponse(response)
+  );
+};
+
+const openGallery = () => {
+  launchImageLibrary(
+    {
+      mediaType: 'photo',
+      quality: 0.8,
+    },
+    response => handleImageResponse(response)
+  );
+};
+
+
+const handleImageResponse = (response) => {
+  if (response.didCancel) return;
+  if (response.errorMessage) {
+    Alert.alert("Error", response.errorMessage);
+    return;
+  }
+
+  const image = response.assets[0];
+
+  dispatch(uploadProfileImage({image})).unwrap()
+    .then((res: { status: any; data: { profile_image_url: any; }; }) => {
+      console.log("res====================>",res);
+      
+      if (res.status) {
+        
+        Alert.alert("Success", "Profile updated successfully!");
+
+        // update local user state
+        setUserData({
+          ...userData,
+          profile_image: res.profile_image_url,
+        });
+      }
+    })
+    .catch(() => {});
+};
+
+
+
+
   return (
     <SafeAreaView style={styles.container}>
      
@@ -33,15 +122,22 @@ export default function SettingsScreen({ navigation }) {
         <Text style={styles.userName}>Manage your account settings and preferences</Text>
       </View>
 }
+{console.log('userData',userData)}
+
       {/* Profile Image */}
       {role != 'admin' && (
         <>
-          <View style={styles.profileContainer}>
+          <TouchableOpacity onPress={pickImage} style={styles.profileContainer}>
             <Image
-              source={require('../../../assets/images/setting_profile.png')}
+            source={
+      userData?.profile_image
+        ? { uri: userData.profile_image }
+        : require('../../../assets/images/setting_profile.png')
+    }
+              // source={require('../../../assets/images/setting_profile.png')}
               style={styles.profileImage}
             />
-          </View>
+          </TouchableOpacity>
 
           <View style={{ marginHorizontal: 20 }}>
             <Text
@@ -50,7 +146,10 @@ export default function SettingsScreen({ navigation }) {
                 { margin: 5, textAlign: 'right', fontSize: 16 },
               ]}
             >
-              Sarah Saad Kadhem
+              {[userData?.firstname, userData.secondname, userData.thirdname, userData.fourthname]
+    .filter(Boolean)   
+    .join(" ")}
+              {/* Sarah Saad Kadhem */}
             </Text>
             <Text
               style={[
@@ -58,7 +157,7 @@ export default function SettingsScreen({ navigation }) {
                 { margin: 5, textAlign: 'right', fontSize: 12 },
               ]}
             >
-              sarasaad@gmail.com
+              {userData?.email}
             </Text>
             <Text
               style={[
@@ -66,7 +165,7 @@ export default function SettingsScreen({ navigation }) {
                 { marginRight: 5, textAlign: 'right', fontSize: 12 },
               ]}
             >
-              077XXXXXXX
+              {userData?.phone}
             </Text>
           </View>
         </>
@@ -74,7 +173,7 @@ export default function SettingsScreen({ navigation }) {
       <View style={{ marginTop: 20 }}></View>
       {/* Options */}
       {role != 'admin' && (
-        <TouchableOpacity style={styles.row}>
+        <TouchableOpacity onPress={()=>navigation.navigate("ChangePasswordScreen")}style={styles.row}>
           <View>
             <Ionicons name="chevron-back-outline" size={22} color="#A4A3A9" />
           </View>
@@ -159,7 +258,7 @@ export default function SettingsScreen({ navigation }) {
           <Ionicons name="chatbubble-ellipses-outline" size={22} color="#A78BFA" />
         </View>
       </TouchableOpacity>}
-      <TouchableOpacity style={styles.row}>
+      <TouchableOpacity onPress={()=>handleDelete()}style={styles.row}>
         <View>
           <Ionicons name="chevron-back-outline" size={22} color="#A4A3A9" />
         </View>

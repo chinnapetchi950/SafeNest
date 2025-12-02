@@ -5,6 +5,8 @@ import { fetchDashboardChildrenfilter } from "../features/auth/dashboardSlice/da
 import { fetchChildrenList } from "../features/auth/children/childrenListslice";
 import { fetchUserList } from "../features/auth/User/userSlice";
 import { fetchchildrenlistfilter } from "../features/auth/children/childrenfilterSlice";
+import { childHandover } from "../features/auth/staffSlice/registerNewChild/createChildSlice";
+import { Alert } from "react-native";
 
 export const useDashboardViewModel = () => {
   const dispatch = useDispatch();
@@ -36,6 +38,8 @@ export const useDashboardViewModel = () => {
 const [selectedGender, setSelectedGender] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
 const [search, setSearch] = useState("");
+const [showModal, setShowModal] = useState(false);
+
   const handleChange = (key: string, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
@@ -200,7 +204,37 @@ const handlechildrenSearch = async () => {
   }
 };
 
+const childHandoverdata = async (data) => {
+  try {
+    setLoading(true);
 
+   const formData = new FormData();
+   //formData.append("_method", "PATCH");
+           // formData.append("password", "DELETE");
+      formData.append("qr_data",data)
+      console.log('formDataformData',formData);
+      
+
+    const res = await dispatch(childHandover(formData)).unwrap();
+  
+
+    if (res?.status) {
+      //setChildrenList(res?.data);
+      console.log("child Response:", res);
+       Alert.alert("Success",res.message)
+       loadChildren()
+       setShowModal(false)
+    }
+
+    return res;
+
+  } catch (err) {
+    console.log("child Error:", err);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+};
   return {
     loading,
     childList,
@@ -223,6 +257,8 @@ const handlechildrenSearch = async () => {
     childrenList,
     loadChildrenlist,
     UserList,loadUserlist,
-    handlechildrenSearch
+    handlechildrenSearch,
+    childHandoverdata,
+    showModal,setShowModal,
   };
 };

@@ -1,117 +1,131 @@
-import React, { useEffect, useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  Platform,
+  PermissionsAndroid,
+  Alert
 } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-import { Camera, useCameraDevices } from "react-native-vision-camera";
-import { scanBarcodes, BarcodeFormat } from "@react-native-ml-kit/barcode-scanning";
+import { BarcodeScanner, CameraView } from "@pushpendersingh/react-native-scanner";
 
 const ManualHandoverScanner = ({ navigation }) => {
   const [scanned, setScanned] = useState(false);
-  const [hasPermission, setHasPermission] = useState(null);
+  const [scanning, setScanning] = useState(false);
+  const [barcodeData, setBarcodeData] = useState('');
+  const [hasPermission, setHasPermission] = useState(false);
 
-  const devices = useCameraDevices();
-  const device = devices.back;
-
-  // ---------------------------
-  // CAMERA PERMISSION
-  // ---------------------------
   useEffect(() => {
-    (async () => {
-      const permission = await Camera.requestCameraPermission();
-      setHasPermission(permission === "granted");
-    })();
+    const requestCameraPermission = async () => {
+      if (Platform.OS === "android") {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.CAMERA,
+            {
+              title: "Camera Permission",
+              message: "App needs access to your camera to scan barcodes",
+              buttonNeutral: "Ask Me Later",
+              buttonNegative: "Cancel",
+              buttonPositive: "OK",
+            }
+          );
+          setHasPermission(granted === PermissionsAndroid.RESULTS.GRANTED);
+          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert("Permission Denied", "Camera permission is required to scan barcodes.");
+          }
+        } catch (err) {
+          console.warn(err);
+        }
+      } else {
+        setHasPermission(true); // iOS
+      }
+    };
+
+    requestCameraPermission();
   }, []);
 
-  // ---------------------------
-  // FRAME PROCESSOR (MLKit)
-  // ---------------------------
-  const onFrame = async (frame) => {
-    if (scanned) return;
+  // Start scanning automatically when permission is granted
+  useEffect(() => {
+    if (hasPermission) {
+      startScanning();
+    }
+  }, [hasPermission]);
+
+  const startScanning = async () => {
+    if (!hasPermission) return;
 
     try {
-      const barcodes = await scanBarcodes(frame, [
-        BarcodeFormat.QR_CODE,
-        BarcodeFormat.CODE_128,
-        BarcodeFormat.EAN_13,
-      ]);
-
-      if (barcodes.length > 0) {
-        const value = barcodes[0]?.displayValue;
-
-        if (value) {
+      setScanning(true);
+      await BarcodeScanner.startScanning((barcodes) => {
+        console.log(barcodes,"barcodes");
+        
+        if (barcodes.length > 0 && !scanned) {
+          const barcode = barcodes[0];
+          console.log(barcode.data,"barcode.databarcode.databarcode.databarcode.data");
+          
+          setBarcodeData(barcode.data);
           setScanned(true);
-
-          navigation.navigate("ChildHandoverConfirmation", {
-            barcode: value,
-          });
-
-          setTimeout(() => setScanned(false), 2000);
+          stopScanning();
         }
-      }
-    } catch (err) {
-      console.log("Scan error:", err);
+      });
+    } catch (error) {
+      console.error("Failed to start scanning:", error);
     }
   };
 
-  // ---------------------------
-  // PERMISSION NOT GIVEN
-  // ---------------------------
-  if (hasPermission === false) {
-    return (
-      <SafeAreaView style={styles.center}>
-        <Text style={{ color: "#fff", fontSize: 16 }}>
-          Camera permission denied.
-        </Text>
+  const stopScanning = async () => {
+    try {
+      await BarcodeScanner.stopScanning();
+      setScanning(false);
+    } catch (error) {
+      console.error("Failed to stop scanning:", error);
+    }
+  };
 
-        <TouchableOpacity
-          onPress={() => Camera.requestCameraPermission()}
-          style={styles.permissionBtn}
-        >
-          <Text style={{ color: "#fff" }}>Try Again</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
+  const handleProceed = () => {
+    if (!scanned) return;
 
-  if (device == null || hasPermission === null) {
-    return (
-      <SafeAreaView style={styles.center}>
-        <Text style={{ color: "#fff", fontSize: 16 }}>Initializing camera...</Text>
-      </SafeAreaView>
-    );
-  }
+    navigation.navigate("BottomTabsStaff", {
+      screen: "Dashboard",
+      params: {
+        scannedBarcode: barcodeData,
+        showHandoverModal: true,
+      },
+    });
+  };
 
-  // ---------------------------
-  // MAIN UI
-  // ---------------------------
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.headerTitle}>Manual Handover</Text>
-
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backText}>Back</Text>
           <Ionicons name="chevron-forward" size={18} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {/* CAMERA */}
-      <Camera
-        style={styles.camera}
-        device={device}
-        isActive={true}
-        onFrame={onFrame}
-        frameProcessorFps={5}
-      />
+      {hasPermission ? (
+        <CameraView
+          style={styles.camera}
+          onBarcodeDetected={(barcode) => {
+            if (!scanned) {
+              setBarcodeData(barcode.data);
+              setScanned(true);
+              stopScanning();
+            }
+          }}
+        />
+      ) : (
+        <View style={[styles.camera, { justifyContent: "center", alignItems: "center" }]}>
+          <Text style={{ color: "#fff" }}>Camera permission is required</Text>
+        </View>
+      )}
 
-      {/* Overlay Scanner Frame */}
       <View style={styles.overlayCenter}>
         <View style={styles.scanBox}>
           <View style={[styles.corner, styles.topLeft]} />
@@ -120,109 +134,47 @@ const ManualHandoverScanner = ({ navigation }) => {
           <View style={[styles.corner, styles.bottomRight]} />
         </View>
       </View>
-
-      {/* Scan Button */}
-      <TouchableOpacity style={styles.scanButton}>
-        <Text style={styles.scanButtonText}>Scan Code</Text>
-      </TouchableOpacity>
+     <TouchableOpacity
+     onPress={()=>handleProceed()}
+  style={[
+    styles.scanButton,
+    scanned && { backgroundColor: "#A278F4" }  // grey after scan
+  ]}
+disabled={scanned?false:true}   // disable button
+>
+  <Text
+    style={[
+      styles.scanButtonText,
+      scanned && { color: "#ccc" }  // lighter text when disabled
+    ]}
+  >
+    {scanned ? "Scan Code" : "Scan Code"}
+  </Text>
+</TouchableOpacity>
+      
     </SafeAreaView>
   );
 };
 
 export default ManualHandoverScanner;
 
-// ------------------------------------
-// STYLES
-// ------------------------------------
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#3E3E3E",
-  },
-
-  headerRow: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    zIndex: 20,
-  },
-
-  headerTitle: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-
-  backBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  backText: {
-    color: "#fff",
-    marginRight: 4,
-  },
-
-  camera: {
-    flex: 1,
-  },
-
-  overlayCenter: {
-    position: "absolute",
-    top: "20%",
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  scanBox: {
-    width: 250,
-    height: 250,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    borderRadius: 10,
-  },
-
-  corner: {
-    position: "absolute",
-    width: 35,
-    height: 35,
-    borderColor: "#B072FF",
-    borderWidth: 4,
-  },
-
-  topLeft: {
-    top: 0,
-    left: 0,
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
-  },
-
-  topRight: {
-    top: 0,
-    right: 0,
-    borderLeftWidth: 0,
-    borderBottomWidth: 0,
-  },
-
-  bottomLeft: {
-    bottom: 0,
-    left: 0,
-    borderRightWidth: 0,
-    borderTopWidth: 0,
-  },
-
-  bottomRight: {
-    bottom: 0,
-    right: 0,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
-  },
-
-  scanButton: {
-    margin: 20,
-    backgroundColor: "#A96FFF",
+  container: { flex: 1, backgroundColor: "#00000080" },
+  headerRow: { paddingHorizontal: 20, paddingVertical: 15, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  headerTitle: { color: "#fff", fontSize: 18, fontWeight: "600" },
+  backBtn: { flexDirection: "row", alignItems: "center" },
+  backText: { color: "#fff", marginRight: 4 },
+  camera: { flex: 0.9 },
+  overlayCenter: { position: "absolute", top: "25%", width: "100%", justifyContent: "center", alignItems: "center" },
+  scanBox: { width: 260, height: 260, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 15 },
+  corner: { position: "absolute", width: 40, height: 40, borderWidth: 4, borderColor: "#A278F4" },
+  topLeft: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0 },
+  topRight: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0 },
+  bottomLeft: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0 },
+  bottomRight: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 },
+   scanButton: {
+    margin: 50,
+    backgroundColor: "#CFCFCF",
     paddingVertical: 15,
     borderRadius: 30,
     alignItems: "center",
@@ -231,20 +183,12 @@ const styles = StyleSheet.create({
   scanButtonText: {
     color: "#fff",
     fontSize: 18,
-  },
-
-  center: {
-    flex: 1,
-    backgroundColor: "#333",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  permissionBtn: {
-    marginTop: 15,
-    backgroundColor: "#A96FFF",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    fontWeight:'600'
   },
 });
+
+
+
+
+
+

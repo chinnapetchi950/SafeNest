@@ -13,6 +13,7 @@ import {
   Platform,
   Alert,
   Linking,
+  BackHandler,
 } from 'react-native';
 import globalstyles from '../../styles/globalstyles';
 import { string } from '../../utils/String';
@@ -27,8 +28,9 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomTextField from '../components/TextFieldComponent';
 import DropDownPicker from 'react-native-dropdown-picker';
 import moment from 'moment';
+import ChildHandoverConfirmation from './ChildHandoverConfirmation';
 
-export default function Dashboard({navigation}) {
+export default function Dashboard({navigation,route}) {
   const viewModel = useDashboardViewModel();
 
   // modal visible state
@@ -43,7 +45,18 @@ export default function Dashboard({navigation}) {
   const [items, setItems] = useState([]);
   const [timers, setTimers] = useState({}); // timer per child
   const [firstUsername, setFirstUsername] = useState('');
+const [showModal, setShowModal] = useState(false);
+const [scannedData, setScannedData] = useState(null);
+const [refreshing, setRefreshing] = useState(false);
 
+useEffect(() => {
+  if (route?.params?.showHandoverModal) {
+    // console.log(route?.params?.showHandoverModal,'route?.params?.showHandoverModal');
+    
+    setScannedData(route?.params?.scannedBarcode);
+    viewModel?.setShowModal(true);
+  }
+}, [route?.params]);
   //  const [picker, setPicker] = useState({
   //   show: false,
   //   mode: "time",
@@ -62,67 +75,148 @@ export default function Dashboard({navigation}) {
   }));
   // load API on mount
   useEffect(() => {
-    viewModel.loadChildren();
+    viewModel?.loadChildren();
   }, []);
   useEffect(() => {
     setItems([
-      { label: 'Football', value: 'Football' },
-      { label: 'Cricket', value: 'Cricket' },
-      { label: 'Badminton', value: 'Badminton' },
-      { label: 'Chess', value: 'Chess' },
+      
     ]);
   }, []);
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     Alert.alert(
+  //       'Exit App',
+  //       'Are you sure you want to exit?',
+  //       [
+  //         { text: 'Cancel', style: 'cancel' },
+  //         { text: 'Yes', onPress: () => BackHandler.exitApp() },
+  //       ],
+  //       { cancelable: true }
+  //     );
+  //     return true; // Prevent default back behavior
+  //   };
+
+  //   if (Platform.OS === 'android') {
+  //     BackHandler.addEventListener('hardwareBackPress', backAction);
+  //   }
+
+  //   return () => {
+  //     if (Platform.OS === 'android') {
+  //       BackHandler.removeEventListener('hardwareBackPress', backAction);
+  //     }
+  //   };
+  // }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const updatedTimers = {};
+  //     const getFullName = child => {
+  //       if (!child) return '';
+  //       return [
+  //         child?.firstname,
+  //         child?.secondname,
+  //         child?.thirdname,
+  //         child?.fourthname,
+  //       ]
+  //         .filter(Boolean)
+  //         .join(' ');
+  //     };
+  //           let shouldReload = false;
+
+  //     if (viewModel?.childList?.active_children?.length > 0) {
+  //       const fullName = getFullName(
+  //         viewModel?.childList?.active_children[0].user,
+  //       );
+
+  //       setFirstUsername(fullName);
+  //     }
+  //     // or get from expired children
+  //     else if (viewModel?.childList?.expired_children?.length > 0) {
+  //       const fullName = getFullName(
+  //         viewModel?.childList.expired_children[0].user,
+  //       );
+
+  //       setFirstUsername(fullName);
+  //     }
+  //     viewModel?.childList?.active_children?.forEach(child => {
+  //       const now = moment();
+  //       const sessionDate = moment(child.session_date, 'YYYY-MM-DD');
+  //       const playToTime = moment(
+  //         `${child.session_date} ${child.play_to}`,
+  //         'YYYY-MM-DD HH:mm:ss',
+  //       );
+
+  //       if (
+  //         child?.session_status === 'active' &&
+  //         sessionDate.isSame(now, 'day')
+  //       ) {
+  //         const duration = moment.duration(playToTime.diff(now)); // play_to_time - current_time
+  //         if (duration.asMilliseconds() > 0) {
+  //           const hours = Math.floor(duration.asHours());
+  //           const minutes = duration.minutes();
+  //           const seconds = duration.seconds();
+  //           updatedTimers[child.id] = `${hours}:${minutes
+  //             .toString()
+  //             .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  //         } else {
+  //           updatedTimers[child.id] = '0:00:00';
+  //           shouldReload = true;
+  //         }
+  //       } else {
+  //         updatedTimers[child.id] = '0:00:00';
+  //       }
+  //     });
+
+  //     setTimers(updatedTimers);
+
+  //   }, 1000);
+
+  //   return () => clearInterval(interval);
+  // }, [viewModel?.childList]);
+
   useEffect(() => {
-    const interval = setInterval(() => {
+  const interval = setInterval(() => {
+    const updateTimers = async () => {
       const updatedTimers = {};
-      const getFullName = child => {
+
+      const getFullName = (child) => {
         if (!child) return '';
         return [
-          child.firstname,
-          child.secondname,
-          child.thirdname,
-          child.fourthname,
+          child?.firstname,
+          child?.secondname,
+          child?.thirdname,
+          child?.fourthname,
         ]
           .filter(Boolean)
           .join(' ');
       };
-      if (viewModel.childList?.active_children?.length > 0) {
-        const fullName = getFullName(
-          viewModel.childList.active_children[0].user,
-        );
 
+      if (viewModel?.childList?.active_children?.length > 0) {
+        const fullName = getFullName(viewModel.childList.active_children[0].user);
+        setFirstUsername(fullName);
+      } else if (viewModel?.childList?.expired_children?.length > 0) {
+        const fullName = getFullName(viewModel.childList.expired_children[0].user);
         setFirstUsername(fullName);
       }
-      // or get from expired children
-      else if (viewModel.childList?.expired_children?.length > 0) {
-        const fullName = getFullName(
-          viewModel.childList.expired_children[0].user,
-        );
 
-        setFirstUsername(fullName);
-      }
-      viewModel.childList?.active_children?.forEach(child => {
+      let shouldReload = false;
+
+      viewModel?.childList?.active_children?.forEach((child) => {
         const now = moment();
         const sessionDate = moment(child.session_date, 'YYYY-MM-DD');
-        const playToTime = moment(
-          `${child.session_date} ${child.play_to}`,
-          'YYYY-MM-DD HH:mm:ss',
-        );
+        const playToTime = moment(`${child.session_date} ${child.play_to}`, 'YYYY-MM-DD HH:mm:ss');
 
-        if (
-          child.session_status === 'active' &&
-          sessionDate.isSame(now, 'day')
-        ) {
-          const duration = moment.duration(playToTime.diff(now)); // play_to_time - current_time
+        if (child?.session_status === 'active' && sessionDate.isSame(now, 'day')) {
+          const duration = moment.duration(playToTime.diff(now));
           if (duration.asMilliseconds() > 0) {
             const hours = Math.floor(duration.asHours());
             const minutes = duration.minutes();
             const seconds = duration.seconds();
-            updatedTimers[child.id] = `${hours}:${minutes
+            updatedTimers[child.id] = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
               .toString()
-              .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+              .padStart(2, '0')}`;
           } else {
             updatedTimers[child.id] = '0:00:00';
+            shouldReload = true; // mark that we need to reload children
           }
         } else {
           updatedTimers[child.id] = '0:00:00';
@@ -130,10 +224,19 @@ export default function Dashboard({navigation}) {
       });
 
       setTimers(updatedTimers);
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, [viewModel.childList]);
+      // Call API outside of loop to avoid multiple calls
+      if (shouldReload) {
+        await viewModel.loadChildren();
+      }
+    };
+
+    updateTimers();
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [viewModel?.childList]);
+
 
   const formatDate = date => {
     const d = new Date(date);
@@ -205,7 +308,13 @@ export default function Dashboard({navigation}) {
   });
 
   const onClose = () => setVisible(false);
+const onRefresh = async () => {
+  setRefreshing(true);
+  
+  await viewModel.loadChildren();  // 👈 reload API
 
+  setRefreshing(false);
+};
   const onApply = async () => {
     await viewModel.handleSearch();
     setVisible(false);
@@ -257,16 +366,20 @@ export default function Dashboard({navigation}) {
 
         <FlatList
           data={combinedData}
-          keyExtractor={item => item.id}
           renderItem={renderItem}
+          keyExtractor={(item, index) =>
+    item?.id ? item.id.toString() : `header-${index}`
+  }
+  extraData={viewModel.childList} 
           showsVerticalScrollIndicator={false}
+          refreshing={refreshing}
+  onRefresh={onRefresh}
         />
       </View>
 
       {/* Modal */}
       <FilterBottomSheet
-        visible={visible}
-        onClose={() => setVisible(false)}
+        visible={visible}        onClose={() => setVisible(false)}
         onApply={()=>{setVisible(false),viewModel.handleSearch}}
         viewModel={viewModel}
         minutes={minutes}
@@ -283,6 +396,13 @@ export default function Dashboard({navigation}) {
         setShowDatePicker={setShowDatePicker}
         handleDateChange={handleDateChange}
       />
+      {viewModel?.showModal && (
+  <ChildHandoverConfirmation
+    data={{ barcode: scannedData }}
+    onClose={() => viewModel?.setShowModal(false)}
+    onconfirm={()=>{viewModel.childHandoverdata(scannedData)}}
+  />
+)}
     </SafeAreaView>
   );
 }
@@ -313,97 +433,95 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
     const isActive = status == 'active';
     return (
       <View style={styles.card}>
-        {' '}
-        {/* Top Section */}{' '}
-        <View style={styles.topRow}>
-          {' '}
+                <View style={styles.topRow}>
+          
           <View style={styles.statusContainer}>
-            {' '}
+            
             <View
               style={[
                 styles.statusBadge,
                 { backgroundColor: isActive ? '#E9FCEB' : '#FFF8E6' },
               ]}
             >
-              {' '}
+              
               <Ionicons
                 name={
                   isActive ? 'checkmark-circle-outline' : 'alert-circle-outline'
                 }
                 color={isActive ? '#2ECC71' : '#F4B400'}
                 size={14}
-              />{' '}
+              />
               <Text
                 style={[
                   styles.statusText,
                   { color: isActive ? '#2ECC71' : '#F4B400' },
                 ]}
               >
-                {' '}
-                {isActive ? 'Active Now' : 'Waiting'}{' '}
-              </Text>{' '}
-            </View>{' '}
+                
+                {isActive ? 'Active Now' : 'Waiting'}
+              </Text>
+            </View>
             <View style={styles.timerContainer}>
-              {' '}
-              <Text style={styles.timerText}>{timer}</Text>{' '}
+              
+              <Text style={styles.timerText}>{timer}</Text>
               <Ionicons
                 name={isActive ? 'time-outline' : 'hourglass-outline'}
                 size={18}
                 color={isActive ? '#2ECC71' : '#F4B400'}
-              />{' '}
-            </View>{' '}
-          </View>{' '}
+              />
+            </View>
+          </View>
           <View style={styles.infoContainer}>
-            {' '}
-            <Text style={styles.nameText}>{name}</Text>{' '}
-            <Text style={[styles.guardianText]}>Guardian: {guardian}</Text>{' '}
-            <Text style={styles.playtimeText}>Total Playtime: {playtime}</Text>{' '}
-          </View>{' '}
-        </View>{' '}
-        {/* Divider */} <View style={styles.divider} />{' '}
-        {/* Bottom Action Buttons */}{' '}
+            
+            <Text style={styles.nameText}>{name}</Text>
+            <Text style={[styles.guardianText]}>Guardian: {guardian}</Text>
+            <Text style={styles.playtimeText}>Total Playtime: {playtime}</Text>
+          </View>
+        </View>
+        {/* Divider */} <View style={styles.divider} />
+        {/* Bottom Action Buttons */}
         <View style={styles.actionRow}>
-          {' '}
+          
           <View style={styles.buttonRow}>
-            {' '}
+            
             {isActive ? (
               <TouchableOpacity
                 style={[styles.button, styles.endButton]}
                 onPress={onEndSession}
               >
-                {' '}
-                <Text style={styles.endText}>End Session</Text>{' '}
+                
+                <Text style={styles.endText}>End Session</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
                 style={[styles.button, styles.deliverButton]}
                 onPress={onDeliver}
               >
-                {' '}
-                <Text style={styles.deliverText}>Deliver</Text>{' '}
+                
+                <Text style={styles.deliverText}>Deliver</Text>
               </TouchableOpacity>
-            )}{' '}
+            )}
             <TouchableOpacity
               style={[styles.iconButton, { backgroundColor: '#4CAF50' }]}
               onPress={onCall}
             >
-              {' '}
-              <Ionicons name="call-outline" size={18} color="#fff" />{' '}
-            </TouchableOpacity>{' '}
+              
+              <Ionicons name="call-outline" size={18} color="#fff" />
+            </TouchableOpacity>
             <TouchableOpacity
               style={[styles.iconButton, { backgroundColor: '#EAF4FF' }]}
               onPress={onMessage}
             >
-              {' '}
+              
               <Ionicons
                 name="chatbubble-ellipses-outline"
                 size={18}
                 color="#4A90E2"
-              />{' '}
-            </TouchableOpacity>{' '}
-          </View>{' '}
-          <Text style={styles.quickActionsText}>Quick Actions</Text>{' '}
-        </View>{' '}
+              />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.quickActionsText}>Quick Actions</Text>
+        </View>
       </View>
     );
   },

@@ -16,6 +16,7 @@ import BottomTabsStaff from './src/screen/staff/BottomTabStaff';
 import { RegisterChildScreen } from './src/screen/staff/registerchild/RegisterChild';
 import SessionDetailsScreen from './src/screen/staff/registerchild/SessionDetailsScreen';
 import ManualHandoverScanner from './src/screen/staff/ManualHandoverScanner';
+import ChangePasswordScreen from './src/screen/Settings/Changepassword';
 
 import RegisterNewGame from './src/screen/bottomtab/addGame/RegisterNewGame';
 import { navigationRef } from './src/navigations/Appnavigator';
@@ -69,6 +70,9 @@ export default function App() {
             <Stack.Screen name="Login" component={LoginScreen} />
 
             <Stack.Screen name="splashScreen" component={SplashScreen} />
+                        <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+
+            
             {/* Add more screens here */}
           </Stack.Navigator>
         </NavigationContainer>

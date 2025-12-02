@@ -47,6 +47,22 @@ export const fetchGameTypes = createAsyncThunk(
     }
   }
 );
+export const childHandover = createAsyncThunk(
+  "api/user/child/verify-delivery",
+  async (formData, thunkAPI) => {
+    try {
+      const res = await authService.childHandover(formData);
+      console.log("handover Response:", res.data);
+      return res.data;
+    } catch (err) {
+      console.log("childHandover Error --->",  err?.response?.data); // PRINT FULL ERROR
+      Alert.alert('Failed',err?.response?.data?.message)
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
+    }
+  }
+);
 
 
 const authSlice = createSlice({
@@ -67,6 +83,8 @@ const authSlice = createSlice({
     // automatically manage loading, error, and success states
     createAsyncThunkHandlers(builder, createChildUser, "createChildUser");
     createAsyncThunkHandlers(builder, fetchGameTypes, "fetchGameTypes");
+        createAsyncThunkHandlers(builder, childHandover, "childHandover");
+
 
   },
 });

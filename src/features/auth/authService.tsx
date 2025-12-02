@@ -39,7 +39,10 @@ getchildrenListApi: async () => {
       getUserList: async () => {return apiClient.get("api/admin/users")},
       getMessagelist:async () => {return apiClient.get("api/admin/messages")},
       createGame:(data:any)=>apiClient.post("api/admin/game-types",data,true),
-
+      delete_account:async(data)=>{return apiClient.post('api/user/delete-account',data,true)},
+      uploadProfileImage:(data:any)=>apiClient.post("api/user/profile_image",data,true),
+changePassword: (data) => apiClient.post('api/user/change-password', data),
+childHandover:(data)=>apiClient.post('api/user/child/verify-delivery',data,true)
 
 
   //  profile: () => apiClient.get("/auth/profile"),

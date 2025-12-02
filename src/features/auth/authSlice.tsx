@@ -7,12 +7,9 @@ import { Alert } from "react-native";
 
 /* ---------------- LOGIN ---------------- */
 export const loginUser = createAsyncThunk("api/login", async (credentials, thunkAPI) => {
-  console.log("requestparam", credentials);
   try {
     const res = await authService.login(credentials);
-    console.log("login api res---->", res);
-
-    const { token ,role} = res.data;
+    const { token, role } = res.data;
 
     await Storage.setItem("token", token);
     await Storage.setItem("admin", role);
@@ -25,17 +22,14 @@ export const loginUser = createAsyncThunk("api/login", async (credentials, thunk
   }
 });
 
-
 /* ---------------- LOGOUT ---------------- */
 export const logoutUser = createAsyncThunk("api/user/logout", async (_, thunkAPI) => {
   try {
-    const res = await authService.logout();  // 🔥 CALL LOGOUT API
-    console.log("logout api res---->", res);
-    Alert.alert("Success",res?.data?.message);
+    const res = await authService.logout();
+    Alert.alert("Success", res?.data?.message);
 
-    // Clear storage
     await Storage.removeItem("token");
-    //await Storage.removeItem("admin");
+    await Storage.removeItem("admin");
 
     return true;
   } catch (err) {
@@ -45,7 +39,52 @@ export const logoutUser = createAsyncThunk("api/user/logout", async (_, thunkAPI
   }
 });
 
+/* ---------------- DELETE ACCOUNT ---------------- */
+export const deleteUserAccount = createAsyncThunk("api/user/delete-account", async (_, thunkAPI) => {
+  try {
+     const formData = new FormData();
+      formData.append("_method", "DELETE");
+           // formData.append("password", "DELETE");
+      formData.append("confirmation", "DELETE");
 
+      
+    const res = await authService.delete_account(formData);
+    Alert.alert("Account Deleted", res?.data?.message);
+
+    await Storage.removeItem("token");
+    await Storage.removeItem("admin");
+
+    return true;
+  } catch (err) {
+    const message = err?.response?.data?.message || err.message || "Account deletion failed";
+    Alert.alert("Error", message);
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+/* ---------------- CHANGE PASSWORD ---------------- */
+export const changePassword = createAsyncThunk(
+  "api/user/change-password",
+  async (body, thunkAPI) => {
+    console.log(body,'body');
+    
+    try {
+      const res = await authService.changePassword(body);
+      console.log("------------------>",res?.data);
+      
+
+      Alert.alert("Success", res?.data?.message || "Password changed successfully");
+ 
+      return res.data;
+    } catch (err) {
+      console.log("Change Password Error --->",  err?.response?.data); // PRINT FULL ERROR
+      const message =
+        err?.response?.data?.message || err.message || "Failed to change password";
+
+      Alert.alert("Error", message);
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 /* ---------------- SLICE ---------------- */
 const authSlice = createSlice({
   name: "auth",
@@ -64,7 +103,7 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     createAsyncThunkHandlers(builder, loginUser, "login");
 
-    // ADD Logout handlers
+    /* Logout Handlers */
     builder
       .addCase(logoutUser.pending, (state) => {
         state.loading.logout = true;
@@ -78,6 +117,23 @@ const authSlice = createSlice({
         state.loading.logout = false;
         state.error.logout = action.payload;
       });
+
+    /* Delete Account Handlers */
+    builder
+      .addCase(deleteUserAccount.pending, (state) => {
+        state.loading.delete = true;
+      })
+      .addCase(deleteUserAccount.fulfilled, (state) => {
+        state.loading.delete = false;
+        state.user = null;
+        state.data = {};
+      })
+      .addCase(deleteUserAccount.rejected, (state, action) => {
+        state.loading.delete = false;
+        state.error.delete = action.payload;
+      });
+     createAsyncThunkHandlers(builder, changePassword, "changePassword");
+
   },
 });
 
