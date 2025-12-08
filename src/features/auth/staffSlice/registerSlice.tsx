@@ -19,9 +19,12 @@ export const registerUser = createAsyncThunk("api/admin/register", async (values
 
     return res.data;
   } catch (err) {
-    console.log("Register error:", err);
-    return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
-  }
+      console.log("Register error:", err?.response);
+
+      // Pass entire error data so you can handle validation errors
+      const errorData = err?.response?.data;
+      return thunkAPI.rejectWithValue(errorData || { message: err.message });
+    }
 });
 
 const authSlice = createSlice({

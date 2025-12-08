@@ -7,13 +7,19 @@ import globalstyles from "../../../styles/globalstyles";
 import useUserInformationViewModel from "../../../viewmodels/adduser/AddUserViewModel";
 import CustomTextField, { CommonButton } from "../../components/TextFieldComponent";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ProgressBarRTL from '../../components/ProgressLine';
+import React from 'react';
+import SuccessModal from '../../components/UserSuccessModal';
+import ViewAccountModal from '../../components/ViewAccountModal'
 
-
-export const UserInformationScreen = () => {
+export const UserInformationScreen = ({navigation}) => {
   const viewModel = useUserInformationViewModel();
+const [showAccountModal, setShowAccountModal] = useState(false);
 
   const goNext = () => {
-    if (viewModel?.step === 1) viewModel?.setStep(2);
+    if (viewModel?.step === 1)     viewModel?.handleRegisterForm();
+
+      //viewModel?.setStep(2);
     else viewModel?.handleRegister();
   };
 
@@ -22,18 +28,47 @@ export const UserInformationScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{flex:1}}>
+    <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
+    <View
+  style={{
+    //flex: 1,
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'flex-end', // 👈 pushes BOTH to the right
+    alignItems: 'center',
+    marginHorizontal:20
+  }}
+>
+  <Text style={styles.headerTitle}>          {viewModel?.step === 1 ? "User Information" : "Account Information"}
+</Text>
 
+  <Ionicons
+  onPress={()=>{viewModel?.step === 2?goBack():navigation.goBack()}}
+    name="chevron-forward-outline"
+    size={24}
+    color="#111"
+    style={{ marginLeft: 6 }} // spacing between text & icon
+  />
+</View>
+
+      {/* Reusable Progress */}
+      <ProgressBarRTL totalSteps={3} currentStep={viewModel?.step === 1?2:3} />
+
+      {/* Title */}
+      <Text style={styles.titlehed}>Account Type</Text>
   
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: "#fff",padding:14,marginTop:20 }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{
+        //paddingHorizontal: 20,
+        paddingBottom: 180,   // 👈 IMPORTANT: add space for bottom button
+      }} showsVerticalScrollIndicator={false}>
         {/* ---------- Header ---------- */}
-        <Text style={[globalstyles.bold_white, styles.bold]}>
+        {/* <Text style={[globalstyles.bold_white, styles.bold]}>
           {viewModel?.step === 1 ? "User Information" : "Identity Information"}
-        </Text>
+        </Text> */}
 
         {/* ---------- STEP 1: User Info ---------- */}
         {viewModel?.step === 1 && (
@@ -92,7 +127,7 @@ export const UserInformationScreen = () => {
               onChangeText={(text) =>
                 viewModel.handleInputChange("lastName", text)
               }
-              label="Last Name"
+              label="Last Name(optional)"
               placeholder="Last Name"
             />
 
@@ -152,7 +187,7 @@ export const UserInformationScreen = () => {
             />
 
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => viewModel.selectImage("nationalId")}
             >
               <CustomTextField
@@ -166,7 +201,17 @@ export const UserInformationScreen = () => {
                           error={viewModel.errors.nationalIdImage}
 
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            <TouchableOpacity onPress={() => viewModel.selectImage("nationalId")}>
+  <CustomTextField
+    value={viewModel.form.nationalIdImage?.fileName || ""}
+    label="National ID Card Image"
+    placeholder="Upload National ID Card"
+    suffixIcon="arrow-back-outline"
+    editable={false}
+    error={viewModel.errors.nationalIdImage}
+  />
+</TouchableOpacity>
 
             {viewModel.uploads.nationalId.file && (
               <View style={styles.fileBox}>
@@ -209,7 +254,17 @@ export const UserInformationScreen = () => {
 
             />
 
-            <TouchableOpacity
+<TouchableOpacity onPress={() => viewModel.selectImage("residence")}>
+  <CustomTextField
+    value={viewModel.form.residenceCardImage?.fileName || ""}
+    label="Residence  Card Image"
+    placeholder="Upload Residence Card"
+    suffixIcon="arrow-back-outline"
+    error={viewModel?.errors.residenceCardImage}
+    editable={false}
+  />
+</TouchableOpacity>
+            {/* <TouchableOpacity
               onPress={() => viewModel.selectImage("residence")}
             >
               <CustomTextField
@@ -223,7 +278,7 @@ export const UserInformationScreen = () => {
                             error={viewModel.errors.residenceCardImage}
 
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             {viewModel.uploads.residence.file && (
               <View style={styles.fileBox}>
@@ -266,15 +321,60 @@ export const UserInformationScreen = () => {
           backgroundColor: "#fff",
         }}
       >
-        {viewModel?.step === 2 && (
+        
+        {/* {viewModel?.step === 2 && (
           <CommonButton title="Back" onPress={goBack} style={{ flex: 1, marginRight: 10 }} textStyle={undefined} />
-        )}
-        <CommonButton
-          title={viewModel?.step === 1 ? "Next" : "Submit"}
+        )} */}
+        {/* <CommonButton
+          title={viewModel?.step === 1 ? "Next" : "Add"}
           onPress={goNext}
-          style={{ flex: 1 }} textStyle={undefined}        />
+          style={{ flex: 1,backgroundColor:'red' }} textStyle={undefined}        /> */}
+
+
+              
       </View>
     </KeyboardAvoidingView>
+              <View style={styles.bottomContainer}>
+  <TouchableOpacity
+    onPress={goNext}
+    style={[
+      styles.button,
+      (viewModel.step === 1
+        ? !viewModel.isStep1Valid()
+        : !viewModel.isStep2Valid()) && styles.buttonDisabled,
+    ]}
+    disabled={
+      viewModel.step === 1
+        ? !viewModel.isStep1Valid()
+        : !viewModel.isStep2Valid()
+    }
+  >
+    <Text style={styles.buttonText}>
+      {viewModel.step === 1 ? "Next" : "Add"}
+    </Text>
+  </TouchableOpacity>
+</View>
+
+<SuccessModal
+        visible={viewModel?.showSuccess}
+        onClose={() => {viewModel?.setShowSuccess(false)
+          navigation.navigate("BottomTabs", {screen: "Home"});
+        }}
+        onDone={() => {
+         viewModel?.setShowSuccess(false);
+         navigation.navigate("BottomTabs", {screen: "Home"})
+          console.log("Done clicked");
+        }}
+        onViewAccount={() => {
+          console.log("View account clicked");
+          setTimeout(() => setShowAccountModal(true), 200)
+        }}
+      />
+      <ViewAccountModal
+  visible={showAccountModal}
+  user={viewModel?.user}
+  onClose={() =>{viewModel?.setShowSuccess(false),setShowAccountModal(false),navigation.navigate("BottomTabs", {screen: "Home"})}}
+/>
       </SafeAreaView>
   );
 };
@@ -362,5 +462,42 @@ uploadBox: {
     color: "#fff",
     fontWeight: "600",
     fontSize: 16,
+  },
+  bottomContainer: {
+    position: 'absolute',
+    bottom: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  button: {
+    width: '95%',
+    backgroundColor: '#A278F4',
+    borderRadius: 25,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf:'center',
+    //marginLeft:40
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+   headerTitle: {
+    fontSize: 18,
+    color: '#111',
+    fontWeight: '600',
+    textAlign:'right'
+  },
+   titlehed: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginTop: 5,
+    color: '#A594F9',
+    fontWeight: '600',
   },
 });

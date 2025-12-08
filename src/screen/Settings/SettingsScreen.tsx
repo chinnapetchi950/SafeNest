@@ -122,7 +122,6 @@ const handleImageResponse = (response) => {
         <Text style={styles.userName}>Manage your account settings and preferences</Text>
       </View>
 }
-{console.log('userData',userData)}
 
       {/* Profile Image */}
       {role != 'admin' && (
@@ -208,7 +207,7 @@ const handleImageResponse = (response) => {
         </View>
       </TouchableOpacity>}
        {role === 'admin' && 
-      <TouchableOpacity style={styles.row}>
+      <TouchableOpacity onPress={()=>navigation.navigate('GameManagementScreen')} style={styles.row}>
         <View>
           <Ionicons name="chevron-back-outline" size={22} color="#A4A3A9" />
         </View>

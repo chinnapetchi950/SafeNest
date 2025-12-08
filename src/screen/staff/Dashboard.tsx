@@ -14,6 +14,7 @@ import {
   Alert,
   Linking,
   BackHandler,
+
 } from 'react-native';
 import globalstyles from '../../styles/globalstyles';
 import { string } from '../../utils/String';
@@ -48,6 +49,8 @@ export default function Dashboard({navigation,route}) {
 const [showModal, setShowModal] = useState(false);
 const [scannedData, setScannedData] = useState(null);
 const [refreshing, setRefreshing] = useState(false);
+const [activeLimit, setActiveLimit] = useState(4);
+const [expiredLimit, setExpiredLimit] = useState(4);
 
 useEffect(() => {
   if (route?.params?.showHandoverModal) {
@@ -281,31 +284,52 @@ useEffect(() => {
       Alert.alert('Error', 'Unable to place the call.');
     });
   };
-  const renderItem = React.useCallback(({ item }) => {
-    if (item.type === 'header') {
-      return (
-        <Text style={[globalstyles.semibold_black, styles.listheader]}>
-          {item.title}
-        </Text>
-      );
-    }
+  
 
+const renderItem = React.useCallback(({ item }) => {
+  if (item.type === 'header') {
     return (
-      <ChildSessionCard
-        name={item.name}
-        guardian={item.guardian_name}
-        playtime={item.total_play_duration}
-        timer={timers[item.id] || '0:00:00'} // per child timer
-        status={item.session_status}
-        onDeliver={() => {navigation.navigate('ManualHandoverScanner')}}
-        onEndSession={() => {}}
-        onCall={() => {
-          onCall(item?.phone);
-        }}
-        onMessage={() => {}}
-      />
+      <Text style={[globalstyles.semibold_black, styles.listheader]}>
+        {item.title}
+      </Text>
     );
-  });
+  }
+
+  if (item.type === 'loadmore') {
+    return (
+      <TouchableOpacity
+        style={styles.loadMoreBtn}
+        onPress={() => {
+          if (item.section === 'active') {
+            setActiveLimit(prev => prev + 4);
+          } else {
+            setExpiredLimit(prev => prev + 4);
+          }
+        }}
+      >
+        <Text style={styles.loadMoreText}>Load More</Text>
+      </TouchableOpacity>
+    );
+  }
+
+  return (
+    <ChildSessionCard
+      name={item.name}
+      guardian={item.guardian_name}
+      phone={item?.phone}
+      playtime={item.total_play_duration}
+      timer={timers[item.id] || '0:00:00'}
+      status={item.session_status}
+      onDeliver={() => navigation.navigate('ManualHandoverScanner')}
+      onEndSession={() => {viewModel.endChildSession(item.id)}}
+      onCall={() => {
+        onCall(item?.phone);
+      }}
+      onMessage={() => {}}
+    />
+  );
+});
+
 
   const onClose = () => setVisible(false);
 const onRefresh = async () => {
@@ -320,29 +344,47 @@ const onRefresh = async () => {
     setVisible(false);
   };
   // console.log("childList===>",viewModel?.childList);
-  const combinedData = [
-    // ---- Expired Children ----
-    ...(viewModel?.childList?.expired_children?.length
-      ? [
-          { type: 'header', title: 'Children Waiting for Handover' },
-          ...viewModel.childList.expired_children.map(item => ({
-            ...item,
-            type: 'item',
-          })),
-        ]
-      : []),
+ const combinedData = [
+  // ---- Children Waiting for Handover (Expired Children) ----
+  ...(viewModel?.childList?.expired_children?.length
+    ? [
+        { type: 'header', title: 'Children Waiting for Handover' },
 
-    // ---- Active Children ----
-    ...(viewModel?.childList?.active_children?.length
-      ? [
-          { type: 'header', title: 'Active Children' },
-          ...viewModel.childList.active_children.map(item => ({
+        ...viewModel.childList.expired_children
+          .slice(0, expiredLimit)   // ⬅ ONLY show limited items
+          .map(item => ({
             ...item,
             type: 'item',
+            section: 'expired',
           })),
-        ]
-      : []),
-  ];
+
+        ...(viewModel.childList.expired_children.length > expiredLimit
+          ? [{ type: 'loadmore', section: 'expired' }]
+          : []),
+      ]
+    : []),
+
+  // ---- Active Children ----
+  ...(viewModel?.childList?.active_children?.length
+    ? [
+        { type: 'header', title: 'Active Children' },
+
+        ...viewModel.childList.active_children
+          .slice(0, activeLimit)   // ⬅ ONLY show limited items
+          .map(item => ({
+            ...item,
+            type: 'item',
+            section: 'active',
+          })),
+
+        ...(viewModel.childList.active_children.length > activeLimit
+          ? [{ type: 'loadmore', section: 'active' }]
+          : []),
+      ]
+    : []),
+];
+
+
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -366,6 +408,7 @@ const onRefresh = async () => {
 
         <FlatList
           data={combinedData}
+          style={{marginBottom:120}}
           renderItem={renderItem}
           keyExtractor={(item, index) =>
     item?.id ? item.id.toString() : `header-${index}`
@@ -417,6 +460,7 @@ interface ChildSessionCardProps {
   onEndSession?: () => void;
   onCall?: () => void;
   onMessage?: () => void;
+  phone?:()=>number;
 }
 export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
   ({
@@ -429,8 +473,29 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
     onEndSession,
     onCall,
     onMessage,
+    phone,
   }) => {
     const isActive = status == 'active';
+    function openWhatsApp(phoneNumber: (() => number) | undefined): void {
+  // Basic validation: must be numbers and 10-15 digits (adjust as needed)
+  const cleanedNumber = phoneNumber.replace(/\D/g, ''); // remove non-digits
+  if (!cleanedNumber || cleanedNumber.length < 10 || cleanedNumber.length > 15) {
+    Alert.alert('Invalid number', 'Please enter a valid phone number');
+    return;
+  }
+
+  const url = `https://wa.me/${cleanedNumber}`; // WhatsApp URL
+  Linking.canOpenURL(url)
+    .then((supported) => {
+      if (!supported) {
+        Alert.alert('Error', 'WhatsApp is not installed on your device');
+      } else {
+        return Linking.openURL(url);
+      }
+    })
+    .catch((err) => console.error('An error occurred', err));
+};    
+
     return (
       <View style={styles.card}>
                 <View style={styles.topRow}>
@@ -510,7 +575,8 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.iconButton, { backgroundColor: '#EAF4FF' }]}
-              onPress={onMessage}
+              onPress={()=>openWhatsApp(phone)}
+              // onPress={onMessage}
             >
               
               <Ionicons
@@ -781,6 +847,20 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'right',
   },
+  loadMoreBtn: {
+  padding: 12,
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: '#EFEAFF',
+  borderRadius: 8,
+  marginBottom: 12,
+},
+loadMoreText: {
+  color: '#6A4CE0',
+  fontWeight: '600',
+  fontSize: 14,
+},
+
 });
 
 // const style=StyleSheet.create({

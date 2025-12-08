@@ -17,6 +17,18 @@ export const fetchUserList = createAsyncThunk(
     }
   }
 );
+export const deleteUsers = createAsyncThunk(
+  "api/admin/deleteUsers",
+  async (ids: number[], thunkAPI) => {
+    try {
+      const res = await authService.deleteUsers(ids);
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err?.response?.data?.message || err.message);
+    }
+  }
+);
+
 // ----------------------------------------------
 // 🔥 SLICE
 // ----------------------------------------------
@@ -32,28 +44,47 @@ const userlistSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
-      //Loading
+      // Fetch Users
       .addCase(fetchUserList.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
-      //Success
       .addCase(fetchUserList.fulfilled, (state, action) => {
         state.loading = false;
-
-        if (action.payload?.status === true) {
-          state.list = action.payload.data; // STORE API DATA
-        }
+        // Ensure list is always an array
+        state.list = Array.isArray(action.payload?.data) ? action.payload.data : [];
       })
-
-      // Error
       .addCase(fetchUserList.rejected, (state, action) => {
         state.loading = false;
+        state.list = []; // reset list on error
         state.error = action.payload || "Failed to load data";
+      })
+
+      // Delete Users
+      .addCase(deleteUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        const deletedIds = action.meta.arg || [];
+
+        // Ensure state.list is an array before filtering
+        if (Array.isArray(state.list)) {
+          state.list = state.list.filter(
+            (user) => !deletedIds.includes(Number(user.id))
+          );
+        } else {
+          state.list = [];
+        }
+      })
+      .addCase(deleteUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to delete users";
       });
   },
 });
 
 export default userlistSlice.reducer;
+
+

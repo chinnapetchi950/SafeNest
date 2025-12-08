@@ -1,17 +1,34 @@
-import React from "react";
-import { View, StyleSheet, I18nManager } from "react-native";
+import React, { useEffect, useRef } from "react";
+import {
+  View,
+  StyleSheet,
+  I18nManager,
+  Text,
+  Animated,
+  Easing,
+} from "react-native";
 
 const ProgressBarRTL = ({
   totalSteps = 3,
-  currentStep = 1, // starts from 1 (rightmost)
-  activeColor = "#8B5CF6", // violet/blue
-  inactiveColor = "#D1D5DB", // gray
+  currentStep = 1, // starts from right
+  activeColor = "#8B5CF6",
+  inactiveColor = "#D1D5DB",
 }) => {
-  // Force right-to-left
-if (!I18nManager.isRTL) {
-  I18nManager.allowRTL(true);
-  I18nManager.forceRTL(true);
-}
+  // --- Animated value for line width ---
+  const animatedWidth = useRef(new Animated.Value(0)).current;
+
+  // --- Animate when step changes ---
+  useEffect(() => {
+    const percentage = (currentStep - 1) / (totalSteps - 1);
+
+    Animated.timing(animatedWidth, {
+      toValue: percentage,
+      duration: 400,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: false,
+    }).start();
+  }, [currentStep]);
+
   return (
     <View style={styles.container}>
       {/* Line container */}
@@ -19,15 +36,18 @@ if (!I18nManager.isRTL) {
         {/* Inactive line */}
         <View style={[styles.line, { backgroundColor: inactiveColor }]} />
 
-        {/* Active line - dynamic width */}
-        <View
+        {/* Active animated line */}
+        <Animated.View
           style={[
             styles.line,
             {
-              backgroundColor: activeColor,
-              width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%`,
-              right: 0, // RTL direction
+              backgroundColor: inactiveColor,
               position: "absolute",
+              right: 0,
+              width: animatedWidth.interpolate({
+                inputRange: [0, 1],
+                outputRange: ["0%", "100%"],
+              }),
             },
           ]}
         />
@@ -35,21 +55,38 @@ if (!I18nManager.isRTL) {
 
       {/* Dots */}
       <View style={styles.dotsRow}>
-        {Array.from({ length: totalSteps }).map((_, index) => {
-          // In RTL, rightmost is step 1
-          const stepNumber = totalSteps - index;
+        {Array.from({ length: totalSteps }).map((_, i) => {
+          const stepNumber = totalSteps - i;
           const isActive = stepNumber <= currentStep;
 
+          const scale = new Animated.Value(isActive ? 1.2 : 1);
+
+          useEffect(() => {
+            Animated.spring(scale, {
+              toValue: isActive ? 1.2 : 1,
+              useNativeDriver: true,
+            }).start();
+          }, [currentStep]);
+
           return (
-            <View
-              key={index}
+            <Animated.View
+              key={i}
               style={[
                 styles.dot,
-                { backgroundColor: isActive ? activeColor : inactiveColor }
+                {
+                  backgroundColor: isActive ? activeColor : inactiveColor,
+                  transform: [{ scale }],
+                },
               ]}
             />
           );
         })}
+      </View>
+
+      {/* Titles */}
+      <View style={styles.titleRow}>
+        <Text style={styles.dotTitle}>Identity Information</Text>
+        <Text style={styles.dotTitle}>User Information</Text>
       </View>
     </View>
   );
@@ -69,18 +106,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   line: {
-    height: 3,
+    height: 4,
     borderRadius: 3,
   },
   dotsRow: {
-    flexDirection: "row-reverse", // RTL alignment
+    flexDirection: "row-reverse",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: -7,
+    marginTop: -10,
   },
   dot: {
     width: 16,
     height: 16,
     borderRadius: 8,
+  },
+  titleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 6,
+  },
+  dotTitle: {
+    fontSize: 14,
+    color: "#6B7280",
   },
 });

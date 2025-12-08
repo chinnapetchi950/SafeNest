@@ -2,10 +2,13 @@ import { useCallback, useState } from "react";
 import { Asset, ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } from "react-native-image-picker";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../features/auth/staffSlice/registerSlice";
+import { Alert } from "react-native";
 
 const useUserInformationViewModel = () => {
   const dispatch = useDispatch();
   const [step, setStep] = useState(1); // 👈 1 = User Info, 2 = Identity Info
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [user, setuser] = useState({});
 
  const [form, setForm] = useState({
     firstName: "",
@@ -34,50 +37,61 @@ const [file, setFile] = useState(null);
 
   
 
-  const selectImage = useCallback((type: "nationalId" | "residence") => {
-    const options = { mediaType: "photo", quality: 0.7 };
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) return;
-      const picked = response.assets?.[0];
-      if (!picked) return;
+ const selectImage = useCallback((type: "nationalId" | "residence") => {
+  const options: ImageLibraryOptions = { mediaType: "photo", quality: 0.7 };
 
-      // Simulate upload progress
-      setUploads((prev) => ({
-        ...prev,
-        [type]: { file: picked, progress: 0 },
-      }));
+  launchImageLibrary(options, (response: ImagePickerResponse) => {
+    if (response.didCancel) return;
 
-      let progressValue = 0;
-      const interval = setInterval(() => {
-        progressValue += 0.1;
-        if (progressValue >= 1) {
-          progressValue = 1;
-          clearInterval(interval);
-        }
-        setUploads((prev) => ({
-          ...prev,
-          [type]: { ...prev[type], progress: progressValue },
-        }));
-      }, 200);
+    const picked: Asset | undefined = response.assets?.[0];
+    if (!picked) return;
 
-      // Update form URI
-      handleInputChange(
-        type === "nationalId" ? "nationalIdImage" : "residenceCardImage",
-        picked.uri
-      );
-    });
-  }, []);
-
-  const handleRemoveFile = (type: "nationalId" | "residence") => {
+    // Start progress animation
     setUploads((prev) => ({
       ...prev,
-      [type]: { file: null, progress: 0 },
+      [type]: { file: picked, progress: 0 },
     }));
+
+    let progressValue = 0;
+    const interval = setInterval(() => {
+      progressValue += 0.1;
+      if (progressValue >= 1) {
+        progressValue = 1;
+        clearInterval(interval);
+      }
+      setUploads((prev) => ({
+        ...prev,
+        [type]: { ...prev[type], progress: progressValue },
+      }));
+    }, 200);
+
+    // FIXED: Save full file object (NOT just URI)
+    const fileObj = {
+      uri: picked.uri,
+      type: picked.type || "image/jpeg",
+      fileName: picked.fileName || `image-${Date.now()}.jpg`,
+    };
+
     handleInputChange(
       type === "nationalId" ? "nationalIdImage" : "residenceCardImage",
-      ""
+      fileObj
     );
-  };
+  });
+}, []);
+
+
+  const handleRemoveFile = (type: "nationalId" | "residence") => {
+  setUploads((prev) => ({
+    ...prev,
+    [type]: { file: null, progress: 0 },
+  }));
+
+  handleInputChange(
+    type === "nationalId" ? "nationalIdImage" : "residenceCardImage",
+    null
+  );
+};
+
 
 
   
@@ -113,7 +127,41 @@ const [file, setFile] = useState(null);
       setProgress(progressValue);
     }, 200);
   };
+//   const isStep1Valid = () => {
+//   return (
+//     !!form.firstName.trim() &&
+//     !!form.secondName.trim() &&
+//     !!form.email.trim() &&
+//     /^\S+@\S+\.\S+$/.test(form.email) &&
+//     !!form.phone.trim() &&
+//     /^\d{8,15}$/.test(form.phone) &&
+//     !!form.password.trim() &&
+//     form.password.length >= 6
+//   );
+// };
+const isStep1Valid = () => {
+  return (
+    !!form.firstName.trim() &&
+    !!form.secondName.trim() &&
+    !!form.email.trim() &&
+    !!form.email.trim() &&   // FIXED
+    !!form.phone.trim() &&
+    !!form.phone.trim() &&       // EXTRA FIX
+    !!form.password.trim() &&
+    form.password.trim().length >= 8              // EXTRA FIX
+  );
+};
+// console.log(isStep1Valid,'isStep1Valid');
 
+// STEP 2 VALIDATION (Dynamic Button Disable)
+const isStep2Valid = () => {
+  return (
+    !!form.nationalId.trim() &&
+    !!form.nationalIdImage &&
+    !!form.residenceCard.trim() &&
+    !!form.residenceCardImage
+  );
+};
  
 
   const handleInputChange = (key, value) => {
@@ -183,78 +231,108 @@ const [errors, setErrors] = useState({});
 const handleRegisterForm = () => {
   const isValid = validateFormFirst();
   if (!isValid) {
+         //if (step === 1) setStep(2);
+
     console.log("❌ Form validation failed:", errors);
     return;
   }
   else{
-     if (step === 2) setStep(1);
+    console.log(step);
+    
+     if (step === 1) setStep(2);
   
   }
 }
 
-const handleRegister = () => {
-  const isValid = validateForm();
-  if (!isValid) {
-    console.log("❌ Form validation failed:", errors);
-    return;
+const handleRegister = async () => {
+  try {
+    const isValid = validateForm();
+    if (!isValid) {
+      const msg = Object.values(errors).join("\n");
+      Alert.alert("Error", msg);
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("firstname", form.firstName);
+    formData.append("secondname", form.secondName);
+    formData.append("thirdname", form.thirdName);
+    formData.append("fourthname", form.fourthName);
+    formData.append("nickname", form.lastName);
+    formData.append("email", form.email);
+    formData.append("phone", form.phone);
+    formData.append("password", form.password);
+    formData.append("national_id_number", form.nationalId);
+    formData.append("residency_card_number", form.residenceCard);
+console.log('form.nationalIdImage?.uri',form.nationalIdImage?.uri);
+
+    // NATIONAL ID IMAGE
+    if (form.nationalIdImage?.uri) {
+      formData.append("national_id[]", {
+        uri: form.nationalIdImage.uri,
+        type: form.nationalIdImage.type || "image/jpeg",
+        name: form.nationalIdImage.fileName || "national-id.jpg",
+      });
+    }
+
+    // RESIDENCY CARD IMAGE
+    if (form.residenceCardImage?.uri) {
+      formData.append("residency_card[]", {
+        uri: form.residenceCardImage.uri,
+        type: form.residenceCardImage.type || "image/jpeg",
+        name: form.residenceCardImage.fileName || "residence-card.jpg",
+      });
+    }
+
+    console.log("📤 Final FormData sending to API:", formData);
+
+    const res = await dispatch(registerUser(formData)).unwrap();
+    setuser(res?.data);
+
+    if (res?.status === true) {
+      setShowSuccess(true);
+    }
+    
+
+  } catch (error) {
+  console.log("❌ Registration failed --->", JSON.stringify(error, null, 2));
+
+  setShowSuccess(false);
+
+  // Axios error data
+  const errData = error?.response?.data;
+
+  if (errData) {
+    // 1️⃣ Validation errors (e.g., phone already taken)
+    if (errData.errors && typeof errData.errors === "object") {
+      const messages = Object.values(errData.errors)
+        .flat()
+        .join("\n");
+      Alert.alert("Validation Error", messages);
+      return;
+    }
+
+    // 2️⃣ Server message
+    if (errData.message) {
+      Alert.alert("Error", errData.message);
+      return;
+    }
   }
 
-  const data: {
-    firstname: string;
-    secondname: string;
-    thirdname: string;
-    fourthname: string;
-    nickname: string;
-    email: string;
-    phone: string;
-    password: string;
-    national_id_number: string;
-    residency_card_number: string;
-    national_id?: { uri: string; type: string; name: string };
-    residency_card?: { uri: string; type: string; name: string };
-  } = {
-    firstname: form.firstName,
-    secondname: form.secondName,
-    thirdname: form.thirdName,
-    fourthname: form.fourthName,
-    nickname: form.lastName,
-    email: form.email,
-    phone: form.phone,
-    password: form.password,
-    national_id_number: form.nationalId,
-    residency_card_number: form.residenceCard,
-  };
+  // 3️⃣ Fallback
+  Alert.alert("Error", "Something went wrong. Please try again.");
+}
 
-  // Attach images if available
-  if (form.nationalIdImage?.uri) {
-    const nationalFile = form.nationalIdImage;
-    data.national_id = {
-      uri: nationalFile.uri,
-      type: nationalFile.type || "image/jpeg",
-      name:
-        nationalFile.fileName || nationalFile.name || "national-id.jpg",
-    };
-  }
-
-  if (form.residenceCardImage?.uri) {
-    const residenceFile = form.residenceCardImage;
-    data.residency_card = {
-      uri: residenceFile.uri,
-      type: residenceFile.type || "image/jpeg",
-      name:
-        residenceFile.fileName || residenceFile.name || "residence-card.jpg",
-    };
-  }
-
-  console.log("✅ Valid Data ready for API:", data);
-  dispatch(registerUser(data));
 };
+
 
 
   return {
     form,uploading,uploads,
     handleInputChange,file,progress,errors,step, setStep,handleRegisterForm,
-    handleRegister,handleRemoveFile,handlePickFile,selectImage
+    handleRegister,handleRemoveFile,handlePickFile,selectImage,isStep1Valid,
+  isStep2Valid,showSuccess,setShowSuccess,setuser,user
   };
 };
 

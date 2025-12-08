@@ -31,7 +31,7 @@ const DashboardScreen = () => {
       {/* Notification + User */}
       <View style={styles.row}>
         <Icon name="bell" size={20} color="#B3B3B3" />
-        <Text style={styles.userName}>Mohammed Ali</Text>
+        {/* <Text style={styles.userName}>Mohammed Ali</Text> */}
       </View>
 
       {/* Filters */}

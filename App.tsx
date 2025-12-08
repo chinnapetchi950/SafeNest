@@ -20,6 +20,7 @@ import ChangePasswordScreen from './src/screen/Settings/Changepassword';
 
 import RegisterNewGame from './src/screen/bottomtab/addGame/RegisterNewGame';
 import { navigationRef } from './src/navigations/Appnavigator';
+import GameManagementScreen from './src/screen/Settings/GamemanagementList';
 // Import your screens
 
 const Stack = createNativeStackNavigator();
@@ -70,8 +71,8 @@ export default function App() {
             <Stack.Screen name="Login" component={LoginScreen} />
 
             <Stack.Screen name="splashScreen" component={SplashScreen} />
-                        <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
-
+            <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+            <Stack.Screen name="GameManagementScreen" component={GameManagementScreen} />
             
             {/* Add more screens here */}
           </Stack.Navigator>

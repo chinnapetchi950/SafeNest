@@ -1,223 +1,272 @@
-import React, { useState,useEffect,useCallback  } from "react";
+
+
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   FlatList,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchBar from "../components/Searchcomponent";
 import { useDashboardViewModel } from "../../viewmodels/useDashboardViewModel";
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useFocusEffect } from "@react-navigation/native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { deleteUsers } from "../../features/auth/User/userSlice";
+import { useDispatch } from "react-redux";
 
 export default function UserlistScreen() {
-  const [searchText, setSearchText] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-const pageSize = 10; // items per page
-
-  const [selectAll, setSelectAll] = useState(false);
-  const viewModel=useDashboardViewModel();
+  const viewModel = useDashboardViewModel();
+  const dispatch = useDispatch();
 
   const [userList, setUserlist] = useState([]);
-useEffect(() => {
+  const [selectAll, setSelectAll] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  useEffect(() => {
     viewModel.loadUserlist();
   }, []);
 
- //Reset to Page 1 When Search Changes
-// useEffect(() => {
-//   setCurrentPage(1);
-// }, [searchText]);
-console.log("viewModel?.UserList",viewModel?.UserList);
-
   useEffect(() => {
-  if (viewModel?.UserList?.length) {
-    // add selected flag default false
-    const updated = viewModel.UserList.map((item) => ({
-      ...item,
-      selected: item.selected ?? false,
-    }));
-    setUserlist(updated);
-  }
-}, [viewModel.UserList]);
+    if (viewModel?.UserList?.length) {
+      const updated = viewModel.UserList.map((item) => ({
+        ...item,
+        selected: item.selected ?? false,
+      }));
+      setUserlist(updated);
+    }
+  }, [viewModel.UserList]);
 
-// toggle single child
-const toggleSelect = (id) => {
-  setUserlist((prev) =>
-    prev.map((item) =>
-      item.id === id ? { ...item, selected: !item.selected } : item
-    )
-  );
-};
-
-// toggle all
-const toggleSelectAll = () => {
-  setSelectAll((prev) => {
-    const newValue = !prev;
-    setUserlist((user) =>
-      user.map((c) => ({
-        ...c,
-        selected: newValue,
-      }))
+  // Toggle select one user
+  const toggleSelect = (id) => {
+    setUserlist((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, selected: !item.selected } : item
+      )
     );
-    return newValue;
-  });
-};
+  };
 
-// search filter
-const filtered = userList.filter((user) =>
-  user.name?.toLowerCase().includes(searchText.toLowerCase())
-);
-const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  // Toggle select all
+  const toggleSelectAll = () => {
+    const newValue = !selectAll;
+    setSelectAll(newValue);
+    setUserlist((prev) => prev.map((u) => ({ ...u, selected: newValue })));
+  };
 
-// paginated data for flatlist
-const paginatedData = filtered.slice(
-  (currentPage - 1) * pageSize,
-  currentPage * pageSize
-);
-  const renderCard = ({ item,index }) => (
+  // Toggle 3-dot menu
+  const toggleMenu = (id) => {
+    setOpenMenuId(openMenuId === id ? null : id);
+  };
+
+  // Delete selected or single user
+  const handleDelete = async (item?: any) => {
+    const idsToDelete = item
+      ? [item.id]
+      : userList.filter((u) => u.selected).map((u) => u.id);
+
+    if (idsToDelete.length === 0) {
+      Alert.alert("No user selected", "Please select at least one user to delete.");
+      return;
+    }
+
+    Alert.alert(
+      "Confirm Delete",
+      `Are you sure you want to delete ${idsToDelete.length} user(s)?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const res = await dispatch(deleteUsers(idsToDelete)).unwrap();
+              if (res?.status === true) {
+                Alert.alert("Success", "User(s) deleted successfully.");
+                viewModel?.loadUserlist();
+                setSelectAll(false);
+              }
+            } catch (err: any) {
+              Alert.alert("Error", err || "Failed to delete users.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // Search filter
+  const filtered = userList.filter((user) =>
+    [user.firstname, user.secondname, user.thirdname, user.fourthname]
+      .join(" ")
+      .toLowerCase()
+      .includes(viewModel?.searchText?.toLowerCase() || "")
+  );
+
+  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  const paginatedData = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const renderCard = ({ item, index }) => (
     <View style={styles.card}>
-
-      {/* LEFT SIDE */}
+      {/* LEFT */}
       <View style={styles.leftBox}>
-        <Text style={styles.number}>{index+1}</Text>
-
-<Text style={styles.childName}>
-  {[item?.firstname, item?.secondname, item?.thirdname, item?.fourthname]
-    .filter(Boolean)   
-    .join(" ")}                 
-</Text>        <Text style={styles.childName}>{item.phone}</Text>
+        <Text style={styles.number}>{index + 1}</Text>
+        <Text style={styles.childName}>
+          {[item?.firstname, item?.secondname, item?.thirdname, item?.fourthname]
+            .filter(Boolean)
+            .join(" ")}
+        </Text>
+        <Text style={styles.childName}>{item.phone}</Text>
         <Text style={styles.childName}>{item.email}</Text>
-        
-        
       </View>
+
+      {/* LABELS */}
       <View style={styles.labels}>
-          <Text style={styles.label}>No.</Text>
-          <Text style={styles.label}>UserName</Text>
-          <Text style={styles.label}>Phone Number</Text>
-          <Text style={styles.label}>Email</Text>
-        </View>
-      {/* RIGHT SIDE */}
+        <Text style={styles.label}>No.</Text>
+        <Text style={styles.label}>UserName</Text>
+        <Text style={styles.label}>Phone Number</Text>
+        <Text style={styles.label}>Email</Text>
+      </View>
+
+      {/* RIGHT */}
       <View style={styles.rightBox}>
-        {/* <TouchableOpacity style={styles.checkBox}>
-          <Text style={{ color: "#fff" }}>✔</Text>
-        </TouchableOpacity> */}
-         <TouchableOpacity
+        <TouchableOpacity
           onPress={() => toggleSelect(item.id)}
-          style={[
-            styles.checkbox,
-            item.selected && styles.checkboxChecked,
-          ]}
+          style={[styles.checkbox, item.selected && styles.checkboxChecked]}
         >
-  {item.selected && (
-    <Ionicons name="checkmark" size={16} color="#fff" />
-  )}
-  </TouchableOpacity>
-        <TouchableOpacity style={styles.menuDots}>
-          <Text style={styles.dots}>⋮</Text>
+          {item.selected && <Ionicons name="checkmark" size={16} color="#fff" />}
         </TouchableOpacity>
 
-      </View>
+        <TouchableOpacity style={styles.menuDotss} onPress={() => toggleMenu(item.id)}>
+          <Text style={styles.dotss}>⋮</Text>
+        </TouchableOpacity>
 
+        {openMenuId === item.id && (
+          <View style={styles.popupMenu}>
+            <TouchableOpacity
+              onPress={() => {
+                setOpenMenuId(null);
+                // onEdit(item); // optional edit
+              }}
+            >
+              <Text style={styles.menuItem}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setOpenMenuId(null);
+                handleDelete(item);
+              }}
+            >
+              <Text style={[styles.menuItem, { color: "red" }]}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <View style={styles.container}>
+        {/* Search */}
+        <View style={styles.searchWrapper}>
+          <SearchBar
+            placeholder="Search for a child"
+            onChangeText={(text) => viewModel?.handleSearchChange(text)}
+          />
+        </View>
 
-    <View style={styles.container}>
-      {/* Header */}
-      {/* <View style={styles.headerRow}>
-        <Text style={styles.title}>game management</Text>
-        <Text style={styles.userName}>Sarah Saad</Text>
-      </View> */}
+        {/* Select All + Delete Selected */}
+      <View style={{ flexDirection: "column", marginVertical: 10 }}>
+  {/* Select All Row */}
+  <View style={styles.selectAllRow}>
+    <Text style={styles.selectAllText}>Select All</Text>
+    <TouchableOpacity
+      onPress={toggleSelectAll}
+      style={[styles.checkbox, selectAll && styles.checkboxChecked]}
+    >
+      {selectAll && <Ionicons name="checkmark" size={16} color="#fff" />}
+    </TouchableOpacity>
+  </View>
 
-      {/* Search */}
-      <View style={styles.searchWrapper}>
-        <SearchBar
-                 placeholder="Search for a child"
-                 onChangeText={text => viewModel?.handleSearchChange(text)}
-                 // onChangeText={text => {}}
-                 onSearchPress={() => {}}
-                 onFilterPress={() => {}}
-               />
-      </View>
-
-      {/* Select All */}
-      <View style={styles.selectAllRow}>
-        <Text style={styles.selectAllText}>Select All</Text>
-        <TouchableOpacity
-  onPress={toggleSelectAll}
-  style={[
-    styles.checkbox,
-    selectAll && styles.checkboxChecked,
-  ]}
->
-  {selectAll && (
-    <Ionicons name="checkmark" size={16} color="#fff" />
+  {/* Delete Selected Button */}
+ {Array.isArray(userList) && userList.some(user => user.selected)&& (
+    <TouchableOpacity
+      onPress={() => handleDelete()}
+      style={{
+        backgroundColor: "#A278F4",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+        alignSelf: "flex-end",
+       // marginTop: 10,
+      }}
+    >
+      <Text style={{ color: "#fff", fontWeight: "bold" }}>Delete Selected</Text>
+    </TouchableOpacity>
   )}
-</TouchableOpacity>
-      </View>
 
-      {/* List */}
-      <FlatList
-        data={userList}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCard}
-        showsVerticalScrollIndicator={false}
-      />
-
-      {/* Pagination */}
-     <View style={styles.pagination}>
-  {/* PREVIOUS */}
-  <TouchableOpacity
-    disabled={currentPage === 1}
-    onPress={() => setCurrentPage(prev => prev - 1)}
-    style={[
-      styles.pageBtn,
-      currentPage > 1 && { backgroundColor: "#A278F4" },
-      currentPage === 1 && { opacity: 0.3 },
-    ]}
-  >
-    <Ionicons name="chevron-back-outline" size={18} color={currentPage > 1 ? "#fff" : "#000"} />
-  </TouchableOpacity>
-
-  {/* PAGE NUMBER */}
-  <Text style={styles.pageText}>
-    {currentPage} of {totalPages}
-  </Text>
-
-  {/* NEXT */}
-  <TouchableOpacity
-    disabled={currentPage === totalPages}
-    onPress={() => setCurrentPage(prev => prev + 1)}
-    style={[
-      styles.pageBtn,
-      currentPage < totalPages && { backgroundColor: "#A278F4" },
-      currentPage === totalPages && { opacity: 0.3 },
-    ]}
-  >
-    <Ionicons name="chevron-forward-outline" size={18} color={currentPage < totalPages ? "#fff" : "#000"} />
-  </TouchableOpacity>
 </View>
 
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        {/* <Text style={styles.navIcon}></Text>
-        <Text style={styles.navIcon}></Text>
-        <View style={styles.addButton}>
-          <Text style={{ color: "#fff", fontSize: 24 }}></Text>
-        </View>
-        <Text style={styles.navIcon}>''</Text>
-        <Text style={styles.navIcon}>''</Text> */}
-      </View>
-    </View>
-        </SafeAreaView>
 
+        {/* User List */}
+        <FlatList
+          data={paginatedData}
+          keyExtractor={(item) => item.id}
+          renderItem={renderCard}
+          showsVerticalScrollIndicator={false}
+        />
+
+        {/* Pagination */}
+        <View style={styles.pagination}>
+          <TouchableOpacity
+            disabled={currentPage === 1}
+            onPress={() => setCurrentPage((prev) => prev - 1)}
+            style={[
+              styles.pageBtn,
+              currentPage > 1 && { backgroundColor: "#A278F4" },
+              currentPage === 1 && { opacity: 0.3 },
+            ]}
+          >
+            <Ionicons
+              name="chevron-back-outline"
+              size={18}
+              color={currentPage > 1 ? "#fff" : "#000"}
+            />
+          </TouchableOpacity>
+
+          <Text style={styles.pageText}>
+            {currentPage} of {totalPages}
+          </Text>
+
+          <TouchableOpacity
+            disabled={currentPage === totalPages}
+            onPress={() => setCurrentPage((prev) => prev + 1)}
+            style={[
+              styles.pageBtn,
+              currentPage < totalPages && { backgroundColor: "#A278F4" },
+              currentPage === totalPages && { opacity: 0.3 },
+            ]}
+          >
+            <Ionicons
+              name="chevron-forward-outline"
+              size={18}
+              color={currentPage < totalPages ? "#fff" : "#000"}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
+
+// Keep your styles as is
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", padding: 15 },
@@ -400,6 +449,36 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  popupMenu: {
+  position: "absolute",
+  right: 10,
+  top: 25,
+  backgroundColor: "#fff",
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+  borderRadius: 6,
+  elevation: 5,
+  shadowColor: "#000",
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  zIndex: 99,
+},
+
+menuItem: {
+  paddingVertical: 6,
+  paddingHorizontal: 4,
+  fontSize: 14,
+},
+
+menuDotss: {
+  padding: 8,
+},
+
+dotss: {
+  fontSize: 20,
+  fontWeight: "bold",
+},
+
 });
 
 

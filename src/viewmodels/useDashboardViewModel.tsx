@@ -7,6 +7,7 @@ import { fetchUserList } from "../features/auth/User/userSlice";
 import { fetchchildrenlistfilter } from "../features/auth/children/childrenfilterSlice";
 import { childHandover } from "../features/auth/staffSlice/registerNewChild/createChildSlice";
 import { Alert } from "react-native";
+import authService from "../features/auth/authService";
 
 export const useDashboardViewModel = () => {
   const dispatch = useDispatch();
@@ -235,6 +236,27 @@ const childHandoverdata = async (data) => {
     setLoading(false);
   }
 };
+const endChildSession = async (childId) => {
+  try {
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("_method", "PATCH");
+    // formData.append("qr_data", "12345678"); // whatever you need to send
+
+    const res = await authService.childendSession(childId, formData);
+
+    console.log("END SESSION RES:", res);
+    Alert.alert("Success", res.data?.message);
+
+    loadChildren();
+  } catch (error) {
+    console.log("End Session Error:", error?.response);
+  } finally {
+    setLoading(false);
+  }
+};
+
   return {
     loading,
     childList,
@@ -260,5 +282,6 @@ const childHandoverdata = async (data) => {
     handlechildrenSearch,
     childHandoverdata,
     showModal,setShowModal,
+    endChildSession
   };
 };

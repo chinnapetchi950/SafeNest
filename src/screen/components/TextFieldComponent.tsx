@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     
   label: {
     marginBottom: 6,
-    textAlign: "right",
+   textAlign: "right",
   },
   inputContainer: {
     flexDirection: "row",

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   StatusBar,
+  ImageBackground
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { images } from '../../utils/images';
@@ -62,11 +63,27 @@ export default function SplashScreen() {
         barStyle="light-content"
       />
       <LinearGradient colors={['#A774F0', '#8064E9']} style={styles.container}>
-        <Image
+      <ImageBackground
+  source={images.splash_screen}
+  style={styles.centerImage1}
+  resizeMode="center"
+>
+  <View style={styles.centerContent}>
+    <Image
+      source={images.applogo}
+      style={{ width: '70%', height: '90%' }}
+      resizeMode='stretch'
+    />
+  </View>
+</ImageBackground>
+
+
+  
+{/* <Image
           source={images.splash_screen} // replace with your actual image
           style={styles.centerImage}
           resizeMode="center"
-        />
+        /> */}
 
         <Text style={[globalstyles.regular_FontMedium, styles.title]}>
           {string.splash_center1}
@@ -172,5 +189,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 20,
     lineHeight: 22,
+  },
+  
+  overlayImage: {
+    position: "absolute",
+    width: 100,
+    height: 100,
+    marginBottom:40
+  },
+   centerImage1: {
+    width: "100%",
+    height: 300,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  centerContent: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
   },
 });

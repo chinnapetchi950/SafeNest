@@ -13,6 +13,7 @@ import { useDashboardViewModel } from "../../viewmodels/useDashboardViewModel";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import FilterBottomSheet from "../components/FilterModal";
+import { useSelector } from "react-redux";
 
 import { useFocusEffect } from "@react-navigation/native";
 import Storage from "../../utils/storage";
@@ -33,9 +34,15 @@ const pageSize = 10; // items per page
   
     const [openMinute, setOpenMinute] = useState(false);
     const [selectedMinute, setSelectedMinute] = useState(null);
+      const [firstUsername, setFirstUsername] = useState('');
+    
+
+    
+    
 
 useEffect(() => {
     viewModel.loadChildrenlist();
+    
   }, []);
 
   useEffect(() => {
@@ -57,6 +64,22 @@ useEffect(() => {
       ...item,
       selected: item.selected ?? false,
     }));
+    const getFullName = (child) => {
+        if (!child) return '';
+        return [
+          child?.firstname,
+          child?.secondname,
+          child?.thirdname,
+          child?.fourthname,
+        ]
+          .filter(Boolean)
+          .join(' ');
+      };
+
+      if (viewModel?.childrenList?.length > 0) {
+        const fullName = getFullName(viewModel.childrenList[0].user);
+        setFirstUsername(fullName);
+      }
     setChildren(updated);
   }
 }, [viewModel.childrenList]);
@@ -121,67 +144,91 @@ const handleDateChange = (event, selectedDate) => {
       viewModel.handleInputChange('date_of_birth', formateDate);
     }
   };
-  const renderCard = ({ item,index }) => (
-    <View style={styles.card}>
+const renderCard = ({ item, index }) => {
+  // Determine status
+  let statusText = "";
+  let statusColor = "";
+  let badgeBg = "";
+  let StatusIcon = null;
+  let iconName = "";
 
+  switch (item?.session_status) {
+    case "delivered":
+      statusText = "Delivered";
+      statusColor = "#2563EB"; // Blue
+      badgeBg = "#DCE6FB";
+      StatusIcon = Ionicons;
+      iconName = "checkmark-circle";
+      break;
+    case "waiting":
+      statusText = "Waiting";
+      statusColor = "#D69E2E"; // Orange
+      badgeBg = "#FDFBF6";
+      StatusIcon = Feather;
+      iconName = "alert-triangle";
+      break;
+    default:
+      // any other non-waiting status considered Active
+      statusText = "Active Now";
+      statusColor = "#3AB54A"; // Green
+      badgeBg = "#D8F3DC";
+      StatusIcon = Ionicons;
+      iconName = "checkmark-circle";
+      break;
+  }
+
+  return (
+    <View style={styles.card}>
       {/* LEFT SIDE */}
       <View style={styles.leftBox}>
-        <Text style={styles.number}>{index+1}</Text>
-
+        <Text style={styles.number}>{index + 1}</Text>
         <Text style={styles.childName}>{item.name}</Text>
         <Text style={styles.childName}>{item.guardian_name}</Text>
         <Text style={styles.childName}>
           {[item?.user?.firstname, item?.user?.secondname, item?.user?.thirdname, item?.user?.fourthname]
-    .filter(Boolean)   
-    .join(" ")} </Text>
+            .filter(Boolean)
+            .join(" ")}
+        </Text>
         <Text style={styles.childName}>{item.phone}</Text>
         <Text style={styles.childName}>{item.address}</Text>
         <Text style={styles.childName}>{item.total_play_duration}</Text>
-        <View style={[styles.activeBadge,{backgroundColor:item?.session_status!="expired"?'#D8F3DC':"#FDFBF6"}]}>
-          <Text style={[styles.activeText,{color:item?.session_status!="expired"?'#3AB54A':"#D69E2E"}]}>{item?.session_status!="expired"?"Active Now":"Waiting"}</Text>
-          
-    {item?.session_status!="expired"?
-        <Ionicons name="checkmark-circle" size={16} color="#3AB54A" />
-:    <Feather name="alert-triangle" size={16} color="#D69E2E" />}
 
-
-          {/* <Text style={styles.check}>✔</Text> */}
+        {/* Status Badge */}
+        <View style={[styles.activeBadge, { backgroundColor: badgeBg }]}>
+          <Text style={[styles.activeText, { color: statusColor }]}>{statusText}</Text>
+          <StatusIcon name={iconName} size={16} color={statusColor} />
         </View>
       </View>
+
+      {/* LABELS */}
       <View style={styles.labels}>
-          <Text style={styles.label}>No.</Text>
-          <Text style={styles.label}>Child Name</Text>
-          <Text style={styles.label}>Guerdian Name</Text>
-          <Text style={styles.label}>User Name</Text>
-          <Text style={styles.label}>Phone Number</Text>
-          <Text style={styles.label}>Address</Text>
-          <Text style={styles.label}>Play Hours</Text>
-          <Text style={styles.label}>Status</Text>
-        </View>
+        <Text style={styles.label}>No.</Text>
+        <Text style={styles.label}>Child Name</Text>
+        <Text style={styles.label}>Guardian Name</Text>
+        <Text style={styles.label}>User Name</Text>
+        <Text style={styles.label}>Phone Number</Text>
+        <Text style={styles.label}>Address</Text>
+        <Text style={styles.label}>Play Hours</Text>
+        <Text style={styles.label}>Status</Text>
+      </View>
+
       {/* RIGHT SIDE */}
       <View style={styles.rightBox}>
-        {/* <TouchableOpacity style={styles.checkBox}>
-          <Text style={{ color: "#fff" }}>✔</Text>
-        </TouchableOpacity> */}
-         <TouchableOpacity
+        <TouchableOpacity
           onPress={() => toggleSelect(item.id)}
-          style={[
-            styles.checkbox,
-            item.selected && styles.checkboxChecked,
-          ]}
+          style={[styles.checkbox, item.selected && styles.checkboxChecked]}
         >
-  {item.selected && (
-    <Ionicons name="checkmark" size={16} color="#fff" />
-  )}
-  </TouchableOpacity>
+          {item.selected && <Ionicons name="checkmark" size={16} color="#fff" />}
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.menuDots}>
           <Text style={styles.dots}>⋮</Text>
         </TouchableOpacity>
-
       </View>
-
     </View>
   );
+};
+
 
   return (
     <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
@@ -190,8 +237,8 @@ const handleDateChange = (event, selectedDate) => {
       {/* Header */}
       {role!='admin'&&
       <View style={styles.headerRow}>
-        <Text style={styles.title}>game management</Text>
-        <Text style={styles.userName}>Sarah Saad</Text>
+        <Text style={styles.title}>SafeNest</Text>
+        <Text style={styles.userName}>{firstUsername}</Text>
       </View>
 }
       {/* Search */}

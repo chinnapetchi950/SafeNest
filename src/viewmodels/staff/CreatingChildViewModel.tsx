@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { createChildUser } from "../../features/auth/staffSlice/registerNewChild/createChildSlice";
 import { launchImageLibrary } from "react-native-image-picker";
+import {Alert} from "react-native";
 import moment from "moment";
 
 const useFilterBottomSheetViewModel = () => {
@@ -347,7 +348,7 @@ const handlePickerChange = (event, selectedValue) => {
       const to = new Date(`2000-01-01 ${formatted}`);
 
       if (to <= from) {
-        alert("Play To must be greater than Play From");
+        Alert.alert("Play To must be greater than Play From");
         return;
       }
     }

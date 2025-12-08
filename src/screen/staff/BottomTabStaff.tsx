@@ -10,6 +10,8 @@ import { RegisterChildScreen } from "./registerchild/RegisterChild";
 import { useNavigation } from "@react-navigation/native";
 import SettingsScreen from '../Settings/SettingsScreen'
 import ChildListscreen from '../ChildrenList/ChildListScreen' ;
+import NotificationScreen from "./NotificationList";
+
 
 const Tab = createBottomTabNavigator();
 
@@ -83,10 +85,10 @@ const BottomTabsStaff = () => {
 
         <Tab.Screen
           name="Profile"
-          component={LoginScreen}
+          component={NotificationScreen}
           options={{
             tabBarIcon: ({ focused }) => (
-              <TabIcon name="person-outline" focused={focused} />
+              <TabIcon name="notifications-outline" focused={focused} />
             ),
           }}
         />
