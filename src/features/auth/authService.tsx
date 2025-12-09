@@ -52,6 +52,17 @@ deleteUsers: async (ids: number[]) => {
 
   return apiClient.post("api/admin/users-delete-multiple", formData, true);
 },
+getGameList: async (page = 1) => {
+  return apiClient.get(`api/admin/game-types?page=${page}`);
+},
+
+// --- DELETE GAME ---
+deleteGame: async (id) => {
+  const form = new FormData();
+  form.append("_method", "DELETE");
+
+  return apiClient.post(`api/admin/game-types/${id}`, form, true);
+},
 
 
   //  profile: () => apiClient.get("/auth/profile"),

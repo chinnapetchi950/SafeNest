@@ -30,10 +30,12 @@ import CustomTextField from '../components/TextFieldComponent';
 import DropDownPicker from 'react-native-dropdown-picker';
 import moment from 'moment';
 import ChildHandoverConfirmation from './ChildHandoverConfirmation';
+import { setLoading } from '../../features/auth/loadingSlice.tsx/loadingSlices';
+import { useDispatch } from 'react-redux';
 
 export default function Dashboard({navigation,route}) {
   const viewModel = useDashboardViewModel();
-
+const dispatch=useDispatch()
   // modal visible state
   const [visible, setVisible] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -333,11 +335,17 @@ const renderItem = React.useCallback(({ item }) => {
 
   const onClose = () => setVisible(false);
 const onRefresh = async () => {
-  setRefreshing(true);
-  
-  await viewModel.loadChildren();  // 👈 reload API
+  // Start global loader
+  dispatch(setLoading(true));
 
-  setRefreshing(false);
+  try {
+    await viewModel.loadChildren(); // reload API
+  } catch (err) {
+    console.log('Refresh error', err);
+  } finally {
+    // Stop global loader
+    dispatch(setLoading(false));
+  }
 };
   const onApply = async () => {
     await viewModel.handleSearch();
@@ -386,6 +394,7 @@ const onRefresh = async () => {
 
 
 
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={globalstyles.mainbg}>
@@ -402,7 +411,7 @@ const onRefresh = async () => {
           // onChangeText={text => {}}
           onSearchPress={() => viewModel.handleSearch()}
           onFilterPress={() => {
-            viewModel.resetFilter(), setVisible(true);
+            setVisible(true);
           }}
         />
 
@@ -417,14 +426,21 @@ const onRefresh = async () => {
           showsVerticalScrollIndicator={false}
           refreshing={refreshing}
   onRefresh={onRefresh}
+   ListEmptyComponent={() => (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
+      <Text style={{ fontSize: 16, color: "#888" }}>No data available</Text>
+    </View>
+  )}
         />
       </View>
 
       {/* Modal */}
       <FilterBottomSheet
         visible={visible}        onClose={() => setVisible(false)}
-        onApply={()=>{setVisible(false),viewModel.handleSearch}}
-        viewModel={viewModel}
+onApply={async () => {
+  await viewModel.handleSearch(); // ✅ actually call the function
+  setVisible(false);
+}}        viewModel={viewModel}
         minutes={minutes}
         hours={hours}
         openHour={openHour}
@@ -438,6 +454,11 @@ const onRefresh = async () => {
         showDatePicker={showDatePicker}
         setShowDatePicker={setShowDatePicker}
         handleDateChange={handleDateChange}
+         onReset={async () => {
+    viewModel.resetFilter(); // Reset all filter fields in the viewModel
+    await viewModel.loadChildren(); // Reload home/dashboard data without filters
+    setVisible(false); // Close the modal
+  }}
       />
       {viewModel?.showModal && (
   <ChildHandoverConfirmation

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback,useMemo  } from "react";
 import { useDispatch } from "react-redux";
 import { fetchDashboardChildren } from "../features/auth/dashboardSlice/dashboardSlice";
 import { fetchDashboardChildrenfilter } from "../features/auth/dashboardSlice/dashboardfilterslice";
@@ -44,7 +44,10 @@ const [showModal, setShowModal] = useState(false);
   const handleChange = (key: string, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
-
+ const isApplyDisabled = useMemo(
+    () => Object.values(filters).every((value) => value === "" || value === null),
+    [filters]
+  );
   const resetFilter = () => {
     setFilters({
       phone: "",
@@ -143,6 +146,8 @@ const handleInputChangeForm = (key, value) => {
     return { status: true, data: filters };
   };
  const handleSearch = async () => {
+  console.log("pppp");
+  
   try {
     setLoading(true);
 
@@ -282,6 +287,7 @@ const endChildSession = async (childId) => {
     handlechildrenSearch,
     childHandoverdata,
     showModal,setShowModal,
-    endChildSession
+    endChildSession,
+    isApplyDisabled
   };
 };

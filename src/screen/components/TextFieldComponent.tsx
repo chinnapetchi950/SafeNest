@@ -25,6 +25,7 @@ interface CustomTextFieldProps extends TextInputProps {
   readonly?: boolean;
   isPassword?: boolean;
   showPasswordToggle?: boolean;
+  inputstyle?:{}
   /** 👇 NEW: optional error message */
   error?: string;
 }
@@ -39,6 +40,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
   isPassword = false,
   showPasswordToggle = false,
   error,
+  inputstyle,
   ...textInputProps
 }) => {
   const [isSecure, setIsSecure] = useState(isPassword);
@@ -54,7 +56,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
         style={[
           styles.inputContainer,
           readonly && { backgroundColor: "#f5f5f5" },
-          error && { borderColor: "#FF6B6B" }, // 🔴 Highlight border if error
+          error && { borderColor: "#FF6B6B" }, inputstyle, // 🔴 Highlight border if error
         ]}
       >
         {/* Prefix icon */}
@@ -179,7 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: '#fff',
     height: 50,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
   },
   input1: {
     flex: 1,

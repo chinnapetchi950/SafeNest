@@ -7,7 +7,7 @@ import Login from './src/screen/login/Login';
 import LoginScreen from './src/screen/login/Login';
 import Dashboard from './src/screen/staff/Dashboard';
 import { Provider } from 'react-redux';
-import { store } from './src/store/store';
+// import { store ,persistor} from './src/store/store';
 import BottomTabs from './src/screen/bottomtab/bottomTabbar';
 import AccountTypeScreen from './src/screen/bottomtab/adduser/AddUser';
 import { UserInformationScreen } from './src/screen/bottomtab/adduser/UserInformationScreen';
@@ -21,6 +21,10 @@ import ChangePasswordScreen from './src/screen/Settings/Changepassword';
 import RegisterNewGame from './src/screen/bottomtab/addGame/RegisterNewGame';
 import { navigationRef } from './src/navigations/Appnavigator';
 import GameManagementScreen from './src/screen/Settings/GamemanagementList';
+import MessageManagementScreen from './src/screen/message/MessageMenagement';
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from "./src/store/store";
+
 // Import your screens
 
 const Stack = createNativeStackNavigator();
@@ -29,6 +33,7 @@ export default function App() {
   return (
     // ✅ Ensures SafeArea works across screens (top/bottom insets)
     <Provider store={store}>
+       <PersistGate loading={<CommonLoader/>} persistor={persistor}>
       <SafeAreaProvider>
         <NavigationContainer ref={navigationRef}>
           <Stack.Navigator
@@ -73,12 +78,14 @@ export default function App() {
             <Stack.Screen name="splashScreen" component={SplashScreen} />
             <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
             <Stack.Screen name="GameManagementScreen" component={GameManagementScreen} />
-            
+            <Stack.Screen name="MessageManagementScreen" component={MessageManagementScreen} />
             {/* Add more screens here */}
           </Stack.Navigator>
         </NavigationContainer>
+        <CommonLoader />
       </SafeAreaProvider>
-      <CommonLoader /> {/* ✅ Always visible, listens to Redux */}
+      </PersistGate>
+      {/* <CommonLoader /> ✅ Always visible, listens to Redux */}
     </Provider>
   );
 }

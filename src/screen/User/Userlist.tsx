@@ -15,15 +15,20 @@ import { useDashboardViewModel } from "../../viewmodels/useDashboardViewModel";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { deleteUsers } from "../../features/auth/User/userSlice";
 import { useDispatch } from "react-redux";
-
+import ViewAccountModal from "../components/ViewAccountModal";
 export default function UserlistScreen() {
   const viewModel = useDashboardViewModel();
+
   const dispatch = useDispatch();
 
   const [userList, setUserlist] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchText, setSearchText] = useState("");
+    const [showAccountModal, setShowAccountModal] = useState(false);
+const [user,setUser]=useState({})
+
   const pageSize = 10;
 
   useEffect(() => {
@@ -102,7 +107,7 @@ export default function UserlistScreen() {
     [user.firstname, user.secondname, user.thirdname, user.fourthname]
       .join(" ")
       .toLowerCase()
-      .includes(viewModel?.searchText?.toLowerCase() || "")
+      .includes(searchText?.toLowerCase() || "")
   );
 
   const totalPages = Math.ceil(filtered.length / pageSize) || 1;
@@ -112,7 +117,7 @@ export default function UserlistScreen() {
   );
 
   const renderCard = ({ item, index }) => (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={()=>{ setUser(item),setShowAccountModal(true)}} style={styles.card}>
       {/* LEFT */}
       <View style={styles.leftBox}>
         <Text style={styles.number}>{index + 1}</Text>
@@ -167,7 +172,7 @@ export default function UserlistScreen() {
           </View>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -176,8 +181,8 @@ export default function UserlistScreen() {
         {/* Search */}
         <View style={styles.searchWrapper}>
           <SearchBar
-            placeholder="Search for a child"
-            onChangeText={(text) => viewModel?.handleSearchChange(text)}
+            placeholder="Search for a user"
+            onChangeText={(text) => setSearchText(text)}
           />
         </View>
 
@@ -220,6 +225,11 @@ export default function UserlistScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderCard}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={() => (
+              <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
+                <Text style={{ fontSize: 16, color: "#888" }}>No data available</Text>
+              </View>
+            )}
         />
 
         {/* Pagination */}
@@ -261,6 +271,11 @@ export default function UserlistScreen() {
           </TouchableOpacity>
         </View>
       </View>
+       <ViewAccountModal
+        visible={showAccountModal}
+        user={user}
+        onClose={() =>{setShowAccountModal(false)}}
+      />
     </SafeAreaView>
   );
 }

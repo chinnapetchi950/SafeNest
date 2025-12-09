@@ -278,6 +278,11 @@ const renderCard = ({ item, index }) => {
         keyExtractor={(item) => item.id}
         renderItem={renderCard}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
+              <Text style={{ fontSize: 16, color: "#888" }}>No data available</Text>
+            </View>
+          )}
       />
 
       {/* Pagination */}

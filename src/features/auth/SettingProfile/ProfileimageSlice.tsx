@@ -47,8 +47,25 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    createAsyncThunkHandlers(builder, uploadProfileImage, "uploadProfileImage");
-  },
+  createAsyncThunkHandlers(builder, uploadProfileImage, "uploadProfileImage");
+
+  builder.addCase(uploadProfileImage.fulfilled, (state, action) => {
+    const newImage = action?.payload?.data?.profile_image_url;
+
+    if (newImage) {
+      // If user already exists, update only image
+      if (state.user) {
+        state.user.profile_image_url = newImage;
+      }
+
+      // If your login stored inside state.data.login
+      if (state.data?.login) {
+        state.data.login.profile_image_url = newImage;
+      }
+    }
+  });
+}
+
 });
 
 export default authSlice.reducer;

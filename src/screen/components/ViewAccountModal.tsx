@@ -12,11 +12,36 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 export default function ViewAccountModal({ visible, onClose, user }) {
   if (!user) return null;
 
+  const BASE_URL = "https://testlink3.pillersofttechnologies.com/storage/";
+
+  const getFinalProfileImageUrl = (profile_image) => {
+    if (!profile_image) return null;
+    if (profile_image.startsWith("http")) return profile_image;
+    return BASE_URL + profile_image;
+  };
+
+  const renderImageRow = (label, urls) => (
+    <View style={styles.imageRow}>
+      <Text style={styles.label}>{label}</Text>
+      {Array.isArray(urls) && urls.length > 0 ? (
+        urls.map((img, index) => (
+          <Image
+            key={index}
+            source={{ uri: getFinalProfileImageUrl(img) }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        ))
+      ) : (
+        <Text style={styles.noImage}>-</Text>
+      )}
+    </View>
+  );
+
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.card}>
-
           {/* CLOSE BUTTON */}
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <Ionicons name="close" size={22} color="#6B6B6B" />
@@ -25,7 +50,7 @@ export default function ViewAccountModal({ visible, onClose, user }) {
           {/* TITLE */}
           <Text style={styles.title}>Account Details</Text>
 
-          {/* USER INFO BOX */}
+          {/* USER INFO */}
           <View style={styles.infoBox}>
             {renderRow("First Name", user.firstname)}
             {renderRow("Second Name", user.secondname)}
@@ -37,52 +62,21 @@ export default function ViewAccountModal({ visible, onClose, user }) {
             {renderRow("National ID", user.national_id_number)}
             {renderRow("Residency Card", user.residency_card_number)}
 
-            {/* NATIONAL ID IMAGE */}
-            <View style={styles.imageRow}>
-              <Text style={styles.label}>National ID Image</Text>
-              {Array.isArray(user.national_id_urls) && user.national_id_urls.length > 0 ? (
-  user.national_id_urls.map((img, index) => (
-    <Image
-      key={index}
-      source={{ uri: img }}
-      style={styles.image}
-      resizeMode="cover"
-    />
-  ))
-) : (
-  <Text style={styles.noImage}>-</Text>
-)}
-            </View>
-
-            {/* RESIDENCY CARD IMAGE */}
-            <View style={styles.imageRow}>
-              <Text style={styles.label}>Residency Card Image</Text>
-             {Array.isArray(user.residency_card_urls) && user.residency_card_urls.length > 0 ? (
-  user.residency_card_urls.map((img, index) => (
-    <Image
-      key={index}
-      source={{ uri: img }}
-      style={styles.image}
-      resizeMode="cover"
-    />
-  ))
-) : (
-  <Text style={styles.noImage}>-</Text>
-)}
-            </View>
+            {renderImageRow("National ID Image", user.national_id_urls)}
+            {renderImageRow("Residency Card Image", user.residency_card_urls)}
           </View>
 
           {/* DONE BUTTON */}
           <TouchableOpacity style={styles.doneBtn} onPress={onClose}>
             <Text style={styles.doneText}>Done</Text>
           </TouchableOpacity>
-
         </View>
       </View>
     </Modal>
   );
 }
 
+// Helper to render label + value row
 const renderRow = (label, value) => (
   <View style={styles.row}>
     <Text style={styles.label}>{label}</Text>
@@ -100,9 +94,8 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     backgroundColor: "#fff",
-    borderTopRightRadius:20,
-    borderTopLeftRadius:20,
-    //borderRadius: 20,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
     padding: 25,
     alignItems: "center",
   },
@@ -151,7 +144,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 80,
     borderRadius: 8,
-    resizeMode: "cover",
     borderWidth: 1,
     borderColor: "#ddd",
     marginTop: 5,

@@ -99,6 +99,11 @@ const authSlice = createSlice({
       state.user = null;
       state.data = {};
     },
+    updateLoginProfileImage: (state, action) => {
+    if (state.data?.login) {
+      state.data.login.profile_image_url = action.payload;
+    }
+  },
   },
   extraReducers: (builder) => {
     createAsyncThunkHandlers(builder, loginUser, "login");
@@ -137,5 +142,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout,updateLoginProfileImage  } = authSlice.actions;
 export default authSlice.reducer;

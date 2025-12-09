@@ -38,6 +38,7 @@ const viewModel=loginViewModel()
         label="Username"
         placeholder="Username"
         prefixIcon="person-outline"
+        inputstyle={{marginLeft:10}}
       />
       {viewModel.formError.email ? (
         <Text style={{ color: "red", marginBottom: 8 }}>
@@ -64,6 +65,7 @@ const viewModel=loginViewModel()
   onPrefixPress={() => setShowPassword(!showPassword)}
   isPassword
   secureTextEntry={!showPassword}
+  inputstyle={{marginLeft:10}}
 />
       {viewModel.formError.password ? (
         <Text style={{ color: "red", marginBottom: 8 }}>

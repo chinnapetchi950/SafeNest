@@ -20,7 +20,7 @@ const FilterBottomSheet = ({
   onClose,
   onApply,
   viewModel,
-
+onReset,
   minutes,
   hours,
   openHour,
@@ -46,7 +46,7 @@ const FilterBottomSheet = ({
         <View style={styles.bottomSheet}>
           {/* Header */}
           <View style={styles.headerRow}>
-            <TouchableOpacity onPress={viewModel.resetFilter}>
+            <TouchableOpacity onPress={onReset}>
               <Text style={styles.reset}>Reset</Text>
             </TouchableOpacity>
 
@@ -260,7 +260,7 @@ const FilterBottomSheet = ({
             </View>
 
             {/* Apply Button */}
-            <TouchableOpacity style={styles.applyBtn} onPress={onApply}>
+            <TouchableOpacity  disabled={viewModel?.isApplyDisabled}style={[styles.applyBtn,{backgroundColor:viewModel?.isApplyDisabled?"#ccc":'#A278F4'}]} onPress={onApply}>
               <Text style={styles.applyText}>Apply Filter</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   applyBtn: {
     backgroundColor: "#8B5CF6",
     padding: 14,
-    borderRadius: 12,
+    borderRadius: 25,
     marginTop: 35,
     alignItems: "center",
   },

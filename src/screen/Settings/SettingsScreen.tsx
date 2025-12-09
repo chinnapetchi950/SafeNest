@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity,Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity,Alert ,ActivityIndicator} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import globalstyles from '../../styles/globalstyles';
@@ -9,26 +9,26 @@ import { useDispatch, useSelector } from "react-redux";
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import { Dispatch } from '@reduxjs/toolkit';
 import { uploadProfileImage } from '../../features/auth/SettingProfile/ProfileimageSlice';
+import { updateLoginProfileImage } from '../../features/auth/authSlice';
 
 export default function SettingsScreen({ navigation }) {
   const dispatch = useDispatch();
   const [role, setRole] = useState(null);
-  const [userData,setUserData]=useState({})
+  const [profileData,setUserprofileData]=useState({})
+const [uploadingImage, setUploadingImage] = useState(false);
 
 
 const userdata = useSelector(
   (state) => state.auth?.data?.login
 );
- console.log(userdata,'userdata==>');
+//  console.log(userdata,'userdata==>');
 
 useEffect(() => {
   if (userdata?.data) {
-    setUserData(userdata?.data)
-
-
+    setUserprofileData(userdata?.data);
   }
-}, [userData]);
- console.log(userData,'usrdata');
+}, [profileData]);
+ console.log(userdata,'usrdata');
 
   useEffect(() => {
     const loadRole = async () => {
@@ -90,26 +90,42 @@ const handleImageResponse = (response) => {
   }
 
   const image = response.assets[0];
+  setUploadingImage(true); // start loader
 
-  dispatch(uploadProfileImage({image})).unwrap()
-    .then((res: { status: any; data: { profile_image_url: any; }; }) => {
-      console.log("res====================>",res);
-      
-      if (res.status) {
-        
+  dispatch(uploadProfileImage({ image })).unwrap()
+    .then((url) => {       // api returns URL string
+      console.log("Uploaded Image URL:", url);
+
+      if (url) {
+        // update userData properly
+              dispatch(updateLoginProfileImage(url));  // <--- UPDATE REDUX LOGIN DATA
+
+        setUserprofileData(prev => ({
+          ...prev,
+          profile_image: url?.profile_image_url,   // full URL returned directly
+        }));
+  setUploadingImage(false); // start loader
+
         Alert.alert("Success", "Profile updated successfully!");
-
-        // update local user state
-        setUserData({
-          ...userData,
-          profile_image: res.profile_image_url,
-        });
       }
     })
     .catch(() => {});
 };
 
 
+const BASE_URL = "https://testlink3.pillersofttechnologies.com/storage/";
+
+const getFinalProfileImageUrl = (profile_image) => {
+  if (!profile_image) return null;
+
+  // CASE 1 — already full URL
+  if (profile_image.startsWith("http")) {
+    return profile_image;
+  }
+
+  // CASE 2 — relative path "users/profile_images/xxxx.jpg"
+  return BASE_URL + profile_image;
+};
 
 
   return (
@@ -122,20 +138,39 @@ const handleImageResponse = (response) => {
         <Text style={styles.userName}>Manage your account settings and preferences</Text>
       </View>
 }
+{console.log(profileData,'profileData')}
 
       {/* Profile Image */}
       {role != 'admin' && (
         <>
           <TouchableOpacity onPress={pickImage} style={styles.profileContainer}>
-            <Image
+            {/* <Image
+  //             source={
+  //   userData?.profile_image
+  //     ? { uri: `${userData.profile_image}?v=${Date.now()}` }
+  //     : require('../../../assets/images/setting_profile.png')
+  // }
+
             source={
       userData?.profile_image
-        ? { uri: userData.profile_image }
+        ? { uri: `${"https://testlink3.pillersofttechnologies.com/storage/"}${userData.profile_image}` }
         : require('../../../assets/images/setting_profile.png')
     }
               // source={require('../../../assets/images/setting_profile.png')}
               style={styles.profileImage}
-            />
+            /> */}
+            <View style={{ width: 120, height: 120, borderRadius: 60 }}>
+  
+            <Image
+ source={
+    profileData?.profile_image
+      ? { uri: `${getFinalProfileImageUrl(profileData?.profile_image)}` }
+      : require('../../../assets/images/setting_profile.png')
+  }
+  style={styles.profileImage}
+/>
+
+</View>
           </TouchableOpacity>
 
           <View style={{ marginHorizontal: 20 }}>
@@ -145,7 +180,7 @@ const handleImageResponse = (response) => {
                 { margin: 5, textAlign: 'right', fontSize: 16 },
               ]}
             >
-              {[userData?.firstname, userData.secondname, userData.thirdname, userData.fourthname]
+              {[profileData?.firstname, profileData.secondname, profileData.thirdname, profileData.fourthname]
     .filter(Boolean)   
     .join(" ")}
               {/* Sarah Saad Kadhem */}
@@ -156,7 +191,7 @@ const handleImageResponse = (response) => {
                 { margin: 5, textAlign: 'right', fontSize: 12 },
               ]}
             >
-              {userData?.email}
+              {profileData?.email}
             </Text>
             <Text
               style={[
@@ -164,7 +199,7 @@ const handleImageResponse = (response) => {
                 { marginRight: 5, textAlign: 'right', fontSize: 12 },
               ]}
             >
-              {userData?.phone}
+              {profileData?.phone}
             </Text>
           </View>
         </>
@@ -241,7 +276,9 @@ const handleImageResponse = (response) => {
         </View>
       </TouchableOpacity>}
        {role === 'admin' && 
-      <TouchableOpacity style={styles.row}>
+      <TouchableOpacity 
+      //onPress={()=>navigation.navigate('MessageManagementScreen')} 
+      style={styles.row}>
         <View>
           <Ionicons name="chevron-back-outline" size={22} color="#A4A3A9" />
         </View>
