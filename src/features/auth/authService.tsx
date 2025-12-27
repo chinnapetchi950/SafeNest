@@ -63,8 +63,21 @@ deleteGame: async (id) => {
 
   return apiClient.post(`api/admin/game-types/${id}`, form, true);
 },
+getMessages:async (page = 1) => {
+  return apiClient.get(`api/admin/messages?page=${page}`);
+},
+createMessage:async (data) => {
+  return apiClient.post(`api/admin/messages`,data,true);
+},
+updateMessage:async (id,form) => {
+  return apiClient.post(`api/admin/messages/${id}`,form,true);
+},
+deleteMessage:async (id) => {
+    const form = new FormData();
+  form.append("_method", "DELETE");
 
-
+  return apiClient.post(`api/admin/messages/${id}`,form,true);
+},
   //  profile: () => apiClient.get("/auth/profile"),
 };
 

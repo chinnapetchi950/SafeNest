@@ -1,383 +1,5 @@
-// // MessageScreens.js
-// import React, { useEffect, useState, useCallback } from "react";
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   StyleSheet,
-//   FlatList,
-//   KeyboardAvoidingView,
-//   Platform,
-//   ScrollView,
-//   Alert,
-// } from "react-native";
 
-// import { useFocusEffect } from "@react-navigation/native";
-
-// // Simple small pill button
-// function Pill({ children, onPress, style }) {
-//   return (
-//     <TouchableOpacity onPress={onPress} style={[styles.pill, style]}>
-//       <Text style={styles.pillText}>{children}</Text>
-//     </TouchableOpacity>
-//   );
-// }
-
-// function MessageCard({ item, onEdit }) {
-//   return (
-//     <View style={styles.card}>
-//       <View style={styles.cardHeader}>
-//         <Pill style={styles.editPill} onPress={() => onEdit(item)}>
-//           Edit Message
-//         </Pill>
-//         <Text style={styles.cardTitle}>{item.message_name}</Text>
-//       </View>
-
-//       <Text style={styles.cardBody} numberOfLines={3}>
-//         {item.message_content}
-//       </Text>
-
-//       <View style={styles.cardFooter}>
-//         <Text style={styles.footerText}>
-//           {formatSendingText(item)}
-//         </Text>
-//         <Text style={styles.sendingLabel}>Sending Time</Text>
-//       </View>
-//     </View>
-//   );
-// }
-
-// function formatSendingText(item) {
-//   // Example: "2 minutes before the session ends" or absolute time
-//   if (item.type === "alert") {
-//     const dir = item.offset_type === "before" ? "before" : "after";
-//     return `${item.offset_time} minutes ${dir} the session ends`;
-//   }
-//   if (item.type === "reward") {
-//     return `Sent on ${item.send_date || "—"} at ${item.send_time || "—"}`;
-//   }
-//   if (item.type === "working_hours") {
-//     return `At close ${item.when_place_closes ? "(when place closes)" : item.send_time || "—"}`;
-//   }
-//   return item.send_time || "—";
-// }
-
-// /* -------------------------
-//    API helpers (replace URL)
-//    ------------------------- */
-// const API_BASE = "https://api.example.com"; // <-- replace
-
-// async function fetchMessages() {
-//   try {
-//     const res = await fetch(`${API_BASE}/messages`);
-//     if (!res.ok) throw new Error("Failed to load");
-//     const json = await res.json();
-//     return json;
-//   } catch (e) {
-//     console.warn("fetchMessages error", e);
-//     return { data: [] };
-//   }
-// }
-
-// async function createOrUpdateMessage(payload) {
-//   // if payload.id exists -> PUT else POST
-//   const method = payload.id ? "PUT" : "POST";
-//   const url = payload.id ? `${API_BASE}/messages/${payload.id}` : `${API_BASE}/messages`;
-//   const res = await fetch(url, {
-//     method,
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify(payload),
-//   });
-//   if (!res.ok) throw new Error("save failed");
-//   return await res.json();
-// }
-
-// /* -------------------------
-//    Saved Messages Screen
-//    ------------------------- */
-// export function SavedMessagesScreen({ navigation }) {
-//   const [messages, setMessages] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useFocusEffect(
-//     useCallback(() => {
-//       let mounted = true;
-//       setLoading(true);
-//       fetchMessages()
-//         .then((r) => {
-//           if (!mounted) return;
-//           // normalize into array
-//           const data = r.data || [];
-//           setMessages(data);
-//         })
-//         .finally(() => mounted && setLoading(false));
-//       return () => (mounted = false);
-//     }, [])
-//   );
-
-//   function onEdit(item) {
-//     navigation.navigate("MessageForm", { mode: "edit", id: item.id });
-//   }
-
-//   const byCategory = messages; // assume already category sorted
-
-//   return (
-//     <View style={styles.screen}>
-//       <View style={styles.header}>
-//         <Text style={styles.headerTitle}>Message Management</Text>
-//       </View>
-
-//       <View style={styles.tabRow}>
-//         <Text style={[styles.tabText, styles.tabActive]}>Send Message</Text>
-//         <TouchableOpacity onPress={() => navigation.navigate("CreateNew")}>
-//           <Text style={styles.tabText}>Create New Message</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       <FlatList
-//         data={byCategory}
-//         keyExtractor={(i) => String(i.id)}
-//         contentContainerStyle={{ padding: 20 }}
-//         renderItem={({ item }) => <MessageCard item={item} onEdit={onEdit} />}
-//         ListEmptyComponent={<Text style={styles.empty}>No saved messages</Text>}
-//       />
-//     </View>
-//   );
-// }
-
-// /* -------------------------
-//    Message Form Screen (Create/Edit single message)
-//    ------------------------- */
-
-
-
-
-// /* -------------------------
-//    Message Management Screen (Create New - long scroll)
-//    ------------------------- */
-// export function MessageManagementScreen({ navigation }) {
-//   // This screen mirrors your "Create New Message" long form where each section is independent.
-//   // For brevity, we'll show a condensed version with navigation into MessageForm for each type.
-//   const goCreate = (type) => {
-//     navigation.navigate("MessageForm", { mode: "create", initialType: type });
-//   };
-
-//   return (
-//     <ScrollView contentContainerStyle={styles.screen}>
-//       <Text style={styles.headerTitle}>Message Management</Text>
-
-//       <View style={styles.card}>
-//         <Text style={styles.sectionTitle}>End of Working Hours Messages</Text>
-//         <Text style={styles.cardBody}>Create messages that send at the end of service hours.</Text>
-//         <TouchableOpacity style={styles.smallBtn} onPress={() => goCreate("working_hours")}>
-//           <Text style={styles.smallBtnText}>Create End of Working Hours Message</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       <View style={styles.card}>
-//         <Text style={styles.sectionTitle}>Alert Messages</Text>
-//         <Text style={styles.cardBody}>Messages sent automatically when playtime is ending.</Text>
-//         <TouchableOpacity style={styles.smallBtn} onPress={() => goCreate("alert")}>
-//           <Text style={styles.smallBtnText}>Create Alert Message</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       <View style={styles.card}>
-//         <Text style={styles.sectionTitle}>Reward Messages</Text>
-//         <Text style={styles.cardBody}>Messages to motivate children or provide discounts.</Text>
-//         <TouchableOpacity style={styles.smallBtn} onPress={() => goCreate("reward")}>
-//           <Text style={styles.smallBtnText}>Create Reward Message</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       <View style={styles.card}>
-//         <Text style={styles.sectionTitle}>General Messages</Text>
-//         <Text style={styles.cardBody}>Welcome messages or announcements.</Text>
-//         <TouchableOpacity style={styles.smallBtn} onPress={() => goCreate("general")}>
-//           <Text style={styles.smallBtnText}>Create General Message</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       <View style={{ height: 120 }} />
-//     </ScrollView>
-//   );
-// }
-
-// /* -------------------------
-//    Styles (StyleSheet)
-//    ------------------------- */
-// const styles = StyleSheet.create({
-//   screen: {
-//     flex: 1,
-//     backgroundColor: "#FAF8FF",
-//   },
-//   header: {
-//     paddingTop: 18,
-//     paddingHorizontal: 20,
-//     paddingBottom: 8,
-//     backgroundColor: "transparent",
-//   },
-//   headerSpace: { paddingVertical: 6 },
-//   headerTitle: {
-//     textAlign: "center",
-//     fontSize: 16,
-//     fontWeight: "600",
-//     color: "#222222",
-//     marginVertical: 8,
-//   },
-
-//   tabRow: {
-//     flexDirection: "row",
-//     justifyContent: "flex-start",
-//     paddingHorizontal: 20,
-//     paddingVertical: 10,
-//   },
-//   tabText: {
-//     fontSize: 14,
-//     color: "#B8A9DB",
-//     marginRight: 18,
-//   },
-//   tabActive: {
-//     color: "#A67BFF",
-//     textDecorationLine: "underline",
-//   },
-
-//   sectionTitle: {
-//     fontSize: 13,
-//     color: "#8B8796",
-//     marginTop: 10,
-//     marginBottom: 8,
-//   },
-
-//   input: {
-//     backgroundColor: "#FFFFFF",
-//     borderRadius: 10,
-//     borderWidth: 1,
-//     borderColor: "#EDEAF7",
-//     padding: 12,
-//     marginBottom: 12,
-//     fontSize: 14,
-//   },
-
-//   textarea: {
-//     backgroundColor: "#FFFFFF",
-//     borderRadius: 10,
-//     borderWidth: 1,
-//     borderColor: "#EDEAF7",
-//     padding: 14,
-//     height: 140,
-//     textAlignVertical: "top",
-//     marginBottom: 12,
-//     fontSize: 14,
-//   },
-
-//   helper: {
-//     fontSize: 12,
-//     color: "#8B8796",
-//     marginBottom: 6,
-//   },
-
-//   row: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     gap: 8,
-//     marginBottom: 14,
-//   },
-
-//   pill: {
-//     paddingVertical: 8,
-//     paddingHorizontal: 12,
-//     backgroundColor: "#F6F2FF",
-//     borderRadius: 20,
-//     borderWidth: 0,
-//     marginRight: 8,
-//   },
-//   pillText: { color: "#5A4B8A", fontSize: 13 },
-
-//   pillActive: {
-//     backgroundColor: "#EDE0FF",
-//     borderWidth: 0,
-//   },
-
-//   smallInput: {
-//     width: 80,
-//     backgroundColor: "#FFFFFF",
-//     borderRadius: 10,
-//     borderColor: "#EDEAF7",
-//     borderWidth: 1,
-//     padding: 8,
-//     marginLeft: 8,
-//   },
-
-//   checkboxRow: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//   },
-//   fakeCheckbox: {
-//     marginLeft: 12,
-//   },
-
-//   cta: {
-//     marginTop: 18,
-//     height: 52,
-//     borderRadius: 26,
-//     alignItems: "center",
-//     justifyContent: "center",
-//     backgroundColor: "#A67BFF",
-//     shadowColor: "#A67BFF",
-//     shadowOpacity: 0.12,
-//     elevation: 2,
-//   },
-//   ctaDisabled: { backgroundColor: "#E6E0F7" },
-//   ctaText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-
-//   card: {
-//     marginHorizontal: 16,
-//     marginVertical: 10,
-//     backgroundColor: "#fff",
-//     borderRadius: 12,
-//     padding: 14,
-//     shadowColor: "#000",
-//     shadowOpacity: 0.03,
-//     elevation: 1,
-//   },
-
-//   cardHeader: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//   },
-//   editPill: { backgroundColor: "#F4F0FF", paddingVertical: 6, paddingHorizontal: 8 },
-//   cardTitle: { fontWeight: "700", color: "#222222", fontSize: 14 },
-//   cardBody: { marginTop: 8, color: "#4A4457", fontSize: 13 },
-//   cardFooter: {
-//     marginTop: 10,
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//   },
-//   footerText: { color: "#8B8796", fontSize: 12 },
-//   sendingLabel: { color: "#B8A9DB", fontSize: 12 },
-
-//   smallBtn: {
-//     marginTop: 12,
-//     paddingVertical: 12,
-//     borderRadius: 10,
-//     alignItems: "center",
-//     backgroundColor: "#F8F6FF",
-//   },
-//   smallBtnText: { color: "#6B4FF2", fontWeight: "600" },
-
-//   empty: {
-//     marginTop: 40,
-//     textAlign: "center",
-//     color: "#8B8796",
-//   },
-// });
-
-
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import {
   View,
   Text,
@@ -390,41 +12,96 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useRegisterGameViewModel } from "../../viewmodels/registerNewgameViewmodal";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import strings from "../../localization/en";
+import authService from "../../features/auth/authService";
+import MinutePicker from "../components/MunitePicker";
+import DatePickerInput from "../components/Datepicker";
+import moment from "moment";
 export default function MessageManagementScreen({navigation}) {
-  const [activeTab, setActiveTab] = useState("saved");
+  // const [activeTab, setActiveTab] = useState("saved");
+const [activeTab, setActiveTab] = useState("saved");
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [editingItem, setEditingItem] = useState(null); // 👈 selected message
+const [isEditMode, setIsEditMode] = useState(false);
 
+  useEffect(() => {
+    fetchMessages();
+  }, []);
+
+  const fetchMessages = async () => {
+    try {
+      setLoading(true);
+      const res = await authService.getMessagelist();
+      setMessages(res?.data?.data?.data || []);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // const onDelete = (id) => {
+  //   Alert.alert(
+  //     strings.messageManagement.delete,
+  //     strings.messageManagement.deleteConfirm,
+  //     [
+  //       { text: strings.messageManagement.cancel },
+  //       {
+  //         text: strings.messageManagement.delete,
+  //         style: "destructive",
+  //         onPress: async () => {
+  //           // ✅ refresh list
+  //         },
+  //       },
+  //     ]
+  //   );
+  // };
   // Dummy Saved Messages
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: "Alert Message",
-      content:
-        "Dear Guardian, (child’s name) has finished playtime. Please come for pickup.",
-      timing: "2 minutes before the session ends",
-    },
-    {
-      id: 2,
-      type: "Reward Message",
-      content:
-        "The child (child_name) has spent over an hour playing! Enjoy a special discount.",
-      timing: "Sending Time",
-    },
-  ]);
+  // const [messages, setMessages] = useState([
+  //   {
+  //     id: 1,
+  //     type: "Alert Message",
+  //     content:
+  //       "Dear Guardian, (child’s name) has finished playtime. Please come for pickup.",
+  //     timing: "2 minutes before the session ends",
+  //   },
+  //   {
+  //     id: 2,
+  //     type: "Reward Message",
+  //     content:
+  //       "The child (child_name) has spent over an hour playing! Enjoy a special discount.",
+  //     timing: "Sending Time",
+  //   },
+  // ]);
 
-  const deleteMessage = (id) => {
+  const deleteMessage = async(id) => {
     Alert.alert("Confirm Delete", "Are you sure you want to delete this?", [
       { text: "Cancel" },
       {
         text: "Delete",
         style: "destructive",
-        onPress: () => {
-          setMessages((prev) => prev.filter((item) => item.id !== id));
-        },
+       onPress: async () => {
+  try {
+    await authService.deleteMessage(id);
+    fetchMessages(); 
+    setMessages((prev) => prev.filter((item) => item.id !== id));
+  } catch (error) {
+    console.error(error);
+  }
+},
       },
     ]);
   };
-
+const onSuccess=() => {
+    setActiveTab("saved");   // 👈 switch tab
+    fetchMessages();        // 👈 refresh list
+  }
+  const handleEdit = (item) => {
+  setEditingItem(item);
+  setIsEditMode(true);
+  setActiveTab("create"); // 👈 move to form tab
+};
   return (
     <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
 <View style={styles.container}>
@@ -473,16 +150,21 @@ export default function MessageManagementScreen({navigation}) {
               activeTab === "create" && styles.activeTabText,
             ]}
           >
-            Create New Message
+            {isEditMode?'Update Message':'Create New Message'}
+            
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* --------- Content --------- */}
       {activeTab === "saved" ? (
-        <SavedMessages messages={messages} deleteMessage={deleteMessage} />
+        <SavedMessages messages={messages} deleteMessage={deleteMessage} onEdit={handleEdit} />
       ) : (
-        <CreateMessageForm />
+        <CreateMessageForm editItem={editingItem}
+  isEditMode={isEditMode} onSuccess={() => {
+    setActiveTab("saved");   // 👈 switch tab
+    fetchMessages();        // 👈 refresh list
+  }}/>
       )}
     </View>
     </SafeAreaView>
@@ -490,14 +172,16 @@ export default function MessageManagementScreen({navigation}) {
   );
 }
 
-const SavedMessages = ({ messages, deleteMessage }) => {
+const SavedMessages = ({ messages, deleteMessage,onEdit  }) => {
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 15 }}>
       {messages.map((msg) => (
         <View key={msg.id} style={styles.card}>
           {/* Edit + Delete buttons */}
-          <View style={styles.cardHeader}>
-            <TouchableOpacity style={styles.editBtn}>
+         
+<View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',}}>
+<View style={styles.cardHeader}>
+            <TouchableOpacity onPress={() => onEdit(msg)} style={styles.editBtn}>
               <Text style={styles.editText}>Edit</Text>
             </TouchableOpacity>
 
@@ -508,33 +192,48 @@ const SavedMessages = ({ messages, deleteMessage }) => {
               <Text style={styles.deleteText}>Delete</Text>
             </TouchableOpacity>
           </View>
-
-          <Text style={styles.cardTitle}>{msg.type}</Text>
+          <Text style={styles.cardTitle}>{msg.name}</Text>
+</View>
+          
           <Text style={styles.cardContent}>{msg.content}</Text>
+<View style={{flexDirection:'row',justifyContent:'flex-end',alignItems:'center'}}>
+  <Text style={styles.cardTiming}>{msg.send_time} minutes before the session ends</Text>
+          <Text style={[styles.cardTitle,{fontWeight:'400'}]}> Sending Time</Text>
+</View>
+          
 
-          <Text style={styles.cardTiming}>{msg.timing}</Text>
         </View>
       ))}
     </ScrollView>
   );
 };
 
-const CreateMessageForm = () => {
+const CreateMessageForm = ({onSuccess,editItem,isEditMode}) => {
   const [messageName, setMessageName] = useState("");
   const [messageContent, setMessageContent] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   // const viewModel = useRegisterGameViewModel();
 const [msglist,setmsglist]=useState([{'id':1, 'name':'End of the working hours'},{'id':2, 'name':'Alert Message'},{'id':3, 'name':'Reward Message'},{'id':3, 'name':'General Message'}])
   const [selectedType, setSelectedType] = useState("");
+useEffect(() => {
+  if (isEditMode && editItem) {
+    const mapType = {
+      end_work: "End of the working hours",
+      alert: "Alert Message",
+      reward: "Reward Message",
+      general: "General Message",
+    };
+    setSelectedType(mapType[editItem.type]);
+  }
+}, [isEditMode, editItem]);
+  // const saveMessage = () => {
+  //   if (!messageName || !messageContent) {
+  //     Alert.alert("Error", "Please fill all fields");
+  //     return;
+  //   }
 
-  const saveMessage = () => {
-    if (!messageName || !messageContent) {
-      Alert.alert("Error", "Please fill all fields");
-      return;
-    }
-
-    Alert.alert("Success", "Message Saved!");
-  };
+  //   Alert.alert("Success", "Message Saved!");
+  // };
 
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 20, }}>
@@ -569,8 +268,8 @@ const [msglist,setmsglist]=useState([{'id':1, 'name':'End of the working hours'}
               selectedType === msg.name && styles.checkboxChecked,
             ]}
           >
-            {selectedType === <msg className="name"></msg> && (
-              <Ionicons name="checkmark" size={15} color="#fff" />
+            {selectedType ===msg.name && (
+               <Ionicons name="checkmark" size={16} color="#fff" />
             )}
           </TouchableOpacity>
         </View>
@@ -578,116 +277,477 @@ const [msglist,setmsglist]=useState([{'id':1, 'name':'End of the working hours'}
       
                 </View>
               )}
-               {selectedType === "End of the working hours" && <WorkingHoursForm />}
-      {selectedType === "Alert Message" && <AlertMessageForm />}
-      {selectedType === "Reward Message" && <RewardMessageForm />}
-      {selectedType === "General Message" && <GeneralMessageForm />}
+               {selectedType === "End of the working hours" && <WorkingHoursForm onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode}/>}
+      {selectedType === "Alert Message" && <AlertMessageForm onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode} />}
+      {selectedType === "Reward Message" && <RewardMessageForm onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode}/>}
+      {selectedType === "General Message" && <GeneralMessageForm  onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode}/>}
 
       <View style={{ height: 50 }} />
-      {/* <Text style={styles.sectionTitle}>Create New Message</Text>
-
-      <Text style={styles.label}>Message Name</Text>
-      <TextInput
-        style={styles.input}
-        value={messageName}
-        onChangeText={setMessageName}
-        placeholder="Enter name"
-      />
-
-      <Text style={styles.label}>Message Content</Text>
-      <TextInput
-        style={[styles.input, { height: 120 }]}
-        value={messageContent}
-        onChangeText={setMessageContent}
-        placeholder="Enter content"
-        multiline
-      />
-
-      <TouchableOpacity style={styles.saveBtn} onPress={saveMessage}>
-        <Text style={styles.saveText}>Save Message</Text>
-      </TouchableOpacity> */}
+      
     </ScrollView>
   );
 };
-const WorkingHoursForm = () => (
-  <View style={styles.block}>
-    <Text style={styles.header}>End of Working Hours Messages</Text>
+const WorkingHoursForm = ({onSuccess,isEditMode, editItem }) => {
+  const [name, setName] = useState("");
+  const [content, setContent] = useState("");
+  const [endMinute, setEndMinute] = useState(null);
+  const [sendMinute, setSendMinute] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [placescloses, setplaceclose] = useState(false);
+ useEffect(() => {
+    if (isEditMode && editItem) {
+      setName(editItem.name || "");
+      setContent(editItem.content || "");
+      setSendMinute(editItem.send_time);
+      setplaceclose(editItem.place_closes);
+      setEndMinute(editItem?.end_time)
+      
+    }
+  }, [isEditMode, editItem]);
+  const isValid =
+    name.trim() &&
+    content.trim() &&
+    endMinute !== null &&
+    sendMinute !== null;
 
-    <Text style={styles.label}>Message Name</Text>
-    <TextInput style={styles.input} />
+  const handleSubmit = async () => {
+    if (!isValid) return;
 
-    <Text style={styles.label}>Message Content</Text>
-    <TextInput style={styles.textArea} multiline />
+    const formData = {
+      name,
+      content,
+      type: "end_work",
+      end_time: endMinute,
+      send_time: sendMinute,
+      place_closes: placescloses===true?1:0,
+       ...(isEditMode && { _method: "PUT" }),
+    };
+console.log('formData',formData);
 
-    {/* Time Fields */}
-    <View style={styles.row}>
-      <TextInput placeholder="Minute" style={styles.smallInput} />
-      <TextInput placeholder="HH:MM" style={styles.smallInput} />
+    try {
+      setLoading(true);
+      if (isEditMode) {
+        await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
+        Alert.alert("Updated", "working hrs message updated");
+      } else {
+        await authService.createMessage(formData); // 👈 CREATE
+        Alert.alert("Success", "working hrs message created");
+      }
+
+      // const res=await authService.createMessage(formData);
+      // console.log("res",res);
+      
+      //Alert.alert("Success", "Message created");
+      onSuccess()
+      setName("");
+      setContent("");
+      setEndMinute(null);
+      setSendMinute(null);
+    } catch {
+      Alert.alert("Error", "Failed to create message");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.block}>
+      <Text style={styles.sectionTitle1}>End of Working Hours</Text>
+
+      <Text style={styles.label1}>Message Name *</Text>
+      <TextInput style={styles.input1} value={name} onChangeText={setName} />
+
+      <Text style={styles.label1}>Message Content *</Text>
+      <TextInput
+        style={[styles.input1, styles.textArea1]}
+        multiline
+        value={content}
+        onChangeText={setContent}
+      />
+
+      <View style={styles.row1}>
+        <View style={styles.timeBox}>
+          <Text style={styles.label1}>End of Working Hours Time</Text>
+          <MinutePicker value={endMinute} onChange={setEndMinute} />
+        </View>
+
+        <View style={[styles.timeBox]}>
+          <Text style={styles.label1}>Sending Time</Text>
+          <View style={{marginTop:20}}></View>
+          <MinutePicker value={sendMinute} onChange={setSendMinute} />
+        </View>
+      </View>
+      <View style={{ alignSelf: "flex-end",marginTop:20 }}>
+
+      
+ <TouchableOpacity
+          style={styles.checkboxItem}
+          onPress={() => setplaceclose(true)}
+        >
+          <Text style={styles.checkboxLabel}>When the place closes</Text>
+          <View
+            style={[
+              styles.checkbox1,
+              placescloses === true && styles.checkboxChecked,
+            ]}
+          >
+            {placescloses === true && (
+              <Ionicons name="checkmark" size={16} color="#fff" />
+            )}
+          </View>
+        </TouchableOpacity>
+        </View>
+      <TouchableOpacity
+        disabled={!isValid || loading}
+        onPress={handleSubmit}
+        style={[
+          styles.saveBtn,
+          (!isValid || loading) && styles.disabledButton,
+        ]}
+      >
+        <Text style={styles.saveText}>
+          {loading ? "Saving..." : "Save Message"}
+        </Text>
+      </TouchableOpacity>
     </View>
+  );
+  
+  
+};
 
-    <TouchableOpacity style={styles.saveBtn}>
-      <Text style={styles.saveText}>Save Message</Text>
-    </TouchableOpacity>
-  </View>
-);
+const AlertMessageForm = ({onSuccess,isEditMode, editItem }) => {
+  const [name, setName] = useState("");
+  const [content, setContent] = useState("");
+  const [sendMinute, setSendMinute] = useState(null);
+  const [afterSession, setAfterSession] = useState(false); // null | true | false
+    const [beforeSession, setBeforeSession] = useState(false); // null | true | false
 
-const AlertMessageForm = () => (
+  const [loading, setLoading] = useState(false);
+ useEffect(() => {
+    if (isEditMode && editItem) {
+      setName(editItem.name || "");
+      setContent(editItem.content || "");
+      setSendMinute(editItem.send_time);
+      setAfterSession(editItem.after_session);
+      setBeforeSession(editItem.before_session);
+    }
+  }, [isEditMode, editItem]);
+  const isValid =
+    name.trim() &&
+    content.trim() &&
+    sendMinute !== null &&
+    afterSession !== null;
+
+  const handleSubmit = async () => {
+    if (!isValid) return;
+
+    const formData = {
+      name,
+      content,
+      type: "alert",
+      send_time: sendMinute,
+      after_session: afterSession ? 1 : 0,
+      before_session: beforeSession ? 1 : 0,
+      ...(isEditMode && { _method: "PUT" }),
+    };
+console.log('formData',formData);
+
+    try {
+      setLoading(true);
+      if (isEditMode) {
+        await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
+        Alert.alert("Updated", "Alert message updated");
+      } else {
+        await authService.createMessage(formData); // 👈 CREATE
+        Alert.alert("Success", "Alert message created");
+      }
+
+      // reset
+      onSuccess()
+      setName("");
+      setContent("");
+      setSendMinute(null);
+      setAfterSession(null);
+    } catch (e) {
+      console.log(e?.response);
+      
+      Alert.alert("Error","Failed to create alert");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.block}>
+      <Text style={styles.sectionTitle1}>Alert Message</Text>
+
+      {/* Message Name */}
+      <Text style={styles.label1}>Message Name *</Text>
+      <TextInput
+        style={styles.input1}
+        value={name}
+        onChangeText={setName}
+      />
+
+      {/* Message Content */}
+      <Text style={styles.label1}>Message Content *</Text>
+      <TextInput
+        style={[styles.input1, styles.textArea1]}
+        multiline
+        value={content}
+        onChangeText={setContent}
+      />
+
+      {/* Sending Time */}
+      <Text style={styles.label1}>Sending Time</Text>
+      <View style={{ alignSelf: "flex-end" }}>
+        <MinutePicker value={sendMinute} onChange={setSendMinute} />
+      </View>
+
+      {/* Before / After Session */}
+      <View style={styles.checkboxRow}>
+        {/* After Session */}
+        <TouchableOpacity
+          style={styles.checkboxItem}
+          onPress={() => setAfterSession(true)}
+        >
+          <Text style={styles.checkboxLabel}>After the session ends</Text>
+          <View
+            style={[
+              styles.checkbox1,
+              afterSession === true && styles.checkboxChecked,
+            ]}
+          >
+            {afterSession === true && (
+              <Ionicons name="checkmark" size={15} color="#fff" />
+            )}
+          </View>
+        </TouchableOpacity>
+
+        {/* Before Session */}
+        <TouchableOpacity
+          style={styles.checkboxItem}
+          onPress={() => setBeforeSession(!beforeSession)}
+        >
+          <Text style={styles.checkboxLabel}>Before the session ends</Text>
+          <View
+            style={[
+              styles.checkbox1,
+              beforeSession === true && styles.checkboxChecked,
+            ]}
+          >
+            {beforeSession === true && (
+              <Ionicons name="checkmark" size={15} color="#fff" />
+            )}
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      {/* Save Button */}
+      <TouchableOpacity
+        disabled={!isValid || loading}
+        onPress={handleSubmit}
+        style={[
+          styles.saveBtn,
+          (!isValid || loading) && styles.disabledButton,
+        ]}
+      >
+        <Text style={styles.saveText}>
+          {loading ? "Saving..." : "Save Message"}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+
+const RewardMessageForm = ({onSuccess,isEditMode, editItem }) =>{ 
+    const [name, setName] = useState("");
+  const [content, setContent] = useState("");
+  const [sendDate, setSendDate] = useState(null);
+  const [sendMinute, setSendMinute] = useState(null);
+  const [loading, setLoading] = useState(false);
+ useEffect(() => {
+    if (isEditMode && editItem) {
+      setName(editItem.name || "");
+      setContent(editItem.content || "");
+      setSendMinute(editItem.send_time);
+          setSendDate(editItem.send_date ? new Date(editItem.send_date) : null);
+
+      
+    }
+  }, [isEditMode, editItem]);
+  const isValid =
+    name.trim() &&
+    content.trim() &&
+    sendDate instanceof Date &&
+    sendMinute !== null;
+
+  const handleSubmit = async () => {
+    const formData = {
+      name,
+      content,
+      type: "reward",
+      send_time: sendMinute,
+      send_date: sendDate,
+      ...(isEditMode && { _method: "PUT" }),
+    };
+console.log('formData',formData);
+
+    try {
+      setLoading(true);
+      if (isEditMode) {
+        await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
+        Alert.alert("Updated", "Reward message updated");
+      } else {
+        await authService.createMessage(formData); // 👈 CREATE
+        Alert.alert("Success", "Reward message created");
+      }
+      // await authService.createMessage(formData);
+      
+      // Alert.alert("Success", "Reward message created");
+      onSuccess()
+    } catch {
+      Alert.alert("Error", "Failed to create reward");
+    } finally {
+      setLoading(false);
+    }
+  };
+  return(
   <View style={styles.block}>
-    <Text style={styles.header}>Alert Messages</Text>
+    <Text style={styles.sectionTitle1}>Reward Messages</Text>
+      <Text style={styles.helperText}>
+        Sent to motivate children when they play for long periods or receive a
+        discount.
+      </Text>
 
-    <Text style={styles.label}>Message Name</Text>
-    <TextInput style={styles.input} />
+      <Text style={styles.label1}>Message Name *</Text>
+      <TextInput style={styles.input1} value={name} onChangeText={setName} />
 
-    <Text style={styles.label}>Message Content</Text>
-    <TextInput style={styles.textArea} multiline />
+      <Text style={styles.label1}>Message Content *</Text>
+ <TextInput
+        style={[styles.input1, styles.textArea1]}
+        multiline
+        value={content}
+        onChangeText={setContent}
+      />
+            <View style={styles.row1}>
+  {/* End of Working Hours */}
+  <View style={styles.timeBox}>
+    <Text style={styles.label}>Sending Date</Text>
+    
+  </View>
 
+  {/* Sending Time */}
+  <View style={styles.timeBox}>
     <Text style={styles.label}>Sending Time</Text>
-    <TextInput placeholder="Minute" style={styles.smallInput} />
-
-    <TouchableOpacity style={styles.saveBtn}>
-      <Text style={styles.saveText}>Save Message</Text>
-    </TouchableOpacity>
+    
   </View>
-);
+</View>
 
-const RewardMessageForm = () => (
+      <View style={styles.row1}>
+         <DatePickerInput value={sendDate} onChange={setSendDate} />
+        <View style={[styles.timeRow,{justifyContent:'flex-end'}]}>
+      <MinutePicker value={sendMinute} onChange={setSendMinute} />
+          {/* <TextInput style={styles.timeInput} placeholder="HH:MM" /> */}
+        </View>
+      </View>
+
+   <TouchableOpacity
+        disabled={!isValid || loading}
+        onPress={handleSubmit}
+        style={[
+          styles.saveBtn,
+          (!isValid || loading) && styles.disabledButton,
+        ]}
+      >
+        <Text style={styles.saveText}>Save Message</Text>
+      </TouchableOpacity>
+  </View>
+);}
+
+const GeneralMessageForm = ({onSuccess,editItem,isEditMode}) =>{
+      const [name, setName] = useState("");
+  const [content, setContent] = useState("");
+  const [sendMinute, setSendMinute] = useState(null);
+  const [loading, setLoading] = useState(false);
+useEffect(() => {
+    if (isEditMode && editItem) {
+      setName(editItem.name || "");
+      setContent(editItem.content || "");
+      setSendMinute(editItem.send_time);
+      // setSendDate(moment(editItem.send_date).format('yyyy-mm-dd'));
+      
+    }
+  }, [isEditMode, editItem]);
+  const isValid = name.trim() && content.trim() && sendMinute !== null;
+
+  const handleSubmit = async () => {
+    const formData = {
+      name,
+      content,
+      type: "general",
+      send_time: sendMinute,
+       ...(isEditMode && { _method: "PUT" }),
+    };
+console.log('formData',formData);
+
+    try {
+      setLoading(true);
+      if (isEditMode) {
+        await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
+        Alert.alert("Updated", "General message updated");
+      } else {
+        await authService.createMessage(formData); // 👈 CREATE
+        Alert.alert("Success", "General message created");
+      }
+      // await authService.createMessage(formData);
+      // Alert.alert("Success", "General message created");
+      onSuccess()
+    } catch {
+      Alert.alert("Error", "Failed to create message");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  return (
   <View style={styles.block}>
-    <Text style={styles.header}>Reward Messages</Text>
+    <Text style={styles.sectionTitle1}>General Messages</Text>
+      <Text style={styles.helperText}>
+        Welcome Messages or Announcements
+      </Text>
 
-    <Text style={styles.label}>Message Name</Text>
-    <TextInput style={styles.input} />
+      <Text style={styles.label1}>Message Name *</Text>
+      <TextInput style={styles.input1} value={name} onChangeText={setName} />
 
-    <Text style={styles.label}>Message Content</Text>
-    <TextInput style={styles.textArea} multiline />
+      <Text style={styles.label1}>Message Content *</Text>
+      <TextInput
+        style={[styles.input1, styles.textArea1]}
+        multiline
+        value={content}
+        onChangeText={setContent}
+      />
+      <Text style={styles.label1}>Sending Time</Text>
+      <View style={[styles.timeRow,{justifyContent:'flex-end',alignSelf: "flex-end",}]}>
+                      <MinutePicker value={sendMinute} onChange={setSendMinute} />
 
-    <View style={styles.row}>
-      <TextInput placeholder="YYYY/MM/DD" style={styles.smallInput} />
-      <TextInput placeholder="HH:MM" style={styles.smallInput} />
-    </View>
 
-    <TouchableOpacity style={styles.saveBtn}>
-      <Text style={styles.saveText}>Save Message</Text>
-    </TouchableOpacity>
+        {/* <TextInput style={styles.timeInput} placeholder="HH:MM" /> */}
+      </View>
+        <TouchableOpacity
+        disabled={!isValid || loading}
+        onPress={handleSubmit}
+        style={[
+          styles.saveBtn,
+          (!isValid || loading) && styles.disabledButton,
+        ]}
+      >
+        <Text style={styles.saveText}>Save Message</Text>
+      </TouchableOpacity>
   </View>
-);
-
-const GeneralMessageForm = () => (
-  <View style={styles.block}>
-    <Text style={styles.header}>General Messages</Text>
-
-    <Text style={styles.label}>Message Name</Text>
-    <TextInput style={styles.input} />
-
-    <Text style={styles.label}>Message Content</Text>
-    <TextInput style={styles.textArea} multiline />
-
-    <TextInput placeholder="HH:MM" style={styles.smallInput} />
-
-    <TouchableOpacity style={styles.saveBtn}>
-      <Text style={styles.saveText}>Save Message</Text>
-    </TouchableOpacity>
-  </View>
-);
+);}
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
@@ -721,7 +781,7 @@ headerTitle: {
 
   activeTab: {
     borderBottomWidth: 2,
-    borderColor: "#8B5CF6",
+    borderColor: "#A278F4",
   },
 
   tabText: {
@@ -736,7 +796,7 @@ headerTitle: {
 
   card: {
     backgroundColor: "#fff",
-    padding: 15,
+    padding: 8,
     marginVertical: 10,
     borderRadius: 8,
     borderWidth: 1,
@@ -745,8 +805,9 @@ headerTitle: {
 
   cardHeader: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 10,
+    justifyContent: "flex-start",
+    gap: 20,
+    marginTop:10
   },
 
   editBtn: {
@@ -754,8 +815,10 @@ headerTitle: {
     paddingVertical: 6,
     backgroundColor: "#EEE9FF",
     borderRadius: 5,
+    borderWidth:1,
+    borderColor:'#808080'
   },
-  editText: { color: "#6A4FF6", fontWeight: "500" },
+  editText: { color: "#808080", fontWeight: "500" },
 
   deleteBtn: {
     paddingHorizontal: 12,
@@ -768,19 +831,21 @@ headerTitle: {
   cardTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    marginTop: 10,
+    //marginTop: 10,
+    textAlign:'right'
   },
 
   cardContent: {
     fontSize: 14,
     color: "#666",
-    marginTop: 8,
+    //marginTop: 8,
+    textAlign:'right'
   },
 
   cardTiming: {
     fontSize: 13,
-    marginTop: 10,
-    color: "#6A4FF6",
+    //marginTop: 10,
+    color: "#808080",
     fontWeight: "500",
   },
 
@@ -859,10 +924,10 @@ headerTitle: {
   },
 
   saveBtn: {
-    backgroundColor:  "#8b5cf6",
-    paddingVertical: 12,
+    backgroundColor:  "#A278F4",
+    paddingVertical: 15,
     borderRadius: 25,
-    marginTop: 10,
+    marginTop: 40,
   },
 
   saveText: {
@@ -875,4 +940,150 @@ headerTitle: {
     borderBottomWidth: 1,
     borderColor: "#eee",
   },
+  container1: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  sectionTitle1: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#808080",
+    marginTop: 24,
+    marginBottom: 8,
+    textAlign:'right'
+  },
+  helperText: {
+    fontSize: 14,
+    color: "#9CA3AF",
+    marginBottom: 12,
+  },
+  label1: {
+    fontSize: 16,
+    color: "#808080",
+    marginBottom: 6,
+    marginTop: 12,
+    textAlign:'right',
+  },
+  input1: {
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 14,
+  },
+  textArea1: {
+    height: 90,
+    textAlignVertical: "top",
+  },
+  // row1: {
+  //   flexDirection: "row",
+  //   justifyContent: "space-between",
+  //   gap: 10,
+  //   marginTop: 10,
+  //   flex:1,
+  //   alignItems:'center'
+  // },
+  // timeRow: {
+  //   flexDirection: "row",
+  //   gap: 8,
+  //   flex:0.5
+  // },
+  // minuteInput: {
+  //   borderWidth: 1,
+  //   borderColor: "#E5E7EB",
+  //   borderRadius: 20,
+  //   paddingVertical: 6,
+  //   paddingHorizontal: 12,
+  //   fontSize: 12,
+  // },
+  timeInput: {
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    fontSize: 12,
+  },
+  dateInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 13,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 12,
+    gap: 8,
+    justifyContent:'flex-end',
+        marginBottom:10
+
+  },
+  checkbox1: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+  },
+  checkboxLabel: {
+    fontSize: 14,
+    color: "#808080",
+    marginRight: 12,
+  },
+  disabledButton: {
+    backgroundColor: "#D1D5DB",
+    borderRadius: 25,
+    paddingVertical: 14,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  buttonText: {
+    color: "#9CA3AF",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  timeBox: {
+  flex: 1,
+},
+row1: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  gap: 12,
+  marginTop: 12,
+},
+
+
+
+timeRow: {
+  flexDirection: "row",
+  marginTop: 6,
+  width:'50%'
+},
+
+minuteInput: {
+   width: 150,              // 👈 fixed pill width
+  borderWidth: 1,
+  borderColor: "#E5E7EB",
+  borderRadius: 999,
+  paddingVertical: 8,
+  paddingHorizontal: 16,
+  fontSize: 12,
+  color: "#6B7280",
+  backgroundColor: "#FFF",
+  textAlign: "center",
+},
+
+checkboxItem: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "flex-end",
+  gap: 8,
+  marginVertical: 6,
+},
+
+
 });

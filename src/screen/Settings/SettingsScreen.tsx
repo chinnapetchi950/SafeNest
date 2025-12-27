@@ -277,7 +277,7 @@ const getFinalProfileImageUrl = (profile_image) => {
       </TouchableOpacity>}
        {role === 'admin' && 
       <TouchableOpacity 
-      //onPress={()=>navigation.navigate('MessageManagementScreen')} 
+      onPress={()=>navigation.navigate('MessageManagementScreen')} 
       style={styles.row}>
         <View>
           <Ionicons name="chevron-back-outline" size={22} color="#A4A3A9" />
