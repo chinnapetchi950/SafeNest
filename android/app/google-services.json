@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "388443808378",
+    "project_id": "safenest-b7939",
+    "storage_bucket": "safenest-b7939.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:388443808378:android:69af39b3d86c8e3b7691c3",
+        "android_client_info": {
+          "package_name": "com.safenest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAryns789-kO0-gW1LVXKMfLI79ib--q0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

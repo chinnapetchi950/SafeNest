@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,12 +18,18 @@ import { useNavigation } from '@react-navigation/native';
 import useFilterBottomSheetViewModel from '../../../viewmodels/staff/CreatingChildViewModel';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import globalstyles from '../../../styles/globalstyles';
+import DropDownPicker from "react-native-dropdown-picker";
+
 import { launchImageLibrary } from 'react-native-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import useRegisterChildViewModel from '../../../viewmodels/useRegisterChildViewModel';
+import Storage from '../../../utils/storage';
 export const RegisterChildScreen = () => {
   const navigation = useNavigation();
   const viewModel = useFilterBottomSheetViewModel();
+    const [role, setRole] = useState(null);
+    const [openUser, setOpenUser] = useState(false);
+
   const handleNext = () => {
     navigation.navigate('SessionDetailsScreen');
   };
@@ -36,6 +42,14 @@ export const RegisterChildScreen = () => {
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
+
+   useEffect(() => {
+      const loadRole = async () => {
+        const r = await Storage.getItem('admin'); // contains "admin" or "user"
+        setRole(r);
+      };
+      loadRole();
+    }, []);
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
@@ -125,6 +139,63 @@ export const RegisterChildScreen = () => {
           contentContainerStyle={{ paddingBottom: 80 }}
         >
           <View style={{ flex: 1 }}>
+       {role === "admin" && (
+  <>
+    <Text style={[styles.label,    globalstyles.semibold_black
+]}>Assign Child to Staff</Text>
+    <DropDownPicker
+      open={openUser}
+      value={viewModel.form.user_id}
+      items={viewModel.users}
+      setOpen={setOpenUser}
+      setValue={(cb) =>
+        viewModel.handleInputChange("user_id", cb(viewModel.form.user_id))
+      }
+      placeholder="Assign Child to Staff"
+      // style={styles.dropdown}
+      zIndex={3000}
+      zIndexInverse={1000}
+       listMode="SCROLLVIEW"
+                        ArrowDownIconComponent={() => (
+                            <Ionicons name="chevron-down" size={22} color="#999" />
+                          )}
+                          ArrowUpIconComponent={() => (
+                            <Ionicons name="chevron-up" size={22} color="#999" />
+                          )}
+                        style={{
+                          borderColor: "#D0D0D0",
+                          borderRadius: 10,
+                          height: 50,
+                          marginBottom: 10,
+                        }}
+                        dropDownContainerStyle={{
+                          borderColor: "#D0D0D0",
+                          borderRadius: 10,
+                        }}
+                        placeholderStyle={[
+                          globalstyles.regular_FontMediumblack,
+                          {
+                            color: "#999",
+                            fontSize: 16,
+                            textAlign: "right",
+                          },
+                        ]}
+                        labelStyle={[
+                          globalstyles.regular_FontMediumblack,
+                          {
+                            color: "#000",
+                            fontSize: 14,
+                            textAlign: "right",
+                          },
+                        ]}
+                        arrowIconContainerStyle={{
+                          position: "absolute",
+                          left: 15,
+                        }}
+    />
+  </>
+)}
+
             <CustomTextField
               value={viewModel.form.phone}
               onChangeText={text => viewModel.handleInputChange('phone', text)}
@@ -132,7 +203,7 @@ export const RegisterChildScreen = () => {
               placeholder="xxxxxxxxxx"
               prefixIcon="call-outline"
               keyboardType="number-pad"
-              error={viewModel.errors.phone}
+              error={viewModel.errors?.phone}
             />
 
             <CustomTextField
@@ -143,7 +214,7 @@ export const RegisterChildScreen = () => {
               label="Guardian Name"
               placeholder="Guardian Name"
               prefixIcon="person-sharp"
-              error={viewModel.errors.guardian_name}
+              error={viewModel.errors?.guardian_name}
             />
 
             <CustomTextField
@@ -152,7 +223,7 @@ export const RegisterChildScreen = () => {
               label="Child Name"
               placeholder="Child Name"
               prefixIcon="person-sharp"
-              error={viewModel.errors.name}
+              error={viewModel.errors?.name}
             />
 
             {/* <CustomTextField
@@ -175,7 +246,7 @@ export const RegisterChildScreen = () => {
                 label="Date of Birth"
                 placeholder="YYYY/MM/DD"
                 prefixIcon="calendar-outline"
-                error={viewModel.errors.date_of_birth}
+                error={viewModel.errors?.date_of_birth}
                 editable={false} // disable manual typing
               />
             </TouchableOpacity>
@@ -187,7 +258,7 @@ export const RegisterChildScreen = () => {
               label="Address"
               placeholder="Address"
               prefixIcon="location-outline"
-              error={viewModel.errors.address}
+              error={viewModel.errors?.address}
             />
             {showDatePicker && (
               <DateTimePicker
@@ -394,6 +465,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF',
     borderColor: '#007AFF',
   },
+  dropdown: { marginBottom: 15, borderRadius: 10 },
 
   playHoursRow: {
     flexDirection: 'row',
@@ -465,8 +537,8 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 10,
-    color: '#333',
-    fontWeight: '500',
+    marginBottom:6,
+    textAlign:'right'
   },
   genderRow: {
     flexDirection: 'row',

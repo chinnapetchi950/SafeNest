@@ -85,6 +85,24 @@ export const changePassword = createAsyncThunk(
     }
   }
 );
+
+export const sendFcmToken = createAsyncThunk(
+  "api/user/fcm-token",
+  async (formdata, thunkAPI) => {
+    try {
+      const res = await authService.setFcmToken(formdata);
+      console.log("res.data===>",res);
+      
+      return res.data;
+    } catch (err) {
+      console.log('err', err?.response);
+      
+      const message =
+        err?.response?.data?.message || err.message || "FCM token update failed";
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 /* ---------------- SLICE ---------------- */
 const authSlice = createSlice({
   name: "auth",
@@ -138,9 +156,10 @@ const authSlice = createSlice({
         state.error.delete = action.payload;
       });
      createAsyncThunkHandlers(builder, changePassword, "changePassword");
+    createAsyncThunkHandlers(builder, sendFcmToken, "fcmToken"); // ✅ optional but good
 
   },
 });
 
-export const { logout,updateLoginProfileImage  } = authSlice.actions;
+export const { logout,updateLoginProfileImage } = authSlice.actions;
 export default authSlice.reducer;

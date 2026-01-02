@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,96 +6,180 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-} from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { SafeAreaView } from "react-native-safe-area-context";
-
-export default function NotificationScreen() {
+  Alert,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import apiClient from '../../api/apiClient';
+import authService from '../../features/auth/authService';
+import { timeAgo } from '../../utils/dateTime';
+export default function NotificationScreen({navigation}) {
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+
   useEffect(() => {
-    fetchNotifications();
+    fetchNotifications(1);
   }, []);
 
-  // -----------------------------
-  // API FETCH (Dummy format shown)
-  // -----------------------------
-  const fetchNotifications = async () => {
-    setLoading(true);
+  /* ---------------- FETCH NOTIFICATIONS ---------------- */
+  const fetchNotifications = async (pageNumber = 1) => {
+    try {
+      pageNumber === 1 ? setLoading(true) : setLoadingMore(true);
+      const res = await authService.notification_List(pageNumber);
+      console.log(res, 'responseList');
 
-    // Replace this with your API call
-    const fakeResponse = [
-      {
-        id: 1,
-        child_name: "Child Maryam Hassan Kadhem",
-        message:
-          "The session has ended, please contact the guardian to safely hand over the child.",
-        time: "1 min ago",
-        is_new: true,
-      },
-      {
-        id: 2,
-        child_name: "Child Mohammed Hassan Kadhem",
-        message:
-          "The session has ended, please contact the guardian to safely hand over the child.",
-        time: "1 min ago",
-        is_new: true,
-      },
-      {
-        id: 3,
-        child_name: "Child Sarah Mohammed Kadhem",
-        message:
-          "The session has ended, please contact the guardian to safely hand over the child.",
-        time: "1 min ago",
-        is_new: false,
-      },
-      {
-        id: 4,
-        child_name: "Child Sarah Mohammed Kadhem",
-        message:
-          "The session has ended, please contact the guardian to safely hand over the child.",
-        time: "1 min ago",
-        is_new: false,
-      },
-    ];
+      // const res = await apiClient.get(
+      //   `/api/user/notifications?page=${pageNumber}`
+      // );
 
-    // Simulate API delay
-    setTimeout(() => {
-      setNotifications(fakeResponse);
+      const newData = res.data?.data || [];
+      const pagination = res.data?.pagination;
+console.log(pagination);
+
+      setNotifications(prev =>
+        pageNumber === 1 ? newData : [...prev, ...newData],
+      );
+
+      setPage(pagination.current_page);
+      setLastPage(pagination.last_page);
+    } catch (err) {
+      console.log('Notification Error', err?.response?.data);
+    } finally {
       setLoading(false);
-    }, 600);
+      setLoadingMore(false);
+    }
   };
 
-  // -----------------------------
-  // Grouping by New & Today
-  // -----------------------------
-  const newNotifications = notifications.filter((n) => n.is_new);
-  const todayNotifications = notifications.filter((n) => !n.is_new);
+  /* ---------------- DELETE NOTIFICATION ---------------- */
+  const deleteNotification = async (id: number) => {
+    Alert.alert('Delete', 'Delete this notification?', [
+      { text: 'Cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const res = await authService.deletenotification(id);
+            console.log(res, 'responsedelete');
+            if(res?.status){
+Alert.alert('Success',res.data?.message)
+            setNotifications(prev => prev.filter(item => item.id !== id));
+            }
 
+          } catch (err) {
+            console.log('Delete error', err?.response?.data);
+          }
+        },
+      },
+    ]);
+  };
+
+  /* ---------------- LOAD MORE ---------------- */
+  const loadMore = () => {
+    if (page < lastPage && !loadingMore) {
+      fetchNotifications(page + 1);
+    }
+  };
+
+  /* ---------------- RENDER ITEM ---------------- */
   const renderNotification = ({ item }) => (
     <TouchableOpacity style={styles.card}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <Text style={styles.time}>{item.time}</Text>
-        <View >
-        {/* <Ionicons name="hourglass-outline" size={18} color="#C5A8FF" /> */}
-
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Text style={styles.time}>{timeAgo(item.created_at)}</Text>
+        <View>
+          {/* <Ionicons name="hourglass-outline" size={18} color="#C5A8FF" /> */}
+          <View>
+            <Text style={styles.childName}>{item.title}</Text>
+            <Text style={styles.message}>{item.body}</Text>
+          </View>
+          
         </View>
+         <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          marginTop: 10,
+          marginLeft:2
+        }}
+      >
+                <Ionicons name="hourglass-outline" size={18} color="#D69E2E" />
+                </View>
+
       </View>
 
-      <Text style={styles.childName}>{item.child_name}</Text>
-      <Text style={styles.message}>{item.message}</Text>
-      <View style={{ flexDirection: "row", justifyContent: "space-between" ,marginTop:10}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          //marginTop: 10,
+        }}
+      >
+        <TouchableOpacity onPress={() => deleteNotification(item.id)}>
+              <Ionicons name="trash-outline" size={18} color="#FF4D4D" />
+            </TouchableOpacity>
         {/* <Text style={styles.time}>{item.time}</Text> */}
-        <View >
-                    </View>
-
-        <Ionicons name="hourglass-outline" size={18} color="#C5A8FF" />
-
       </View>
     </TouchableOpacity>
+    //     <View style={styles.card}>
+    //       <View style={{flexDirection:'row',
+    //     justifyContent:'space-between',
+    //     alignItems:'center',}}>
+    //     <View style={styles.topRow}>
+    //         <Text style={styles.time}>
+    //           {timeAgo(item?.created_at)}
+    //           {/* {new Date(item.created_at).toLocaleString()} */}
+    //         </Text>
+
+    //         <TouchableOpacity onPress={() => deleteNotification(item.id)}>
+    //           <Ionicons name="trash-outline" size={18} color="#FF4D4D" />
+    //         </TouchableOpacity>
+    //       </View>
+    //       <View>
+    //  <Text style={styles.title}>{item.title}</Text>
+    //       <Text style={styles.message}>{item.body}</Text>
+    //       </View>
+
+    // <View style={styles.bottomRow}>
+    //         {/* <Ionicons
+    //           name={
+    //             item.is_read
+    //               ? "checkmark-done-outline"
+    //               : "notifications-outline"
+    //           }
+    //           size={18}
+    //           color="#764AF1"
+    //         /> */}
+    //                 <Ionicons name="hourglass-outline" size={18} color="#C5A8FF" />
+
+    //       </View>
+    //       </View>
+
+    //       {/* <Text style={styles.title}>{item.title}</Text>
+    //       <Text style={styles.message}>{item.body}</Text> */}
+
+    //     </View>
   );
 
+  /* ---------------- FOOTER ---------------- */
+  const ListFooter = () => {
+    if (page >= lastPage) return null;
+
+    return (
+      <TouchableOpacity style={styles.viewAll} onPress={loadMore}>
+        {loadingMore ? (
+          <ActivityIndicator color="#764AF1" />
+        ) : (
+          <Text style={styles.viewAllText}>View All Activities</Text>
+        )}
+      </TouchableOpacity>
+    );
+  };
+
+  /* ---------------- LOADER ---------------- */
   if (loading) {
     return (
       <View style={styles.loader}>
@@ -105,130 +189,227 @@ export default function NotificationScreen() {
   }
 
   return (
-    <SafeAreaView style={{flex:1}}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={()=>navigation?.goBack()}>
+          <Ionicons name="arrow-back-outline" size={22} color="#333" />
 
-    <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Ionicons name="options-outline" size={22} color="#333" />
-        <Text style={styles.headerTitle}>Notifications</Text>
-        <Ionicons name="notifications-outline" size={22} color="#764AF1" />
-      </View>
-
-      <FlatList
-        ListHeaderComponent={
-          <>
-            {/* -------------------- NEW SECTION -------------------- */}
-            {newNotifications.length > 0 && (
-              <>
-                <Text style={styles.sectionTitle}>New</Text>
-                <FlatList
-                  data={newNotifications}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderNotification}
-                />
-              </>
-            )}
-
-            {/* -------------------- TODAY SECTION -------------------- */}
-            <Text style={[styles.sectionTitle, { marginTop: 16 }]}>Today</Text>
-          </>
-        }
-        data={todayNotifications}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderNotification}
-        ListFooterComponent={
-          <TouchableOpacity style={styles.viewAll}>
-            <Text style={styles.viewAllText}>View All Activities</Text>
           </TouchableOpacity>
-        }
-      />
-    </View>
-        </SafeAreaView>
+          <Text style={styles.headerTitle}>Notifications</Text>
+          <Ionicons name="notifications-outline" size={22} color="#764AF1" />
+        </View>
 
+        <FlatList
+          data={notifications}
+          keyExtractor={item => item.id.toString()}
+          style={{marginTop:5}}
+          renderItem={renderNotification}
+          ListFooterComponent={ListFooter}
+          ListEmptyComponent={
+            <Text style={styles.empty}>No notifications found</Text>
+          }
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
+/* ---------------- STYLES ---------------- */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 16,
   },
 
   loader: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 12,
-    marginTop:10,
-    elevation:3
   },
 
   headerTitle: {
     fontSize: 20,
-    fontWeight: "700",
-    color: "#333",
+    fontWeight: '700',
+    color: '#333',
   },
 
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#764AF1",
+  // card: {
+  //   backgroundColor: "#F8F5FF",
+  //   padding: 12,
+  //   borderRadius: 12,
+  //   marginBottom: 12,
+  //   borderWidth: 1,
+  //   borderColor: "#EFE6FF",
+
+  // },
+
+  topRow: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+
+  // time: {
+  //   fontSize: 11,
+  //   color: "#888",
+  // },
+
+  // title: {
+  //   fontSize: 14,
+  //   fontWeight: "700",
+  //   color: "#764AF1",
+  //   marginTop: 6,
+  //   textAlign: "right",
+  // },
+
+  // message: {
+  //   fontSize: 13,
+  //   color: "#666",
+  //   marginTop: 4,
+  //   textAlign: "right",
+  // },
+
+  bottomRow: {
     marginTop: 10,
-    marginBottom: 10,
-    textAlign:'right'
+    alignItems: 'flex-end',
   },
 
+  viewAll: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+
+  viewAllText: {
+    color: '#764AF1',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+
+  empty: {
+    textAlign: 'center',
+    marginTop: 40,
+    color: '#999',
+  },
   card: {
-    backgroundColor: "#F8F5FF",
-    padding: 12,
+    backgroundColor: '#F8F5FF',
+    padding: 18,
     borderRadius: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#EFE6FF",
+    borderColor: '#EFE6FF',
   },
 
   time: {
-    color: "#888",
+    color: '#888',
     fontSize: 12,
     marginBottom: 4,
   },
 
   childName: {
     fontSize: 14,
-    fontWeight: "700",
-    color: "#764AF1",
+    fontWeight: '700',
+    color: '#764AF1',
     marginTop: 2,
-    textAlign:'right'
+    textAlign: 'right',
   },
 
   message: {
     fontSize: 13,
-    color: "#666",
-    marginTop: 4,
-        textAlign:'right'
-
-  },
-
-  viewAll: {
-    paddingVertical: 16,
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderColor: "#EEE",
+    color: '#666',
     marginTop: 10,
-  },
-
-  viewAllText: {
-    color: "#764AF1",
-    fontSize: 15,
-    fontWeight: "600",
+    textAlign: 'right',
   },
 });
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: "#fff",
+//     paddingHorizontal: 16,
+//     paddingTop: 20,
+//   },
+
+//   loader: {
+//     flex: 1,
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+
+//   header: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     justifyContent: "space-between",
+//     marginBottom: 12,
+//     marginTop:10,
+//     elevation:3
+//   },
+
+//   headerTitle: {
+//     fontSize: 20,
+//     fontWeight: "700",
+//     color: "#333",
+//   },
+
+//   sectionTitle: {
+//     fontSize: 18,
+//     fontWeight: "700",
+//     color: "#764AF1",
+//     marginTop: 10,
+//     marginBottom: 10,
+//     textAlign:'right'
+//   },
+
+// card: {
+//   backgroundColor: "#F8F5FF",
+//   padding: 12,
+//   borderRadius: 12,
+//   marginBottom: 12,
+//   borderWidth: 1,
+//   borderColor: "#EFE6FF",
+// },
+
+// time: {
+//   color: "#888",
+//   fontSize: 12,
+//   marginBottom: 4,
+// },
+
+// childName: {
+//   fontSize: 14,
+//   fontWeight: "700",
+//   color: "#764AF1",
+//   marginTop: 2,
+//   textAlign:'right'
+// },
+
+// message: {
+//   fontSize: 13,
+//   color: "#666",
+//   marginTop: 4,
+//       textAlign:'right'
+
+// },
+
+//   viewAll: {
+//     paddingVertical: 16,
+//     alignItems: "center",
+//     borderTopWidth: 1,
+//     borderColor: "#EEE",
+//     marginTop: 10,
+//   },
+
+//   viewAllText: {
+//     color: "#764AF1",
+//     fontSize: 15,
+//     fontWeight: "600",
+//   },
+// });

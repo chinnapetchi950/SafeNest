@@ -7,13 +7,14 @@ import globalstyles from "../../styles/globalstyles";
 import { useNavigation } from "@react-navigation/native";
 import CustomTextField from "../components/TextFieldComponent";
 import useFilterBottomSheetViewModel from "../../viewmodels/staff/CreatingChildViewModel";
+import { RegisterChildScreen } from '../staff/registerchild/RegisterChild';
 const { height } = Dimensions.get("window");
 
 const AddMenuModal = ({ visible, onClose }) => {
   const options = [
     { id: 1, label: "Add a new game", icon: "game-controller-outline" , screen: "RegisterNewGame"},
     { id: 2, label: "Add a new user", icon: "person-add-outline" , screen: "AccountTypeScreen"},
-    { id: 3, label: "Register a new child", icon: "people-outline", screen: "UserInformationScreen" },
+    { id: 3, label: "Register a new child", icon: "people-outline", screen: "RegisterChildScreen" },
   ];
   const navigation=useNavigation()
   const handleSelect = (item) => {

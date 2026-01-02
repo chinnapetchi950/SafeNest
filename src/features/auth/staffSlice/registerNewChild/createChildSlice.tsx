@@ -9,15 +9,12 @@ import { Alert } from "react-native";
  * values may include: firstName, lastName, email, password, profileImage
  */
 export const createChildUser = createAsyncThunk(
-  "api/user/children",
+  "children/create",
   async (formData, thunkAPI) => {
     try {
       const res = await authService.createChild(formData);
       return res.data;
-
     } catch (err) {
-      console.log("error.....", err?.response?.data);
-
       const message =
         err?.response?.data?.message ||
         err.message ||
@@ -28,6 +25,26 @@ export const createChildUser = createAsyncThunk(
     }
   }
 );
+// export const createChildUser = createAsyncThunk(
+//   "api/user/children",
+//   async (formData, thunkAPI) => {
+//     try {
+//       const res = await authService.createChild(formData);
+//       return res.data;
+
+//     } catch (err) {
+//       console.log("error.....", err?.response?.data);
+
+//       const message =
+//         err?.response?.data?.message ||
+//         err.message ||
+//         "Something went wrong";
+
+//       Alert.alert("Error", message);
+//       return thunkAPI.rejectWithValue(err?.response?.data);
+//     }
+//   }
+// );
 
 
 
@@ -40,7 +57,7 @@ export const fetchGameTypes = createAsyncThunk(
 
       return res.data;
     } catch (err) {
-      console.log("Game Types Error:", err);
+      console.log("Game Types Error:", err?.response);
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || err.message
       );

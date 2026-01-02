@@ -24,6 +24,9 @@ import GameManagementScreen from './src/screen/Settings/GamemanagementList';
 import MessageManagementScreen from './src/screen/message/MessageMenagement';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from "./src/store/store";
+import WhatsAppManagementScreen from './src/screen/Settings/WhatupManagement';
+import AccountManagementScreen from './src/screen/Settings/AccountManagement';
+import WhatsappOtpScreen from './src/screen/Settings/WhatsappOtpScreen'
 
 // Import your screens
 
@@ -79,6 +82,10 @@ export default function App() {
             <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
             <Stack.Screen name="GameManagementScreen" component={GameManagementScreen} />
             <Stack.Screen name="MessageManagementScreen" component={MessageManagementScreen} />
+                        <Stack.Screen name="WhatsAppManagementScreen" component={WhatsAppManagementScreen} />
+                        <Stack.Screen name="AccountManagementScreen" component={AccountManagementScreen} />
+                        <Stack.Screen name="WhatsappOtpScreen" component={WhatsappOtpScreen} />
+
             {/* Add more screens here */}
           </Stack.Navigator>
         </NavigationContainer>

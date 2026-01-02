@@ -225,7 +225,7 @@ const getFinalProfileImageUrl = (profile_image) => {
         </TouchableOpacity>
       )}
       {role === 'admin' && 
-      <TouchableOpacity style={styles.row}>
+      <TouchableOpacity onPress={()=>navigation.navigate('AccountManagementScreen')}style={styles.row}>
         <View>
           <Ionicons name="chevron-back-outline" size={22} color="#A4A3A9" />
         </View>
@@ -259,7 +259,8 @@ const getFinalProfileImageUrl = (profile_image) => {
         </View>
       </TouchableOpacity>}
        {role === 'admin' && 
-      <TouchableOpacity style={styles.row}>
+      <TouchableOpacity  onPress={()=>navigation.navigate('WhatsAppManagementScreen')}                
+       style={styles.row}>
         <View>
           <Ionicons name="chevron-back-outline" size={22} color="#A4A3A9" />
         </View>

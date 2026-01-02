@@ -5,8 +5,25 @@ import { logout } from "./authSlice";
 const authService = {
   login: (credentials: any) => apiClient.post("api/login", credentials),
   registerUser: (data: any) => apiClient.post("api/admin/users", data,true),
-  createChild:(data:any)=>apiClient.post("api/user/children",data,true),
-  getuserGameTypes: async () => {return apiClient.get("api/user/game-types")},
+createChild: async (data: any) => {
+  const role = await Storage.getItem("admin");
+
+  const url =
+    role === "admin"
+      ? "api/admin/children"
+      : "api/user/children";
+
+  return apiClient.post(url, data, true);
+},
+  getuserGameTypes: async () => {
+    const role = await Storage.getItem("admin");
+    const url =
+    role === "admin"
+      ? "api/admin/game-types"
+      : "api/user/game-types";
+    return apiClient.get(url)
+
+  },
   getdashboardchildren:async ()=>{return apiClient.get("api/user/home")},
 getchildrenListApi: async () => {
     const role = await Storage.getItem("admin");  // or get user role from state
@@ -78,6 +95,49 @@ deleteMessage:async (id) => {
 
   return apiClient.post(`api/admin/messages/${id}`,form,true);
 },
+setFcmToken:async(data) => { return apiClient.post('/api/user/fcm-token', data,true)},
+notification_List:async(page = 1)=>{
+  return apiClient.get(`/api/user/notifications?page=${page}`, )},
+deletenotification:async (id) => {
+    const form = new FormData();
+  form.append("_method", "DELETE");
+
+  return apiClient.post(`api/user/notifications/${id}`,form,true);
+},
+ getSettings:async()=> {
+    return apiClient.get("api/admin/whatsapp/settings");
+  },
+
+  // Enable / Disable WhatsApp
+  toggle:async(isEnabled)=> {
+    const formData = new FormData();
+    formData.append("is_enabled", isEnabled ? 1 : 0);
+
+    return apiClient.post(
+      "api/admin/whatsapp/toggle",
+      formData,true
+      
+    );
+  },
+sendOtp:async(data) =>{
+    return apiClient.post("api/admin/whatsapp/send-otp",data,true);
+  },
+  // Send / Resend OTP
+  resendOtp:async() =>{
+    return apiClient.post("api/admin/whatsapp/resend-otp");
+  },
+
+  // Verify OTP
+  verifyOtp:async(otp) =>{
+    const formData = new FormData();
+    formData.append("otp_code", otp);
+
+    return apiClient.post(
+      "/api/admin/whatsapp/verify-otp",
+      formData,true
+      
+    );
+  },
   //  profile: () => apiClient.get("/auth/profile"),
 };
 

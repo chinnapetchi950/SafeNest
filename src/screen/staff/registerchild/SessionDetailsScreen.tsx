@@ -20,16 +20,25 @@ import { useDispatch,useSelector } from 'react-redux';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { fetchGameTypes } from '../../../features/auth/staffSlice/registerNewChild/createChildSlice';
 import BottomTabsStaff from '../BottomTabStaff';
+import Storage from '../../../utils/storage';
 const SessionDetailsScreen = ({ route, navigation }) => {
   const viewModel = useFilterBottomSheetViewModel();
   const options = ['45 min', '30 min', '15 min'];
   const [selected, setSelected] = useState('');
+      const [role, setRole] = useState(null);
   
 const dispatch = useDispatch();
 
 useEffect(() => {
   dispatch(fetchGameTypes());
 }, []);
+ useEffect(() => {
+      const loadRole = async () => {
+        const r = await Storage.getItem('admin'); // contains "admin" or "user"
+        setRole(r);
+      };
+      loadRole();
+    }, []);
 // const { data, loading } = useSelector((state) => state.auth);
 
 // const gameTypes = data?.fetchGameTypes?.data || [];
@@ -147,8 +156,14 @@ console.log("parentform",parentform);
   };
 const closemodal=()=>{
   viewModel.setShowSuccessModal(false)
-  navigation.navigate("BottomTabsStaff")
+  if(role==='admin'){
+navigation.navigate("BottomTabs")
+  }else{
+navigation.navigate("BottomTabsStaff")
 }
+  }
+    
+  
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
