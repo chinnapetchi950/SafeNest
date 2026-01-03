@@ -15,6 +15,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const BASE_URL = "https://testlink3.pillersofttechnologies.com/storage/";
 
+import strings from '../../localization/en';
+
 export default function AccountManagementScreen({ user }) {
   const [form, setForm] = useState({
     firstname: user?.firstname || "",
@@ -38,10 +40,10 @@ export default function AccountManagementScreen({ user }) {
   /* ---------------- IMAGE PICKER ---------------- */
 
   const pickImage = (type: "national" | "residency") => {
-    Alert.alert("Upload Image", "Choose an option", [
-      { text: "Camera", onPress: () => openCamera(type) },
-      { text: "Gallery", onPress: () => openGallery(type) },
-      { text: "Cancel", style: "cancel" }
+    Alert.alert(strings.common.upload, strings.settings.chooseImageSource, [
+      { text: strings.common.camera, onPress: () => openCamera(type) },
+      { text: strings.common.gallery, onPress: () => openGallery(type) },
+      { text: strings.common.cancel, style: "cancel" }
     ]);
   };
 
@@ -98,7 +100,7 @@ export default function AccountManagementScreen({ user }) {
 
     console.log("FORM DATA ===>", formData);
 
-    Alert.alert("Success", "Account updated successfully");
+  Alert.alert(strings.common.success || 'Success', strings.settings.profileUpdatedSuccess);
     // 🔗 CALL UPDATE PROFILE API HERE
   };
 
@@ -130,8 +132,8 @@ export default function AccountManagementScreen({ user }) {
       </Row>
 
       <Row>
-        <Input label="Fourth Name" value={form.fourthname} onChangeText={v => handleChange("fourthname", v)} />
-        <Input label="Third Name" value={form.thirdname} onChangeText={v => handleChange("thirdname", v)} />
+        <Input label="Fourth Name" value={form.fourthname} onChangeText={(v: string) => handleChange("fourthname", v)} />
+        <Input label="Third Name" value={form.thirdname} onChangeText={(v: string) => handleChange("thirdname", v)} />
       </Row>
 
       <Input label="Last Name" value={form.lastname} onChangeText={v => handleChange("lastname", v)} />

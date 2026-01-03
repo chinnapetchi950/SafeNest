@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import authService from "../../features/auth/authService";
+import strings from '../../localization/en';
 import moment from "moment";
 
 export default function GameManagementScreen({ navigation }) {
@@ -79,12 +80,12 @@ setLoading(false)
   // --------------------------
   const deleteGame = (id) => {
   Alert.alert(
-    "Delete Game",
-    "Are you sure you want to delete this game?",
+    strings.common.delete,
+    strings.gameManagement.deleteConfirm || "Are you sure you want to delete this game?",
     [
-      { text: "Cancel" },
+      { text: strings.common.cancel },
       {
-        text: "Delete",
+        text: strings.common.delete,
         style: "destructive",
         onPress: async () => {
           setLoading(true)
@@ -157,14 +158,14 @@ setLoading(false)
           ListEmptyComponent={
             !loading && (
               <Text
-                style={{
-                  textAlign: "center",
-                  marginTop: 30,
-                  color: "#888",
-                }}
-              >
-                No Data Found
-              </Text>
+                    style={{
+                      textAlign: "center",
+                      marginTop: 30,
+                      color: "#888",
+                    }}
+                  >
+                    {strings.common.noData}
+                  </Text>
             )
           }
         />

@@ -3,6 +3,7 @@ import { Asset, ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } f
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../features/auth/staffSlice/registerSlice";
 import { Alert } from "react-native";
+import strings from "../../localization/en";
 
 const useUserInformationViewModel = () => {
   const dispatch = useDispatch();
@@ -172,33 +173,33 @@ const [errors, setErrors] = useState({});
  const validateForm = () => {
   const newErrors: any = {};
 
-  if (!form.firstName.trim()) newErrors.firstName = "First name is required";
-  if (!form.secondName.trim()) newErrors.secondName = "Second name is required";
-  // if (!form.lastName.trim()) newErrors.lastName = "Nickname is required";
+  if (!form.firstName.trim()) newErrors.firstName = strings.validation.firstNameRequired;
+  if (!form.secondName.trim()) newErrors.secondName = strings.validation.secondNameRequired;
+  // if (!form.lastName.trim()) newErrors.lastName = strings.validation.nicknameRequired;
 
-  if (!form.email.trim()) newErrors.email = "Email is required";
+  if (!form.email.trim()) newErrors.email = strings.validation.emailRequired;
   else if (!/^\S+@\S+\.\S+$/.test(form.email))
-    newErrors.email = "Enter a valid email address";
+    newErrors.email = strings.validation.emailInvalid;
 
-  if (!form.phone.trim()) newErrors.phone = "Phone number is required";
+  if (!form.phone.trim()) newErrors.phone = strings.validation.phoneRequired;
   else if (!/^\d{8,15}$/.test(form.phone))
-    newErrors.phone = "Enter a valid phone number";
+    newErrors.phone = strings.validation.phoneInvalid;
 
-  if (!form.password.trim()) newErrors.password = "Password is required";
+  if (!form.password.trim()) newErrors.password = strings.validation.passwordRequired;
   else if (form.password.length < 6)
-    newErrors.password = "Password must be at least 6 characters";
+    newErrors.password = strings.validation.passwordMinLength;
 
   if (!form.nationalId.trim())
-    newErrors.nationalId = "National ID number is required";
+    newErrors.nationalId = strings.validation.nationalIdRequired || "National ID number is required";
 
   if (!form.nationalIdImage)
-    newErrors.nationalIdImage = "National ID image is required";
+    newErrors.nationalIdImage = strings.validation.nationalIdImageRequired || "National ID image is required";
 
   if (!form.residenceCard.trim())
-    newErrors.residenceCard = "Residence card number is required";
+    newErrors.residenceCard = strings.validation.residenceCardRequired || "Residence card number is required";
 
   if (!form.residenceCardImage)
-    newErrors.residenceCardImage = "Residence card image is required";
+    newErrors.residenceCardImage = strings.validation.residenceCardImageRequired || "Residence card image is required";
 
   setErrors(newErrors);
   return Object.keys(newErrors).length === 0;
@@ -206,21 +207,21 @@ const [errors, setErrors] = useState({});
  const validateFormFirst = () => {
   const newErrors: any = {};
 
-  if (!form.firstName.trim()) newErrors.firstName = "First name is required";
-  if (!form.secondName.trim()) newErrors.secondName = "Second name is required";
-  // if (!form.lastName.trim()) newErrors.lastName = "Nickname is required";
+  if (!form.firstName.trim()) newErrors.firstName = strings.validation.firstNameRequired;
+  if (!form.secondName.trim()) newErrors.secondName = strings.validation.secondNameRequired;
+  // if (!form.lastName.trim()) newErrors.lastName = strings.validation.nicknameRequired;
 
-  if (!form.email.trim()) newErrors.email = "Email is required";
+  if (!form.email.trim()) newErrors.email = strings.validation.emailRequired;
   else if (!/^\S+@\S+\.\S+$/.test(form.email))
-    newErrors.email = "Enter a valid email address";
+    newErrors.email = strings.validation.emailInvalid;
 
-  if (!form.phone.trim()) newErrors.phone = "Phone number is required";
+  if (!form.phone.trim()) newErrors.phone = strings.validation.phoneRequired;
   else if (!/^\d{8,15}$/.test(form.phone))
-    newErrors.phone = "Enter a valid phone number";
+    newErrors.phone = strings.validation.phoneInvalid;
 
-  if (!form.password.trim()) newErrors.password = "Password is required";
+  if (!form.password.trim()) newErrors.password = strings.validation.passwordRequired;
   else if (form.password.length < 6)
-    newErrors.password = "Password must be at least 6 characters";
+    newErrors.password = strings.validation.passwordMinLength;
 
   
   setErrors(newErrors);
@@ -249,7 +250,7 @@ const handleRegister = async () => {
     const isValid = validateForm();
     if (!isValid) {
       const msg = Object.values(errors).join("\n");
-      Alert.alert("Error", msg);
+  Alert.alert(strings.alerts.error || 'Error', msg);
       return;
     }
 
@@ -309,19 +310,19 @@ console.log('form.nationalIdImage?.uri',form.nationalIdImage?.uri);
       const messages = Object.values(errData.errors)
         .flat()
         .join("\n");
-      Alert.alert("Validation Error", messages);
+  Alert.alert(strings.alerts.error || 'Error', messages);
       return;
     }
 
     // 2️⃣ Server message
     if (errData.message) {
-      Alert.alert("Error", errData.message);
+  Alert.alert(strings.alerts.error || 'Error', errData.message);
       return;
     }
   }
 
   // 3️⃣ Fallback
-  Alert.alert("Error", "Something went wrong. Please try again.");
+  Alert.alert(strings.alerts.error || 'Error', strings.alerts.error || 'Something went wrong. Please try again.');
 }
 
 };

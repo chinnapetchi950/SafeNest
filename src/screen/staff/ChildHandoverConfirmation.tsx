@@ -8,6 +8,7 @@ import {
   Modal,
 } from "react-native";
 import moment from "moment";
+import strings from "../../localization/en";
 
 const ChildHandoverConfirmation = ({ data, onClose,onconfirm }) => {
   const child = JSON.parse(data?.barcode)
@@ -18,41 +19,41 @@ const ChildHandoverConfirmation = ({ data, onClose,onconfirm }) => {
 
       <View style={styles.sheet}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={styles.sheetTitle}>Confirmation</Text>
+          <Text style={styles.sheetTitle}>{strings.confirmation.title}</Text>
 
           <View style={styles.infoCard}>
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>Guardian</Text>
+                <Text style={styles.label}>{strings.child.guardianLabel}</Text>
                 <Text style={styles.value}>{child.guardian_name}</Text>
               </View>
 
               <View style={styles.column}>
-                <Text style={styles.label}>Child Name</Text>
+                <Text style={styles.label}>{strings.child.childNameLabel}</Text>
                 <Text style={styles.value}>{child.child_name}</Text>
               </View>
             </View>
 
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>Game Entry Date</Text>
+                <Text style={styles.label}>{strings.child.sessionDateLabel || strings.session.sessionDate}</Text>
                 <Text style={styles.value}>{child.session_date}</Text>
               </View>
 
               <View style={styles.column}>
-                <Text style={styles.label}>Date of Birth</Text>
+                <Text style={styles.label}>{strings.child.dateOfBirth || strings.child.dateOfBirth}</Text>
                 <Text style={styles.value}>{moment(child.date_of_birth).format('YYYY-MM-DD')}</Text>
               </View>
             </View>
 
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>Session Price</Text>
+                <Text style={styles.label}>{strings.child.sessionPrice || strings.child.sessionPrice}</Text>
                 <Text style={styles.value}>{child.calculated_price}</Text>
               </View>
 
               <View style={styles.column}>
-                <Text style={styles.label}>Duration</Text>
+                <Text style={styles.label}>{strings.child.sessionDuration || strings.child.sessionDuration}</Text>
                 <Text style={styles.value}>{child.total_play_duration}</Text>
               </View>
             </View>
@@ -70,11 +71,11 @@ const ChildHandoverConfirmation = ({ data, onClose,onconfirm }) => {
 
 
           <TouchableOpacity onPress={onconfirm} style={styles.confirmBtn}>
-            <Text style={styles.confirmText}>Confirm Child Handover</Text>
+            <Text style={styles.confirmText}>{strings.handover.confirm}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={styles.cancelText}>{strings.common.cancel}</Text>
           </TouchableOpacity>
           </View>
         </ScrollView>

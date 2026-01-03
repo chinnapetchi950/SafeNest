@@ -4,6 +4,7 @@ import authService from "../authService";
 import { createAsyncThunkHandlers } from "../../../utils/asyncThunkHandler";
 
 import { Alert } from "react-native";
+import strings from "../../../../localization/en";
 
 export const uploadProfileImage = createAsyncThunk(
   "api/user/profile_image",
@@ -28,7 +29,7 @@ export const uploadProfileImage = createAsyncThunk(
         err.message ||
         "Something went wrong";
 
-      Alert.alert("Upload Failed", message);
+  Alert.alert(strings.alerts.error || 'Error', message || strings.alerts.error);
       return thunkAPI.rejectWithValue(err?.response?.data);
     }
   }

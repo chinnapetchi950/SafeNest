@@ -13,15 +13,16 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ProgressBarRTL from '../../components/ProgressLine';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from '../../../contexts/LanguageContext';
 
 const AccountTypeScreen = () => {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState('');
   const navigation = useNavigation();
 
   const descriptions = {
-    manager:
-      'This account is intended for managers. It allows you to oversee users, manage activities, and access overall analytics.',
-    user: 'This account is intended for staff within the play area. It allows you to record children’s attendance, manage play sessions, and communicate with parents.',
+    manager: t('user.managerDescription'),
+    user: t('user.userDescription'),
   };
 
   return (
@@ -37,7 +38,7 @@ const AccountTypeScreen = () => {
     alignItems: 'center',
   }}
 >
-  <Text style={styles.headerTitle}>Identity Information</Text>
+  <Text style={styles.headerTitle}>{t('user.identityInformation')}</Text>
 
   <Ionicons
   onPress={()=>navigation.goBack()}
@@ -52,7 +53,7 @@ const AccountTypeScreen = () => {
       <ProgressBarRTL totalSteps={3} currentStep={1} />
 
       {/* Title */}
-      <Text style={styles.title}>Account Type</Text>
+      <Text style={styles.title}>{t('user.accountType')}</Text>
 
       {/* Options */}
       <View style={styles.optionContainer}>
@@ -74,7 +75,7 @@ const AccountTypeScreen = () => {
               selected === 'manager' && styles.selectedText,
             ]}
           >
-            Manager
+            {t('user.manager')}
           </Text>
         </TouchableOpacity>
 
@@ -93,7 +94,7 @@ const AccountTypeScreen = () => {
               selected === 'user' && styles.selectedText,
             ]}
           >
-            User
+            {t('user.user')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -120,7 +121,7 @@ const AccountTypeScreen = () => {
             },
           ]}
         >
-          <Text style={styles.nextText}>Next</Text>
+          <Text style={styles.nextText}>{t('buttons.next')}</Text>
         </View>
       </TouchableOpacity>
     </SafeAreaView>

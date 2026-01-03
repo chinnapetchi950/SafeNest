@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity,Alert ,ActivityIndicator} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import strings from '../../localization/en';
 import globalstyles from '../../styles/globalstyles';
 import { logoutUser,deleteUserAccount } from '../../features/auth/authSlice';
 import Storage from '../../utils/storage';
@@ -51,12 +52,12 @@ useEffect(() => {
   };
 const pickImage = () => {
   Alert.alert(
-    "Select Option",
-    "Choose image source",
+    strings.settings.selectOption,
+    strings.settings.chooseImageSource,
     [
-      { text: "Camera", onPress: openCamera },
-      { text: "Gallery", onPress: openGallery },
-      { text: "Cancel", style: "cancel" }
+      { text: strings.common.camera, onPress: openCamera },
+      { text: strings.common.gallery, onPress: openGallery },
+      { text: strings.common.cancel, style: "cancel" }
     ]
   );
 };
@@ -85,7 +86,7 @@ const openGallery = () => {
 const handleImageResponse = (response) => {
   if (response.didCancel) return;
   if (response.errorMessage) {
-    Alert.alert("Error", response.errorMessage);
+  Alert.alert(strings.alerts.error || 'Error', response.errorMessage || strings.alerts.error);
     return;
   }
 
@@ -106,7 +107,7 @@ const handleImageResponse = (response) => {
         }));
   setUploadingImage(false); // start loader
 
-        Alert.alert("Success", "Profile updated successfully!");
+  Alert.alert(strings.alerts.success || 'Success', strings.settings.profileUpdatedSuccess || 'Profile updated successfully!');
       }
     })
     .catch(() => {});
@@ -134,8 +135,8 @@ const getFinalProfileImageUrl = (profile_image) => {
       <View style={styles.headerSpace} />
        {role === 'admin' && 
  <View style={styles.headerRow}>
-        <Text style={styles.title}>Settings</Text>
-        <Text style={styles.userName}>Manage your account settings and preferences</Text>
+        <Text style={styles.title}>{strings.settings.title}</Text>
+        <Text style={styles.userName}>{strings.settings.manageAccount}</Text>
       </View>
 }
 {console.log(profileData,'profileData')}

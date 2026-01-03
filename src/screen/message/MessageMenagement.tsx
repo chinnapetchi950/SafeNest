@@ -76,10 +76,10 @@ const [isEditMode, setIsEditMode] = useState(false);
   // ]);
 
   const deleteMessage = async(id) => {
-    Alert.alert("Confirm Delete", "Are you sure you want to delete this?", [
-      { text: "Cancel" },
+    Alert.alert(strings.userList.confirmDeleteTitle, strings.messageManagement.deleteConfirm, [
+      { text: strings.common.cancel },
       {
-        text: "Delete",
+        text: strings.common.delete,
         style: "destructive",
        onPress: async () => {
   try {
@@ -114,7 +114,7 @@ const onSuccess=() => {
             alignItems: "center",
           }}
         >
-          <Text style={styles.headerTitle}>Message Management</Text>
+          <Text style={styles.headerTitle}>{strings.messageManagement.title}</Text>
 
           <Ionicons
             onPress={() => navigation.goBack()}
@@ -150,7 +150,7 @@ const onSuccess=() => {
               activeTab === "create" && styles.activeTabText,
             ]}
           >
-            {isEditMode?'Update Message':'Create New Message'}
+            {isEditMode? strings.messageManagement.update : strings.messageManagement.createMessage}
             
           </Text>
         </TouchableOpacity>
@@ -182,14 +182,14 @@ const SavedMessages = ({ messages, deleteMessage,onEdit  }) => {
 <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',}}>
 <View style={styles.cardHeader}>
             <TouchableOpacity onPress={() => onEdit(msg)} style={styles.editBtn}>
-              <Text style={styles.editText}>Edit</Text>
+                  <Text style={styles.editText}>{strings.messageManagement.edit}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.deleteBtn}
               onPress={() => deleteMessage(msg.id)}
             >
-              <Text style={styles.deleteText}>Delete</Text>
+              <Text style={styles.deleteText}>{strings.messageManagement.delete}</Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.cardTitle}>{msg.name}</Text>
@@ -197,8 +197,8 @@ const SavedMessages = ({ messages, deleteMessage,onEdit  }) => {
           
           <Text style={styles.cardContent}>{msg.content}</Text>
 <View style={{flexDirection:'row',justifyContent:'flex-end',alignItems:'center'}}>
-  <Text style={styles.cardTiming}>{msg.send_time} minutes before the session ends</Text>
-          <Text style={[styles.cardTitle,{fontWeight:'400'}]}> Sending Time</Text>
+          <Text style={styles.cardTiming}>{msg.send_time} {strings.messageManagement.minutesBefore}</Text>
+          <Text style={[styles.cardTitle,{fontWeight:'400'}]}> {strings.messageManagement.sendDate}</Text>
 </View>
           
 
@@ -328,10 +328,10 @@ console.log('formData',formData);
       setLoading(true);
       if (isEditMode) {
         await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
-        Alert.alert("Updated", "working hrs message updated");
+        Alert.alert(strings.alerts.success || 'Updated', strings.messageManagement.successUpdated || 'working hrs message updated');
       } else {
         await authService.createMessage(formData); // 👈 CREATE
-        Alert.alert("Success", "working hrs message created");
+        Alert.alert(strings.alerts.success || 'Success', strings.messageManagement.successSaved || 'working hrs message created');
       }
 
       // const res=await authService.createMessage(formData);
@@ -344,7 +344,7 @@ console.log('formData',formData);
       setEndMinute(null);
       setSendMinute(null);
     } catch {
-      Alert.alert("Error", "Failed to create message");
+      Alert.alert(strings.alerts.error || 'Error', strings.messageManagement.saveFailed || 'Failed to create message');
     } finally {
       setLoading(false);
     }
@@ -406,7 +406,7 @@ console.log('formData',formData);
         ]}
       >
         <Text style={styles.saveText}>
-          {loading ? "Saving..." : "Save Message"}
+          {loading ? strings.messageManagement.saving : strings.messageManagement.save}
         </Text>
       </TouchableOpacity>
     </View>
@@ -456,10 +456,10 @@ console.log('formData',formData);
       setLoading(true);
       if (isEditMode) {
         await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
-        Alert.alert("Updated", "Alert message updated");
+        Alert.alert(strings.alerts.success || 'Updated', strings.messageManagement.successUpdated || 'Alert message updated');
       } else {
         await authService.createMessage(formData); // 👈 CREATE
-        Alert.alert("Success", "Alert message created");
+        Alert.alert(strings.alerts.success || 'Success', strings.messageManagement.successSaved || 'Alert message created');
       }
 
       // reset
@@ -471,7 +471,7 @@ console.log('formData',formData);
     } catch (e) {
       console.log(e?.response);
       
-      Alert.alert("Error","Failed to create alert");
+      Alert.alert(strings.alerts.error || 'Error', strings.messageManagement.saveFailed || 'Failed to create alert');
     } finally {
       setLoading(false);
     }
@@ -553,7 +553,7 @@ console.log('formData',formData);
         ]}
       >
         <Text style={styles.saveText}>
-          {loading ? "Saving..." : "Save Message"}
+          {loading ? strings.messageManagement.saving : strings.messageManagement.save}
         </Text>
       </TouchableOpacity>
     </View>
@@ -598,17 +598,17 @@ console.log('formData',formData);
       setLoading(true);
       if (isEditMode) {
         await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
-        Alert.alert("Updated", "Reward message updated");
+        Alert.alert(strings.alerts.success || 'Updated', strings.messageManagement.successUpdated || 'Reward message updated');
       } else {
         await authService.createMessage(formData); // 👈 CREATE
-        Alert.alert("Success", "Reward message created");
+        Alert.alert(strings.alerts.success || 'Success', strings.messageManagement.successSaved || 'Reward message created');
       }
       // await authService.createMessage(formData);
       
       // Alert.alert("Success", "Reward message created");
       onSuccess()
     } catch {
-      Alert.alert("Error", "Failed to create reward");
+      Alert.alert(strings.alerts.error || 'Error', strings.messageManagement.saveFailed || 'Failed to create reward');
     } finally {
       setLoading(false);
     }
@@ -696,16 +696,16 @@ console.log('formData',formData);
       setLoading(true);
       if (isEditMode) {
         await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
-        Alert.alert("Updated", "General message updated");
+        Alert.alert(strings.alerts.success || 'Updated', strings.messageManagement.successUpdated || 'General message updated');
       } else {
         await authService.createMessage(formData); // 👈 CREATE
-        Alert.alert("Success", "General message created");
+        Alert.alert(strings.alerts.success || 'Success', strings.messageManagement.successSaved || 'General message created');
       }
       // await authService.createMessage(formData);
       // Alert.alert("Success", "General message created");
       onSuccess()
     } catch {
-      Alert.alert("Error", "Failed to create message");
+      Alert.alert(strings.alerts.error || 'Error', strings.messageManagement.saveFailed || 'Failed to create message');
     } finally {
       setLoading(false);
     }

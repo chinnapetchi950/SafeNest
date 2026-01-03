@@ -5,10 +5,13 @@ import { colors } from "../../styles/colors";
 import LineChartCard from "../components/LineChart";
 import BarChartCard from "../components/BarChart";
 import { SafeAreaView } from "react-native-safe-area-context";
+import strings from "../../localization/en";
 import Icon from 'react-native-vector-icons/Feather';
+import { useTranslation } from "../../contexts/LanguageContext";
 
 
 const DashboardScreen = () => {
+  const { t } = useTranslation();
   const lineData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
     datasets: [{ data: [600000, 700000, 800000, 650000, 720000, 780000, 950000] }],
@@ -26,7 +29,7 @@ const DashboardScreen = () => {
           <View style={styles.headercontainer}>
       
       {/* Title */}
-      <Text style={styles.title}>SafeNest</Text>
+      <Text style={styles.title}>{t('dashboard.title')}</Text>
 
       {/* Notification + User */}
       <View style={styles.row}>
@@ -39,12 +42,12 @@ const DashboardScreen = () => {
         
         <TouchableOpacity style={styles.dropdown}>
           <Icon name="chevron-down" size={18} color="#A98BFF" />
-          <Text style={styles.dropdownText}>Year</Text>
+          <Text style={styles.dropdownText}>{t('dashboard.year')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.dropdownRight}>
           <Icon name="chevron-down" size={18} color="#A98BFF" />
-          <Text style={styles.dateText}>2025 April 15</Text>
+          <Text style={styles.dateText}>{strings.dashboard.currentDate}</Text>
         </TouchableOpacity>
 
       </View>
@@ -52,16 +55,16 @@ const DashboardScreen = () => {
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.cardRow}>
         <DashboardCard
-          title="Number of Children Registered Weekly"
-          subtitle="700 Children"
-          value="500,000"
+          title={t('dashboard.numberOfChildrenRegisteredWeekly')}
+          subtitle={t('dashboard.childrenCount')}
+          value={t('dashboard.value')}
           percent="-5%"
           trend="down"
         />
         <DashboardCard
-          title="Number of Children Registered Weekly"
-          subtitle="700 Children"
-          value="500,000"
+          title={t('dashboard.numberOfChildrenRegisteredWeekly')}
+          subtitle={t('dashboard.childrenCount')}
+          value={t('dashboard.value')}
           percent="+15%"
           trend="up"
         />
@@ -69,23 +72,23 @@ const DashboardScreen = () => {
 
       <View style={styles.cardRow}>
         <DashboardCard
-          title="Number of Children Registered Weekly"
-          subtitle="700 Children"
-          value="500,000"
+          title={t('dashboard.numberOfChildrenRegisteredWeekly')}
+          subtitle={t('dashboard.childrenCount')}
+          value={t('dashboard.value')}
           percent="+15%"
           trend="up"
         />
         <DashboardCard
-          title="Number of Children Registered Weekly"
-          subtitle="700 Children"
-          value="500,000"
+          title={t('dashboard.numberOfChildrenRegisteredWeekly')}
+          subtitle={t('dashboard.childrenCount')}
+          value={t('dashboard.value')}
           percent="+15%"
           trend="up"
         />
       </View>
 
-      <LineChartCard title="Budget" data={lineData} />
-      <BarChartCard title="عدد الأطفال" data={barData} />
+      <LineChartCard title={t('dashboard.budget')} data={lineData} />
+      <BarChartCard title={t('dashboard.numberOfChildren')} data={barData} />
     </ScrollView>
     </SafeAreaView>
   );

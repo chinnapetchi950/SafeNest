@@ -13,11 +13,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomTextField from '../components/TextFieldComponent';
 import globalstyles from '../../styles/globalstyles';
 import { loginViewModel } from '../../viewmodels/loginViewModel';
+import { useTranslation } from '../../contexts/LanguageContext';
 
 export default function LoginScreen() {
- 
-
-const viewModel=loginViewModel()
+  const { t } = useTranslation();
+  const viewModel = loginViewModel();
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -28,15 +28,15 @@ const viewModel=loginViewModel()
       <View style={styles.container}>
         <View style={styles.formWrapper}>
             <View style={{alignSelf:"center"}}>
- <Text style={[globalstyles.regular_FontMediumblack,styles.title]}>Welcome</Text>
-          <Text style={[globalstyles.regular_FontMediumblack]}>Sign in to your account</Text>
+ <Text style={[globalstyles.regular_FontMediumblack,styles.title]}>{t('auth.welcome')}</Text>
+          <Text style={[globalstyles.regular_FontMediumblack]}>{t('auth.signInToAccount')}</Text>
             </View>
             <View style={{padding:8,width:"100%"}}>
  <CustomTextField
         value={viewModel.form.email}
         onChangeText={(text) => viewModel.handleInputChange("email", text)}
-        label="Username"
-        placeholder="Username"
+        label={t('auth.username')}
+        placeholder={t('auth.usernamePlaceholder')}
         prefixIcon="person-outline"
         inputstyle={{marginLeft:10}}
       />
@@ -59,8 +59,8 @@ const viewModel=loginViewModel()
       <CustomTextField
   value={viewModel.form.password}
   onChangeText={(text) => viewModel.handleInputChange("password", text)}
-  label="Password"
-  placeholder="Enter password"
+  label={t('auth.password')}
+  placeholder={t('auth.passwordPlaceholder')}
   prefixIcon={showPassword ? "eye-off-outline" : "eye-outline"}
   onPrefixPress={() => setShowPassword(!showPassword)}
   isPassword
@@ -86,7 +86,7 @@ const viewModel=loginViewModel()
           style={[styles.button, viewModel.isButtonDisabled&&styles.buttonDisabled]}
            disabled={viewModel.isButtonDisabled}
         >
-          <Text style={styles.buttonText}>Sign In</Text>
+          <Text style={styles.buttonText}>{t('buttons.signIn')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

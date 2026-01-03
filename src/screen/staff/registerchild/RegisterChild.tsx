@@ -24,6 +24,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import useRegisterChildViewModel from '../../../viewmodels/useRegisterChildViewModel';
 import Storage from '../../../utils/storage';
+import strings from '../../../localization/en';
 export const RegisterChildScreen = () => {
   const navigation = useNavigation();
   const viewModel = useFilterBottomSheetViewModel();
@@ -86,7 +87,7 @@ export const RegisterChildScreen = () => {
           <Ionicons name="close-circle-outline" size={20} color="red" />
         </TouchableOpacity>
         <View>
-          <Text style={styles.fileName}>{item.fileName} - Attachment</Text>
+          <Text style={styles.fileName}>{item.fileName} - {strings.child.attachment}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
             <Text style={styles.fileSize}>{item.fileSize}</Text>
           </View>
@@ -111,7 +112,7 @@ export const RegisterChildScreen = () => {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Register New Child</Text>
+          <Text style={styles.title}>{strings.child.registerNewChild}</Text>
           <Ionicons name="chevron-forward" size={22} color="#000" />
         </View>
 
@@ -129,20 +130,20 @@ export const RegisterChildScreen = () => {
 
         {/* Texts Under Progress Bar */}
         <View style={styles.labelRow}>
-          <Text style={styles.inactiveLabel}>Session Details</Text>
+          <Text style={styles.inactiveLabel}>{strings.child.sessionDetails}</Text>
           {/* <Text style={styles.activeLabel}>Child Details</Text> */}
         </View>
 
-        <Text style={styles.sectionTitle}>Child Details</Text>
+  <Text style={styles.sectionTitle}>{strings.child.childDetails}</Text>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 80 }}
         >
           <View style={{ flex: 1 }}>
-       {role === "admin" && (
+     {role === "admin" && (
   <>
-    <Text style={[styles.label,    globalstyles.semibold_black
-]}>Assign Child to Staff</Text>
+  <Text style={[styles.label,    globalstyles.semibold_black
+]}> {strings.child.assignChildToStaff}</Text>
     <DropDownPicker
       open={openUser}
       value={viewModel.form.user_id}
@@ -151,7 +152,7 @@ export const RegisterChildScreen = () => {
       setValue={(cb) =>
         viewModel.handleInputChange("user_id", cb(viewModel.form.user_id))
       }
-      placeholder="Assign Child to Staff"
+  placeholder={strings.child.assignChildToStaffPlaceholder}
       // style={styles.dropdown}
       zIndex={3000}
       zIndexInverse={1000}
@@ -199,8 +200,8 @@ export const RegisterChildScreen = () => {
             <CustomTextField
               value={viewModel.form.phone}
               onChangeText={text => viewModel.handleInputChange('phone', text)}
-              label="Phone Number"
-              placeholder="xxxxxxxxxx"
+              label={strings.auth.phoneNumber}
+              placeholder={strings.child.phonePlaceholder}
               prefixIcon="call-outline"
               keyboardType="number-pad"
               error={viewModel.errors?.phone}
@@ -211,8 +212,8 @@ export const RegisterChildScreen = () => {
               onChangeText={text =>
                 viewModel.handleInputChange('guardian_name', text)
               }
-              label="Guardian Name"
-              placeholder="Guardian Name"
+              label={strings.child.guardianName}
+              placeholder={strings.child.guardianNamePlaceholder}
               prefixIcon="person-sharp"
               error={viewModel.errors?.guardian_name}
             />
@@ -220,8 +221,8 @@ export const RegisterChildScreen = () => {
             <CustomTextField
               value={viewModel.form.name}
               onChangeText={text => viewModel.handleInputChange('name', text)}
-              label="Child Name"
-              placeholder="Child Name"
+              label={strings.child.childName}
+              placeholder={strings.child.childNamePlaceholder}
               prefixIcon="person-sharp"
               error={viewModel.errors?.name}
             />
@@ -243,8 +244,8 @@ export const RegisterChildScreen = () => {
             >
               <CustomTextField
                 value={viewModel.form.date_of_birth}
-                label="Date of Birth"
-                placeholder="YYYY/MM/DD"
+                label={strings.child.dateOfBirth}
+                placeholder={strings.child.dateOfBirthPlaceholder}
                 prefixIcon="calendar-outline"
                 error={viewModel.errors?.date_of_birth}
                 editable={false} // disable manual typing
@@ -255,8 +256,8 @@ export const RegisterChildScreen = () => {
               onChangeText={text =>
                 viewModel.handleInputChange('address', text)
               }
-              label="Address"
-              placeholder="Address"
+              label={strings.child.address}
+              placeholder={strings.child.addressPlaceholder}
               prefixIcon="location-outline"
               error={viewModel.errors?.address}
             />
@@ -315,7 +316,7 @@ export const RegisterChildScreen = () => {
                 { alignSelf: 'flex-end', fontWeight: '700', marginRight: 6 },
               ]}
             >
-              Gender
+              {strings.child.gender}
             </Text>
             <View style={styles.genderRow}>
               {/* Female */}
@@ -323,7 +324,7 @@ export const RegisterChildScreen = () => {
                 style={[styles.genderOption, { marginRight: 30 }]}
                 onPress={() => viewModel?.handleSelectGender('female')}
               >
-                <Text style={styles.optionText}>Female</Text>
+                <Text style={styles.optionText}>{strings.child.female}</Text>
                 <View
                   style={[
                     styles.checkbox,
@@ -342,7 +343,7 @@ export const RegisterChildScreen = () => {
                 style={styles.genderOption}
                 onPress={() => viewModel?.handleSelectGender('male')}
               >
-                <Text style={styles.optionText}>Male</Text>
+                <Text style={styles.optionText}>{strings.child.male}</Text>
                 <View
                   style={[
                     styles.checkbox,
@@ -359,7 +360,7 @@ export const RegisterChildScreen = () => {
 
             <View style={{ marginTop: 10 }}>
               {/* Initial Empty Upload Box */}
-              <Text
+                <Text
                 style={[
                   globalstyles.regular_FontblackFontWeight,
                   {
@@ -370,12 +371,12 @@ export const RegisterChildScreen = () => {
                   },
                 ]}
               >
-                Upload child's photo
+                {strings.child.uploadChildPhoto}
               </Text>
               {images.length === 0 && (
                 <TouchableOpacity style={styles.emptyBox} onPress={pickImage}>
                   <Ionicons name={'images-outline'} size={22} color="#3AB54A" />
-                  <Text style={styles.addText}>Add Image Here</Text>
+                  <Text style={styles.addText}>{strings.child.addImageHere}</Text>
                 </TouchableOpacity>
               )}
 
@@ -394,14 +395,14 @@ export const RegisterChildScreen = () => {
                     onPress={pickImage}
                     style={styles.addMoreBtn}
                   >
-                    <Text style={styles.addMoreText}>+ Add More</Text>
+                    <Text style={styles.addMoreText}>{strings.child.addMore}</Text>
                   </TouchableOpacity>
                 )}
             </View>
           </View>
         </ScrollView>
         <View style={styles.bottomContainer}>
-          <TouchableOpacity
+            <TouchableOpacity
             onPress={viewModel?.handleNext}
             style={[
               styles.button,
@@ -409,7 +410,7 @@ export const RegisterChildScreen = () => {
             ]}
             disabled={viewModel.isnextButtonDisabled}
           >
-            <Text style={styles.buttonText}>Next</Text>
+            <Text style={styles.buttonText}>{strings.buttons.next}</Text>
           </TouchableOpacity>
         </View>
         {/* <CommonButton

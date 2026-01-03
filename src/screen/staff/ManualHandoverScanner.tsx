@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { BarcodeScanner, CameraView } from "@pushpendersingh/react-native-scanner";
+import strings from "../../localization/en";
 
 const ManualHandoverScanner = ({ navigation }) => {
   const [scanned, setScanned] = useState(false);
@@ -27,16 +28,16 @@ const ManualHandoverScanner = ({ navigation }) => {
           const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.CAMERA,
             {
-              title: "Camera Permission",
-              message: "App needs access to your camera to scan barcodes",
-              buttonNeutral: "Ask Me Later",
-              buttonNegative: "Cancel",
-              buttonPositive: "OK",
+              title: strings.manualHandover.title || 'Camera Permission',
+              message: strings.manualHandover.cameraRequired || 'App needs access to your camera to scan barcodes',
+              buttonNeutral: strings.common.askMeLater || 'Ask Me Later',
+              buttonNegative: strings.common.cancel || 'Cancel',
+              buttonPositive: strings.common.ok || 'OK',
             }
           );
           setHasPermission(granted === PermissionsAndroid.RESULTS.GRANTED);
           if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-            Alert.alert("Permission Denied", "Camera permission is required to scan barcodes.");
+            Alert.alert(strings.alerts.error || 'Permission Denied', strings.manualHandover.cameraRequired || 'Camera permission is required to scan barcodes.');
           }
         } catch (err) {
           console.warn(err);
@@ -102,9 +103,9 @@ const ManualHandoverScanner = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.headerTitle}>Manual Handover</Text>
+        <Text style={styles.headerTitle}>{strings.manualHandover.title}</Text>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backText}>Back</Text>
+          <Text style={styles.backText}>{strings.common.back}</Text>
           <Ionicons name="chevron-forward" size={18} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -122,7 +123,7 @@ const ManualHandoverScanner = ({ navigation }) => {
         />
       ) : (
         <View style={[styles.camera, { justifyContent: "center", alignItems: "center" }]}>
-          <Text style={{ color: "#fff" }}>Camera permission is required</Text>
+          <Text style={{ color: "#fff" }}>{strings.manualHandover.cameraRequired}</Text>
         </View>
       )}
 
@@ -148,7 +149,7 @@ disabled={scanned?false:true}   // disable button
       scanned && { color: "#ccc" }  // lighter text when disabled
     ]}
   >
-    {scanned ? "Scan Code" : "Scan Code"}
+  {scanned ? strings.manualHandover.scanCode : strings.manualHandover.scanCode}
   </Text>
 </TouchableOpacity>
       

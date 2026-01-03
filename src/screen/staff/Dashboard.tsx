@@ -32,9 +32,11 @@ import moment from 'moment';
 import ChildHandoverConfirmation from './ChildHandoverConfirmation';
 import { setLoading } from '../../features/auth/loadingSlice.tsx/loadingSlices';
 import { useDispatch } from 'react-redux';
+import strings from '../../localization/en';
 
 export default function Dashboard({navigation,route}) {
   const viewModel = useDashboardViewModel();
+  const strings = require('../../localization/en').default;
 const dispatch=useDispatch()
   // modal visible state
   const [visible, setVisible] = useState(false);
@@ -270,20 +272,20 @@ useEffect(() => {
     // 🔥 1. Check if number exists
 
     if (!phone) {
-      Alert.alert('No Phone Number', 'User phone number is missing.');
+    Alert.alert(strings.alerts.error || 'Error', strings.validation.phoneRequired || 'User phone number is missing.');
       return;
     }
     const phoneRegex = /^[+]?[\d]{6,15}$/;
 
     if (!phoneRegex.test(phone)) {
-      Alert.alert('Invalid Number', 'The phone number is invalid.');
+  Alert.alert(strings.alerts.error || 'Error', strings.validation.phoneInvalid || 'The phone number is invalid.');
       return;
     }
 
     const phoneNumber = `tel:${phone}`;
 
-    Linking.openURL(phoneNumber).catch(() => {
-      Alert.alert('Error', 'Unable to place the call.');
+      Linking.openURL(phoneNumber).catch(() => {
+      Alert.alert(strings.alerts.error || 'Error', strings.alerts.error || 'Unable to place the call.');
     });
   };
   
@@ -309,7 +311,7 @@ const renderItem = React.useCallback(({ item }) => {
           }
         }}
       >
-        <Text style={styles.loadMoreText}>Load More</Text>
+  <Text style={styles.loadMoreText}>{strings.dashboard.loadMore}</Text>
       </TouchableOpacity>
     );
   }
@@ -501,7 +503,7 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
   // Basic validation: must be numbers and 10-15 digits (adjust as needed)
   const cleanedNumber = phoneNumber.replace(/\D/g, ''); // remove non-digits
   if (!cleanedNumber || cleanedNumber.length < 10 || cleanedNumber.length > 15) {
-    Alert.alert('Invalid number', 'Please enter a valid phone number');
+    Alert.alert(strings.alerts.error || 'Invalid number', strings.validation.phoneInvalid || 'Please enter a valid phone number');
     return;
   }
 
@@ -509,7 +511,7 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
   Linking.canOpenURL(url)
     .then((supported) => {
       if (!supported) {
-        Alert.alert('Error', 'WhatsApp is not installed on your device');
+        Alert.alert(strings.alerts.error || 'Error', strings.settings.whatsappNotInstalled || 'WhatsApp is not installed on your device');
       } else {
         return Linking.openURL(url);
       }

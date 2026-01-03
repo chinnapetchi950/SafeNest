@@ -2,6 +2,7 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated, Dimensions, TextInput } from "react-native";
+import strings from "../../localization/en";
 import { colors } from "../../styles/colors";
 import globalstyles from "../../styles/globalstyles";
 import { useNavigation } from "@react-navigation/native";
@@ -12,14 +13,14 @@ const { height } = Dimensions.get("window");
 
 const AddMenuModal = ({ visible, onClose }) => {
   const options = [
-    { id: 1, label: "Add a new game", icon: "game-controller-outline" , screen: "RegisterNewGame"},
-    { id: 2, label: "Add a new user", icon: "person-add-outline" , screen: "AccountTypeScreen"},
-    { id: 3, label: "Register a new child", icon: "people-outline", screen: "RegisterChildScreen" },
+    { id: 1, label: strings.addMenu.addGame, icon: "game-controller-outline" , screen: "RegisterNewGame"},
+    { id: 2, label: strings.addMenu.addUser, icon: "person-add-outline" , screen: "AccountTypeScreen"},
+    { id: 3, label: strings.addMenu.registerChild, icon: "people-outline", screen: "RegisterChildScreen" },
   ];
-  const navigation=useNavigation()
+  const navigation = useNavigation();
   const handleSelect = (item) => {
-    onClose(); // close the modal first
-    navigation.navigate(item.screen); // navigate to screen
+    onClose();
+    navigation.navigate(item.screen);
   };
 
   return (
@@ -39,16 +40,13 @@ const AddMenuModal = ({ visible, onClose }) => {
               ]}
               onPress={() => handleSelect(item)}
             >
-              <Text style={[globalstyles.regular_FontMedium,styles.menuText]}>
-                {item.label}
-                </Text>
-        <View style={{backgroundColor:colors.lightgrey,borderRadius:25,padding:8}}>
-              <Ionicons name={item.icon} size={22} color="#A1A1AA" />
-
-             </View>            </TouchableOpacity>
+              <Text style={[globalstyles.regular_FontMedium,styles.menuText]}>{item.label}</Text>
+              <View style={{backgroundColor:colors.lightgrey,borderRadius:25,padding:8}}>
+                <Ionicons name={item.icon} size={22} color="#A1A1AA" />
+              </View>
+            </TouchableOpacity>
           ))}
 
-          {/* Speech bubble pointer */}
           <View style={styles.pointer} />
         </View>
       </TouchableOpacity>
@@ -91,13 +89,13 @@ export const AddMenuModalStaff = ({ visible, onClose }) => {
       }, 300); // Delay matches animationType="fade" duration
     } else {
       // Navigate for normal item
-      setTimeout(() => {
+  label: strings.addMenu.addGame,
         navigation.navigate(item.screen);
       }, 300);
     }
   };
 
-  const openBottomSheet = () => {
+  label: strings.addMenu.registerChild,
     setShowChildSheet(true);
     Animated.timing(slideAnim, {
       toValue: 0,
@@ -159,7 +157,7 @@ export const AddMenuModalStaff = ({ visible, onClose }) => {
         <View style={styles.sheetOverlay}>
           <TouchableOpacity
             style={styles.backgroundTouch}
-            activeOpacity={1}
+      {item.label}
             onPress={closeBottomSheet}
           />
           <Animated.View

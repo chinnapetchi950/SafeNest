@@ -21,7 +21,9 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { fetchGameTypes } from '../../../features/auth/staffSlice/registerNewChild/createChildSlice';
 import BottomTabsStaff from '../BottomTabStaff';
 import Storage from '../../../utils/storage';
+import { useTranslation } from '../../../contexts/LanguageContext';
 const SessionDetailsScreen = ({ route, navigation }) => {
+  const { t } = useTranslation();
   const viewModel = useFilterBottomSheetViewModel();
   const options = ['45 min', '30 min', '15 min'];
   const [selected, setSelected] = useState('');
@@ -169,7 +171,7 @@ navigation.navigate("BottomTabsStaff")
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Session Details</Text>
+          <Text style={styles.title}>{t('session.sessionDetails')}</Text>
           <Ionicons name="chevron-forward" size={22} color="#000" />
         </View>
 
@@ -188,10 +190,10 @@ navigation.navigate("BottomTabsStaff")
         {/* Texts Under Progress Bar */}
         <View style={styles.labelRow}>
           <Text style={styles.inactiveLabel}></Text>
-          <Text style={styles.activeLabel}>Child Details</Text>
+          <Text style={styles.activeLabel}>{t('child.childDetails')}</Text>
         </View>
 
-        <Text style={styles.sectionTitle}>Session Details</Text>
+        <Text style={styles.sectionTitle}>{t('session.sessionDetails')}</Text>
 
         <ScrollView
           contentContainerStyle={{ paddingBottom: 100 }}
@@ -208,7 +210,7 @@ navigation.navigate("BottomTabsStaff")
               textAlign: 'right',
             }}
           >
-            Game Type
+            {t('session.gameType')}
           </Text>
 
           <DropDownPicker
@@ -238,7 +240,7 @@ navigation.navigate("BottomTabsStaff")
   }
 }}
             setItems={setItems}
-            placeholder="Select Game Type"
+            placeholder={t('session.selectGameType')}
             style={{
               borderColor: '#D0D0D0',
               borderRadius: 10,
@@ -280,8 +282,8 @@ onPress={() => openPicker('time', 'play_to')}
               style={styles.halfField1}
             >
               <CustomTextField
-                label="Play Time To"
-                placeholder="HH/MM"
+                label={t('session.playTimeTo')}
+                placeholder={t('session.timePlaceholder')}
                 value={viewModel?.childform?.play_to}
                 //prefixIcon="time-outline"
                 editable={false}
@@ -295,8 +297,8 @@ onPress={() => openPicker('time', 'play_to')}
               //style={styles.halfField2}
             >
               <CustomTextField
-                label="Play Time From"
-                placeholder="HH/MM"
+                label={t('session.playTimeFrom')}
+                placeholder={t('session.timePlaceholder')}
                 value={viewModel?.childform?.play_from}
                 //prefixIcon="time-outline"
                 editable={false}
@@ -307,8 +309,8 @@ onPress={() => openPicker('time', 'play_to')}
               onPress={() => openPicker('date', 'session_date')}
             >
               <CustomTextField
-                label="Session Date"
-                placeholder="YYYY/MM/DD"
+                label={t('session.sessionDate')}
+                placeholder={t('session.datePlaceholder')}
                 prefixIcon="calendar-outline"
                 value={viewModel?.childform?.session_date}
                 editable={false}
@@ -343,7 +345,7 @@ onPress={() => openPicker('time', 'play_to')}
               },
             ]}
           >
-            Play Duration
+            {t('session.playDuration')}
           </Text>
           :null}
           {/* <View style={styles.durationContainer}>
@@ -420,7 +422,7 @@ onPress={() => openPicker('time', 'play_to')}
             ]}
             disabled={viewModel.isaddButtonDisabled}
           >
-            <Text style={styles.buttonText}>Add</Text>
+            <Text style={styles.buttonText}>{t('buttons.add')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -436,21 +438,20 @@ onPress={() => openPicker('time', 'play_to')}
           </View>
 
           {/* Title */}
-          <Text style={styles.titlemodal}>The child has been registered now!</Text>
+          <Text style={styles.titlemodal}>{t('child.childRegisteredSuccess')}</Text>
 
           {/* Subtitle */}
           <Text style={styles.subtitle}>
-            The child has been successfully registered and can now start the play session.{"\n"}
-            Please print the child’s barcode.
+            {t('child.childRegisteredMessage')}
           </Text>
 
           {/* Wristband style */}
           <View style={styles.bandContainer}>
             <View style={styles.bandBox}>
-              <Text style={styles.bandText}>{childData?.data?.name} – Child Name</Text>
-              <Text style={styles.bandText}>{childData?.data?.guardian_name} – Guardian</Text>
-              <Text style={styles.bandText}>{childData?.data?.phone} – Phone Number</Text>
-              <Text style={styles.bandText}>{childData?.data?.play_to} – Session End Duration</Text>
+              <Text style={styles.bandText}>{childData?.data?.name} – {t('child.childNameLabel')}</Text>
+              <Text style={styles.bandText}>{childData?.data?.guardian_name} – {t('child.guardianLabel')}</Text>
+              <Text style={styles.bandText}>{childData?.data?.phone} – {t('child.phoneNumberLabel')}</Text>
+              <Text style={styles.bandText}>{childData?.data?.play_to} – {t('child.sessionEndDuration')}</Text>
             </View>
 
             <View style={styles.bandDots}>
@@ -464,36 +465,36 @@ onPress={() => openPicker('time', 'play_to')}
           <View style={styles.card}>
             <View style={styles.rowmodal}>
               <View style={styles.col}>
-                <Text style={styles.labelmodal}>Guardian</Text>
+                <Text style={styles.labelmodal}>{t('child.guardianLabel')}</Text>
                 <Text style={styles.value}>{childData?.data?.guardian_name}</Text>
               </View>
 
               <View style={styles.col}>
-                <Text style={styles.labelmodal}>Child Name</Text>
+                <Text style={styles.labelmodal}>{t('child.childNameLabel')}</Text>
                 <Text style={styles.value}>{childData?.data?.name}</Text>
               </View>
             </View>
 
             <View style={styles.rowmodal}>
               <View style={styles.col}>
-                <Text style={styles.labelmodal}>Session Duration</Text>
+                <Text style={styles.labelmodal}>{t('child.sessionDuration')}</Text>
                 <Text style={styles.value}>{childData?.data?.play_to} Min</Text>
               </View>
 
               <View style={styles.col}>
-                <Text style={styles.labelmodal}>Phone Number</Text>
+                <Text style={styles.labelmodal}>{t('child.phoneNumberLabel')}</Text>
                 <Text style={styles.value}>{childData?.data?.phone}</Text>
               </View>
             </View>
 
             <View style={styles.rowmodal}>
               <View style={styles.col}>
-                <Text style={styles.labelmodal}>Session Price</Text>
+                <Text style={styles.labelmodal}>{t('child.sessionPrice')}</Text>
                 <Text style={styles.value}>{viewModel?.childform?.price}</Text>
               </View>
 
               <View style={styles.col}>
-                <Text style={styles.labelmodal}>Session End Duration</Text>
+                <Text style={styles.labelmodal}>{t('child.sessionEndDurationLabel')}</Text>
                 <Text style={styles.value}>{childData?.data?.play_to}</Text>
               </View>
             </View>
@@ -503,7 +504,7 @@ onPress={() => openPicker('time', 'play_to')}
           <TouchableOpacity style={styles.printBtn} 
           //onPress={onClose} 
           >
-            <Text style={styles.printText}>Print</Text>
+            <Text style={styles.printText}>{t('buttons.print')}</Text>
           </TouchableOpacity>
 
         </View>

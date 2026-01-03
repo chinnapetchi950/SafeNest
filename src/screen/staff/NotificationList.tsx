@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import apiClient from '../../api/apiClient';
 import authService from '../../features/auth/authService';
 import { timeAgo } from '../../utils/dateTime';
+import strings from '../../localization/en';
 export default function NotificationScreen({navigation}) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -56,18 +57,18 @@ console.log(pagination);
 
   /* ---------------- DELETE NOTIFICATION ---------------- */
   const deleteNotification = async (id: number) => {
-    Alert.alert('Delete', 'Delete this notification?', [
-      { text: 'Cancel' },
+    Alert.alert(strings.common.delete, strings.alerts.deleteConfirm, [
+      { text: strings.common.cancel },
       {
-        text: 'Delete',
+        text: strings.common.delete,
         style: 'destructive',
         onPress: async () => {
           try {
             const res = await authService.deletenotification(id);
             console.log(res, 'responsedelete');
             if(res?.status){
-Alert.alert('Success',res.data?.message)
-            setNotifications(prev => prev.filter(item => item.id !== id));
+              Alert.alert(strings.alerts.success, res.data?.message)
+              setNotifications(prev => prev.filter(item => item.id !== id));
             }
 
           } catch (err) {
@@ -173,7 +174,7 @@ Alert.alert('Success',res.data?.message)
         {loadingMore ? (
           <ActivityIndicator color="#764AF1" />
         ) : (
-          <Text style={styles.viewAllText}>View All Activities</Text>
+          <Text style={styles.viewAllText}>{strings.dashboard.loadMore}</Text>
         )}
       </TouchableOpacity>
     );

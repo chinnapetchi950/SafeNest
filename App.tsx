@@ -26,7 +26,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from "./src/store/store";
 import WhatsAppManagementScreen from './src/screen/Settings/WhatupManagement';
 import AccountManagementScreen from './src/screen/Settings/AccountManagement';
-import WhatsappOtpScreen from './src/screen/Settings/WhatsappOtpScreen'
+import WhatsappOtpScreen from './src/screen/Settings/WhatsappOtpScreen';
+import { LanguageProvider } from './src/contexts/LanguageContext';
 
 // Import your screens
 
@@ -37,6 +38,7 @@ export default function App() {
     // ✅ Ensures SafeArea works across screens (top/bottom insets)
     <Provider store={store}>
        <PersistGate loading={<CommonLoader/>} persistor={persistor}>
+      <LanguageProvider>
       <SafeAreaProvider>
         <NavigationContainer ref={navigationRef}>
           <Stack.Navigator
@@ -91,6 +93,7 @@ export default function App() {
         </NavigationContainer>
         <CommonLoader />
       </SafeAreaProvider>
+      </LanguageProvider>
       </PersistGate>
       {/* <CommonLoader /> ✅ Always visible, listens to Redux */}
     </Provider>

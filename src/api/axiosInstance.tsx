@@ -107,6 +107,7 @@ import Storage from "../utils/storage";
 import { store } from "../store/store";
 import { setLoading } from "../features/auth/loadingSlice.tsx/loadingSlices";
 import { Alert } from "react-native";
+import strings from "../localization/en";
 import { navigationRef } from "../navigations/Appnavigator";
 const axiosInstance = axios.create({
   baseURL: "https://testlink3.pillersofttechnologies.com/",
@@ -187,20 +188,16 @@ axiosInstance.interceptors.response.use(
 
       await Storage.removeItem("token");
 
-      Alert.alert(
-  "Session Expired",
-  "Your login has expired. Please login again.",
-  [
+      Alert.alert(strings.alerts.sessionExpiredTitle || 'Session Expired', strings.alerts.sessionExpiredMessage || 'Your login has expired. Please login again.', [
     {
-      text: "OK",
+      text: strings.common.ok || 'OK',
       onPress: () => {
         if (navigationRef.isReady()) {
-          navigationRef.navigate("Login");
+          navigationRef.navigate('Login');
         }
       },
     },
-  ]
-);
+  ]);
 
       
 
@@ -211,20 +208,16 @@ axiosInstance.interceptors.response.use(
     if (response?.status === 401) {
       await Storage.removeItem("token");
 
-      Alert.alert(
-  "Session Expired",
-  "Your login has expired. Please login again.",
-  [
+      Alert.alert(strings.alerts.sessionExpiredTitle || 'Session Expired', strings.alerts.sessionExpiredMessage || 'Your login has expired. Please login again.', [
     {
-      text: "OK",
+      text: strings.common.ok || 'OK',
       onPress: () => {
         if (navigationRef.isReady()) {
-          navigationRef.navigate("Login");
+          navigationRef.navigate('Login');
         }
       },
     },
-  ]
-);
+  ]);
       return Promise.reject(error);
     }
 

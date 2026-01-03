@@ -13,6 +13,7 @@ import {
 } from "react-native";
 
 import { useFocusEffect } from "@react-navigation/native";
+import strings from "../../localization/en";
 
 export function MessageFormScreen({ navigation, route }) {
   const { mode = "create", id = null, initialType = "alert" } = route.params || {};
@@ -52,19 +53,19 @@ export function MessageFormScreen({ navigation, route }) {
 
   function validate() {
     if (!messageName.trim()) {
-      Alert.alert("Validation", "Message name is required.");
+      Alert.alert(strings.alerts.error || strings.alerts.error, strings.validation.required || strings.messageManagement.messageName + ' is required');
       return false;
     }
     if (!messageContent.trim()) {
-      Alert.alert("Validation", "Message content is required.");
+      Alert.alert(strings.alerts.error || strings.alerts.error, strings.messageManagement.messageContent + ' is required');
       return false;
     }
     if (type === "alert" && (!offsetTime || Number(offsetTime) < 0)) {
-      Alert.alert("Validation", "Please enter a valid sending offset.");
+  Alert.alert(strings.alerts.error || strings.alerts.error, strings.messageManagement.required);
       return false;
     }
     if (type === "reward" && !sendDate) {
-      Alert.alert("Validation", "Please choose a send date for reward messages.");
+  Alert.alert(strings.alerts.error || strings.alerts.error, strings.messageManagement.sendDate + ' is required');
       return false;
     }
     return true;
@@ -88,11 +89,11 @@ export function MessageFormScreen({ navigation, route }) {
 
     try {
       await createOrUpdateMessage(payload);
-      Alert.alert("Saved", "Message saved successfully");
+  Alert.alert(strings.alerts.success || strings.alerts.success, strings.messageManagement.successSaved);
       navigation.goBack();
     } catch (e) {
       console.warn("save error", e);
-      Alert.alert("Error", "Could not save message");
+  Alert.alert(strings.alerts.error || strings.alerts.error, strings.messageManagement.saveFailed);
     } finally {
       setSaving(false);
     }
@@ -102,24 +103,24 @@ function capitalize(s) {
   return s[0].toUpperCase() + s.slice(1);
 }
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : null}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={{ padding: 20 }}>
         <View style={styles.headerSpace}>
-          <Text style={styles.headerTitle}>{mode === "edit" ? "Edit Message" : "Create Message"}</Text>
+          <Text style={styles.headerTitle}>{mode === "edit" ? strings.messageManagement.update : strings.messageManagement.createMessage}</Text>
         </View>
 
-        <Text style={styles.sectionTitle}>{capitalize(type)} Message</Text>
+  <Text style={styles.sectionTitle}>{capitalize(type)} {strings.messageManagement.messageName.includes('Name')? 'Message': ''}</Text>
 
         <TextInput
           style={styles.input}
-          placeholder="Message Name"
+          placeholder={strings.messageManagement.messageName}
           value={messageName}
           onChangeText={setMessageName}
         />
 
         <TextInput
           style={[styles.textarea]}
-          placeholder="Message Content"
+          placeholder={strings.messageManagement.messageContent}
           value={messageContent}
           onChangeText={setMessageContent}
           multiline
@@ -127,7 +128,7 @@ function capitalize(s) {
 
         {type === "alert" && (
           <>
-            <Text style={styles.helper}>Sending Time</Text>
+            <Text style={styles.helper}>{strings.messageManagement.sendTime}</Text>
             <View style={styles.row}>
               <Pill style={offsetType === "minute" ? styles.pillActive : null} onPress={() => setOffsetType("before")}>Minute</Pill>
               <TextInput
@@ -148,7 +149,7 @@ function capitalize(s) {
 
         {type === "reward" && (
           <>
-            <Text style={styles.helper}>Sending Date & Time</Text>
+            <Text style={styles.helper}>{strings.messageManagement.sendDate} & Time</Text>
             <TextInput style={styles.input} placeholder="YYYY/MM/DD" value={sendDate} onChangeText={setSendDate} />
             <TextInput style={styles.input} placeholder="HH:MM" value={sendTime} onChangeText={setSendTime} />
           </>
@@ -156,13 +157,13 @@ function capitalize(s) {
 
         {type === "working_hours" && (
           <>
-            <Text style={styles.helper}>End of Working Hours Time</Text>
+            <Text style={styles.helper}>{strings.messageManagement.endWork} Time</Text>
             <TextInput style={styles.input} placeholder="HH:MM" value={sendTime} onChangeText={setSendTime} />
             <View style={styles.row}>
               <TouchableOpacity onPress={() => setWhenPlaceCloses((v) => !v)} style={styles.checkbox}>
                 <Text>{whenPlaceCloses ? "☑" : "☐"}</Text>
               </TouchableOpacity>
-              <Text style={styles.helper}>When the place closes</Text>
+              <Text style={styles.helper}>{strings.messageManagement.whenPlaceCloses}</Text>
             </View>
           </>
         )}
@@ -173,7 +174,7 @@ function capitalize(s) {
           onPress={onSave}
           disabled={saving || !(messageName && messageContent)}
         >
-          <Text style={styles.ctaText}>{saving ? "Saving..." : "Save Message"}</Text>
+          <Text style={styles.ctaText}>{saving ? strings.messageManagement.saving : strings.messageManagement.save}</Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>

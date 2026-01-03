@@ -547,6 +547,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { Alert } from "react-native";
 import moment from "moment";
+import strings from '../../localization/en';
 import { launchImageLibrary } from "react-native-image-picker";
 
 import Storage from "../../utils/storage";
@@ -697,27 +698,27 @@ const [errors, setErrors] = useState({});
 
   /* -------------------- VALIDATION -------------------- */
    const validateForm = () => {
-    const newErrors = {};
-    if (!form.phone.trim()) newErrors.phone = "Phone number is required";
-    if (!form.date_of_birth) newErrors.date_of_birth = "Date of birth is required";
-    if (!form.guardian_name.trim()) newErrors.guardian_name = "Guardian Name is required";
-    if (!form.name.trim()) newErrors.name = "Child name is required";
-    if (!form.gender) newErrors.gender = "Please select gender";
-    if (!form.address) newErrors.address = "Address is required";
+    const newErrors: any = {};
+    if (!form.phone || !form.phone.trim()) newErrors.phone = strings.validation.phoneRequired;
+    if (!form.date_of_birth) newErrors.date_of_birth = strings.validation.dateOfBirthRequired;
+    if (!form.guardian_name || !form.guardian_name.trim()) newErrors.guardian_name = strings.validation.guardianNameRequired;
+    if (!form.name || !form.name.trim()) newErrors.name = strings.validation.nameRequired;
+    if (!form.gender) newErrors.gender = strings.validation.genderRequired;
+    if (!form.address) newErrors.address = strings.validation.addressRequired;
  if (role === "admin" && !form.user_id) {
-    newErrors.user_id = "Please assign child to staff";
+    newErrors.user_id = strings.validation.required;
   }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
      const validateFormadd = () => {
-    const newErrors = {};
-    if (!childform.game_type_id) newErrors.game_type_id = "Please select Game Type";
-    if (!childform.play_from) newErrors.play_from = "Please select Play From";
-    if (!childform.play_to) newErrors.play_to = "Please select Play To";
-    if (!childform.session_date) newErrors.session_date = "Please select SessionDate";
-    if (!childform.play_duration) newErrors.play_duration = "Please select play_duration";
+    const newErrors: any = {};
+    if (!childform.game_type_id) newErrors.game_type_id = strings.validation.gameTypeRequired;
+    if (!childform.play_from) newErrors.play_from = strings.validation.playFromRequired;
+    if (!childform.play_to) newErrors.play_to = strings.validation.playToRequired;
+    if (!childform.session_date) newErrors.session_date = strings.validation.sessionDateRequired;
+    if (!childform.play_duration) newErrors.play_duration = strings.validation.durationRequired;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -758,7 +759,7 @@ const [errors, setErrors] = useState({});
         const from = moment(childform.play_from, "HH:mm");
         const to = moment(time, "HH:mm");
         if (to.isSameOrBefore(from)) {
-          Alert.alert("Play To must be greater than Play From");
+          Alert.alert(strings.validation.playToGreaterThanPlayFromTitle || 'Validation', strings.validation.playToGreaterThanPlayFrom || 'Play To must be greater than Play From');
           return;
         }
       }

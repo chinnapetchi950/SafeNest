@@ -10,9 +10,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ProgressBarRTL from '../../components/ProgressLine';
 import React from 'react';
 import SuccessModal from '../../components/UserSuccessModal';
-import ViewAccountModal from '../../components/ViewAccountModal'
+import ViewAccountModal from '../../components/ViewAccountModal';
+import { useTranslation } from "../../../contexts/LanguageContext";
 
 export const UserInformationScreen = ({navigation}) => {
+  const { t } = useTranslation();
   const viewModel = useUserInformationViewModel();
 const [showAccountModal, setShowAccountModal] = useState(false);
 
@@ -39,8 +41,7 @@ const [showAccountModal, setShowAccountModal] = useState(false);
     marginHorizontal:20
   }}
 >
-  <Text style={styles.headerTitle}>          {viewModel?.step === 1 ? "User Information" : "Account Information"}
-</Text>
+  <Text style={styles.headerTitle}>{viewModel?.step === 1 ? t('user.userInformation') : t('user.accountInformation')}</Text>
 
   <Ionicons
   onPress={()=>{viewModel?.step === 2?goBack():navigation.goBack()}}
@@ -55,7 +56,7 @@ const [showAccountModal, setShowAccountModal] = useState(false);
       <ProgressBarRTL totalSteps={3} currentStep={viewModel?.step === 1?2:3} />
 
       {/* Title */}
-      <Text style={styles.titlehed}>Account Type</Text>
+      <Text style={styles.titlehed}>{t('user.accountType')}</Text>
   
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: "#fff",padding:14,marginTop:20 }}
@@ -80,8 +81,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
                   onChangeText={(text) =>
                     viewModel.handleInputChange("secondName", text)
                   }
-                  label="Second Name (Optional)"
-                  placeholder="Second Name"
+                  label={t('user.secondName')}
+                  placeholder={t('user.secondNamePlaceholder')}
                   error={viewModel.errors.secondName}
                 />
               </View>
@@ -91,8 +92,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
                   onChangeText={(text) =>
                     viewModel.handleInputChange("firstName", text)
                   }
-                  label="First Name"
-                  placeholder="First Name"
+                  label={t('user.firstName')}
+                  placeholder={t('user.firstNamePlaceholder')}
                                 error={viewModel.errors.firstName}
 
                 />
@@ -106,8 +107,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
                   onChangeText={(text) =>
                     viewModel.handleInputChange("fourthName", text)
                   }
-                  label="Fourth Name (Optional)"
-                  placeholder="Fourth Name"
+                  label={t('user.fourthName')}
+                  placeholder={t('user.fourthNamePlaceholder')}
                 />
               </View>
               <View style={[styles.halfInput, { marginLeft: 8 }]}>
@@ -116,8 +117,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
                   onChangeText={(text) =>
                     viewModel.handleInputChange("thirdName", text)
                   }
-                  label="Third Name (Optional)"
-                  placeholder="Third Name"
+                  label={t('user.thirdName')}
+                  placeholder={t('user.thirdNamePlaceholder')}
                 />
               </View>
             </View>
@@ -127,8 +128,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
               onChangeText={(text) =>
                 viewModel.handleInputChange("lastName", text)
               }
-              label="Last Name(optional)"
-              placeholder="Last Name"
+              label={t('user.lastName')}
+              placeholder={t('user.lastNamePlaceholder')}
             />
 
             <CustomTextField
@@ -136,8 +137,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
               onChangeText={(text) =>
                 viewModel.handleInputChange("email", text)
               }
-              label="Email"
-              placeholder="example@gmail.com"
+              label={t('auth.email')}
+              placeholder={t('auth.emailPlaceholder')}
               prefixIcon="mail-outline"
                         error={viewModel.errors.email}
 
@@ -148,8 +149,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
               onChangeText={(text) =>
                 viewModel.handleInputChange("phone", text)
               }
-              label="Phone Number"
-              placeholder="XXXXXXXXXXX"
+              label={t('auth.phoneNumber')}
+              placeholder={t('auth.phonePlaceholder')}
               prefixIcon="call-outline"
               keyboardType="phone-pad"
                         error={viewModel.errors.phone}
@@ -161,8 +162,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
               onChangeText={(text) =>
                 viewModel.handleInputChange("password", text)
               }
-              label="Password"
-              placeholder="Enter password"
+              label={t('auth.password')}
+              placeholder={t('auth.passwordPlaceholder')}
               prefixIcon="eye-outline"
                         error={viewModel.errors.password}
 
@@ -179,8 +180,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
               onChangeText={(text) =>
                 viewModel.handleInputChange("nationalId", text)
               }
-              label="National ID Card"
-              placeholder="Enter National ID Number"
+              label={t('user.nationalId')}
+              placeholder={t('user.nationalIdPlaceholder')}
               suffixIcon="id-card-outline"
                         error={viewModel.errors.nationalId}
 
@@ -205,8 +206,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
             <TouchableOpacity onPress={() => viewModel.selectImage("nationalId")}>
   <CustomTextField
     value={viewModel.form.nationalIdImage?.fileName || ""}
-    label="National ID Card Image"
-    placeholder="Upload National ID Card"
+    label={t('user.nationalIdImage')}
+    placeholder={t('user.nationalIdImagePlaceholder')}
     suffixIcon="arrow-back-outline"
     editable={false}
     error={viewModel.errors.nationalIdImage}
@@ -247,8 +248,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
               onChangeText={(text) =>
                 viewModel.handleInputChange("residenceCard", text)
               }
-              label="Residence Card"
-              placeholder="Enter Residence Card Number"
+              label={t('user.residenceCard')}
+              placeholder={t('user.residenceCardPlaceholder')}
               suffixIcon="id-card-outline"
           error={viewModel.errors.residenceCard}
 
@@ -257,8 +258,8 @@ const [showAccountModal, setShowAccountModal] = useState(false);
 <TouchableOpacity onPress={() => viewModel.selectImage("residence")}>
   <CustomTextField
     value={viewModel.form.residenceCardImage?.fileName || ""}
-    label="Residence  Card Image"
-    placeholder="Upload Residence Card"
+    label={t('user.residenceCardImage')}
+    placeholder={t('user.residenceCardImagePlaceholder')}
     suffixIcon="arrow-back-outline"
     error={viewModel?.errors.residenceCardImage}
     editable={false}
@@ -350,7 +351,7 @@ const [showAccountModal, setShowAccountModal] = useState(false);
     }
   >
     <Text style={styles.buttonText}>
-      {viewModel.step === 1 ? "Next" : "Add"}
+      {viewModel.step === 1 ? t('buttons.next') : t('buttons.add')}
     </Text>
   </TouchableOpacity>
 </View>

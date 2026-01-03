@@ -6,9 +6,11 @@ import { useNavigation } from "@react-navigation/native";
 import Storage from "../utils/storage";
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, getToken } from '@react-native-firebase/messaging';
+import { useTranslation } from "../contexts/LanguageContext";
 export const loginViewModel = () => {
   const dispatch = useDispatch();
   const { loading, error, data } = useSelector((state) => state.auth);
+  const { t } = useTranslation();
 
   const [form, setForm] = useState({ email: "", password: "" });
  const [formError, setFormError] = useState({ email: "", password: "" });
@@ -30,18 +32,18 @@ const navigation=useNavigation()
     const errors = { email: "", password: "" };
 
     if (!form.email) {
-      errors.email = "Email is required";
+      errors.email = t("validation.emailRequired");
       isValid = false;
     } else if (!emailRegex.test(form.email)) {
-      errors.email = "Please enter a valid email address";
+      errors.email = t("validation.emailInvalid");
       isValid = false;
     }
 
     if (!form.password) {
-      errors.password = "Password is required";
+      errors.password = t("validation.passwordRequired");
       isValid = false;
     } else if (form.password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+      errors.password = t("validation.passwordMinLength");
       isValid = false;
     }
 

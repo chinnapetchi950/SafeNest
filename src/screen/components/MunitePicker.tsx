@@ -11,6 +11,8 @@ import {
 
 const minutes = Array.from({ length: 60 }, (_, i) => i);
 
+import strings from '../../localization/en';
+
 const MinuteOnlyPicker = ({ value = null, onChange }) => {
   const [visible, setVisible] = useState(false);
 
@@ -27,7 +29,7 @@ const MinuteOnlyPicker = ({ value = null, onChange }) => {
         onPress={() => setVisible(true)}
       >
         <Text style={styles.triggerText}>
-          {value !== null ? `${value} min` : "Select Minute"}
+          {value !== null ? `${value} ${strings.common.minuteSuffix}` : strings.picker.selectMinute}
         </Text>
       </TouchableOpacity>
 
@@ -40,7 +42,7 @@ const MinuteOnlyPicker = ({ value = null, onChange }) => {
       >
         <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
           <Pressable style={styles.modal}>
-            <Text style={styles.title}>Select Minutes</Text>
+            <Text style={styles.title}>{strings.picker.selectMinutes}</Text>
 
             <FlatList
               data={minutes}
@@ -61,7 +63,7 @@ const MinuteOnlyPicker = ({ value = null, onChange }) => {
                       value === item && styles.selectedText,
                     ]}
                   >
-                    {item} min
+                    {item} {strings.common.minuteSuffix}
                   </Text>
                 </TouchableOpacity>
               )}

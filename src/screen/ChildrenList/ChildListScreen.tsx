@@ -16,6 +16,7 @@ import FilterBottomSheet from "../components/FilterModal";
 import { useSelector } from "react-redux";
 
 import { useFocusEffect } from "@react-navigation/native";
+import strings from "../../localization/en";
 import Storage from "../../utils/storage";
 export default function ChildListScreen() {
   const [searchText, setSearchText] = useState("");
@@ -154,14 +155,14 @@ const renderCard = ({ item, index }) => {
 
   switch (item?.session_status) {
     case "delivered":
-      statusText = "Delivered";
+      statusText = strings.session.delivered;
       statusColor = "#2563EB"; // Blue
       badgeBg = "#DCE6FB";
       StatusIcon = Ionicons;
       iconName = "checkmark-circle";
       break;
     case "waiting":
-      statusText = "Waiting";
+      statusText = strings.session.waiting;
       statusColor = "#D69E2E"; // Orange
       badgeBg = "#FDFBF6";
       StatusIcon = Feather;
@@ -169,7 +170,7 @@ const renderCard = ({ item, index }) => {
       break;
     default:
       // any other non-waiting status considered Active
-      statusText = "Active Now";
+  statusText = strings.session.activeNow;
       statusColor = "#3AB54A"; // Green
       badgeBg = "#D8F3DC";
       StatusIcon = Ionicons;
@@ -202,14 +203,14 @@ const renderCard = ({ item, index }) => {
 
       {/* LABELS */}
       <View style={styles.labels}>
-        <Text style={styles.label}>No.</Text>
-        <Text style={styles.label}>Child Name</Text>
-        <Text style={styles.label}>Guardian Name</Text>
-        <Text style={styles.label}>User Name</Text>
-        <Text style={styles.label}>Phone Number</Text>
-        <Text style={styles.label}>Address</Text>
-        <Text style={styles.label}>Play Hours</Text>
-        <Text style={styles.label}>Status</Text>
+  <Text style={styles.label}>{strings.child.no}</Text>
+  <Text style={styles.label}>{strings.child.childNameLabel}</Text>
+  <Text style={styles.label}>{strings.child.guardianLabel}</Text>
+  <Text style={styles.label}>{strings.child.userNameLabel}</Text>
+  <Text style={styles.label}>{strings.child.phoneNumberLabel}</Text>
+  <Text style={styles.label}>{strings.child.addressLabel}</Text>
+  <Text style={styles.label}>{strings.child.playHoursLabel}</Text>
+  <Text style={styles.label}>{strings.child.statusLabel}</Text>
       </View>
 
       {/* RIGHT SIDE */}
@@ -235,30 +236,27 @@ const renderCard = ({ item, index }) => {
 
     <View style={styles.container}>
       {/* Header */}
-      {role!='admin'&&
+        {role!='admin'&&
       <View style={styles.headerRow}>
-        <Text style={styles.title}>SafeNest</Text>
+        <Text style={styles.title}>{strings.common.appName}</Text>
         <Text style={styles.userName}>{firstUsername}</Text>
       </View>
 }
       {/* Search */}
       <View style={styles.searchWrapper}>
         <SearchBar
-                 placeholder="Search for a child"
+                 placeholder={strings.common.searchForChild}
                  onChangeText={text => viewModel?.handleSearchChange(text)}
-                 // onChangeText={text => {}}
                  onSearchPress={() => viewModel.handlechildrenSearch()}
           onFilterPress={() => {
             viewModel.resetFilter(), setVisible(true);
           }}
-                //  onSearchPress={() => {}}
-                //  onFilterPress={() => {viewModel?.handlechildrenSearch}}
                />
       </View>
 
       {/* Select All */}
       <View style={styles.selectAllRow}>
-        <Text style={styles.selectAllText}>Select All</Text>
+  <Text style={styles.selectAllText}>{strings.userList.selectAll}</Text>
         <TouchableOpacity
   onPress={toggleSelectAll}
   style={[
@@ -280,7 +278,7 @@ const renderCard = ({ item, index }) => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
-              <Text style={{ fontSize: 16, color: "#888" }}>No data available</Text>
+                <Text style={{ fontSize: 16, color: "#888" }}>{strings.common.noData}</Text>
             </View>
           )}
       />

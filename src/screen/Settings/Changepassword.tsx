@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import strings from '../../localization/en';
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import CustomHeader from "../components/CustomHeader";
@@ -23,11 +24,11 @@ const ChangePasswordScreen = ({ navigation }) => {
 
   const onSubmit = () => {
     if (!current || !newPwd || !reNew) {
-      Alert.alert("Error", "All fields are required");
+      Alert.alert(strings.common.error || 'Error', strings.validation.required);
       return;
     }
     if (newPwd !== reNew) {
-      Alert.alert("Error", "Passwords do not match");
+      Alert.alert(strings.common.error || 'Error', strings.auth.passwordsDoNotMatch);
       return;
     }
  dispatch(changePassword({
@@ -65,7 +66,7 @@ const ChangePasswordScreen = ({ navigation }) => {
     <View >
 
       <CustomHeader
-        title="Change Password"
+        title={strings.auth.changePassword}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={26} color="#000" />
@@ -76,10 +77,10 @@ const ChangePasswordScreen = ({ navigation }) => {
       <View style={{ paddingHorizontal: wp("5%"), paddingTop: hp("3%") }}>
 
         {/* CURRENT PASSWORD */}
-        <Text style={{ fontSize: 16 }}>Current Password</Text>
+  <Text style={{ fontSize: 16 }}>{strings.auth.currentPassword}</Text>
         <View style={{ position: "relative" }}>
           <TextInput
-            placeholder="Enter Password"
+            placeholder={strings.auth.passwordPlaceholder}
             secureTextEntry={!showCurrent}
             value={current}
             onChangeText={setCurrent}
@@ -100,10 +101,10 @@ const ChangePasswordScreen = ({ navigation }) => {
         </View>
 
         {/* NEW PASSWORD */}
-        <Text style={{ marginTop: hp("2%"), fontSize: 16 }}>New Password</Text>
+  <Text style={{ marginTop: hp("2%"), fontSize: 16 }}>{strings.auth.newPassword}</Text>
         <View style={{ position: "relative" }}>
           <TextInput
-            placeholder="Enter Password"
+            placeholder={strings.auth.passwordPlaceholder}
             secureTextEntry={!showNew}
             value={newPwd}
             onChangeText={setNewPwd}
@@ -124,10 +125,10 @@ const ChangePasswordScreen = ({ navigation }) => {
         </View>
 
         {/* RE PASSWORD */}
-        <Text style={{ marginTop: hp("2%"), fontSize: 16 }}>Re-Enter Password</Text>
+  <Text style={{ marginTop: hp("2%"), fontSize: 16 }}>{strings.auth.reEnterPassword}</Text>
         <View style={{ position: "relative" }}>
           <TextInput
-            placeholder="Enter Password"
+            placeholder={strings.auth.passwordPlaceholder}
             secureTextEntry={!showRe}
             value={reNew}
             onChangeText={setReNew}
@@ -161,7 +162,7 @@ const ChangePasswordScreen = ({ navigation }) => {
           }}
         >
           <Text style={{ color: "#fff", fontWeight: "700" }}>
-            {loading ? "Updating..." : "Change Password"}
+            {loading ? strings.common.updating : strings.auth.changePasswordButton}
           </Text>
         </TouchableOpacity>
       </View>

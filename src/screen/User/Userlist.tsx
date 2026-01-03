@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import strings from '../../localization/en';
 import SearchBar from "../components/Searchcomponent";
 import { useDashboardViewModel } from "../../viewmodels/useDashboardViewModel";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -73,28 +74,28 @@ const [user,setUser]=useState({})
       : userList.filter((u) => u.selected).map((u) => u.id);
 
     if (idsToDelete.length === 0) {
-      Alert.alert("No user selected", "Please select at least one user to delete.");
+      Alert.alert(strings.userList.noUserSelectedTitle, strings.userList.noUserSelectedMessage);
       return;
     }
 
     Alert.alert(
-      "Confirm Delete",
-      `Are you sure you want to delete ${idsToDelete.length} user(s)?`,
+      strings.userList.confirmDeleteTitle,
+      strings.userList.confirmDeleteMessage.replace('{count}', String(idsToDelete.length)),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: strings.common.cancel, style: "cancel" },
         {
-          text: "Delete",
+          text: strings.common.delete,
           style: "destructive",
           onPress: async () => {
             try {
               const res = await dispatch(deleteUsers(idsToDelete)).unwrap();
               if (res?.status === true) {
-                Alert.alert("Success", "User(s) deleted successfully.");
+                Alert.alert(strings.common.success || 'Success', strings.userList.userDeletedSuccess);
                 viewModel?.loadUserlist();
                 setSelectAll(false);
               }
             } catch (err: any) {
-              Alert.alert("Error", err || "Failed to delete users.");
+              Alert.alert(strings.common.error || 'Error', err || strings.userList.failedToDeleteUsers);
             }
           },
         },
@@ -132,10 +133,10 @@ const [user,setUser]=useState({})
 
       {/* LABELS */}
       <View style={styles.labels}>
-        <Text style={styles.label}>No.</Text>
-        <Text style={styles.label}>UserName</Text>
-        <Text style={styles.label}>Phone Number</Text>
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>{strings.userList.no}</Text>
+        <Text style={styles.label}>{strings.userList.userName}</Text>
+        <Text style={styles.label}>{strings.userList.phoneNumber}</Text>
+        <Text style={styles.label}>{strings.userList.email}</Text>
       </View>
 
       {/* RIGHT */}
@@ -181,7 +182,7 @@ const [user,setUser]=useState({})
         {/* Search */}
         <View style={styles.searchWrapper}>
           <SearchBar
-            placeholder="Search for a user"
+            placeholder={strings.userList.searchPlaceholder}
             onChangeText={(text) => setSearchText(text)}
           />
         </View>
@@ -190,7 +191,7 @@ const [user,setUser]=useState({})
       <View style={{ flexDirection: "column", marginVertical: 10 }}>
   {/* Select All Row */}
   <View style={styles.selectAllRow}>
-    <Text style={styles.selectAllText}>Select All</Text>
+  <Text style={styles.selectAllText}>{strings.userList.selectAll}</Text>
     <TouchableOpacity
       onPress={toggleSelectAll}
       style={[styles.checkbox, selectAll && styles.checkboxChecked]}
@@ -212,7 +213,7 @@ const [user,setUser]=useState({})
        // marginTop: 10,
       }}
     >
-      <Text style={{ color: "#fff", fontWeight: "bold" }}>Delete Selected</Text>
+  <Text style={{ color: "#fff", fontWeight: "bold" }}>{strings.userList.deleteSelected}</Text>
     </TouchableOpacity>
   )}
 

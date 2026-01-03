@@ -14,6 +14,7 @@ import globalstyles from "../../../styles/globalstyles";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRegisterGameViewModel } from "../../../viewmodels/registerNewgameViewmodal";
 import SuccessModal from "../../components/SuccessModal/SuccessModal";
+import strings from "../../../localization/en";
 
 export default function RegisterNewGame({navigation}) {
   const viewModel = useRegisterGameViewModel();
@@ -25,18 +26,18 @@ export default function RegisterNewGame({navigation}) {
 
         {/* HEADER */}
         <Text style={[globalstyles.semibold_black, styles.sectionTitle]}>
-          Register a new game
+          {strings.addGame.sectionTitle}
         </Text>
 
         <Text style={styles.sectionSubtitle}>
-          Please fill in the game details to add it to the system
+          {strings.addGame.sectionSubtitle}
         </Text>
 
-        {/* GAME NAME */}
-        <Text style={styles.label}>Game name</Text>
+    {/* GAME NAME */}
+    <Text style={styles.label}>{strings.addGame.gameName}</Text>
         <View style={styles.textBox}>
           <TextInput
-            placeholder="Cricket"
+      placeholder={strings.addGame.gameNamePlaceholder}
             value={viewModel.gameName}
             onChangeText={viewModel.setGameName}
             style={styles.textInput}
@@ -135,8 +136,8 @@ export default function RegisterNewGame({navigation}) {
           </View>
         ))}
 
-        {/* MESSAGE SELECT */}
-        <Text style={styles.addMsgTitle}>Add message</Text>
+  {/* MESSAGE SELECT */}
+  <Text style={styles.addMsgTitle}>{strings.addGame.addMsgTitle}</Text>
 
         <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
           <View style={styles.msgInputBox}>
@@ -146,7 +147,7 @@ export default function RegisterNewGame({navigation}) {
               color="#999"
             />
             <Text style={{ color:viewModel.messageLabel?"#000": "#888" }}>
-              {viewModel.messageLabel || "Select message"}
+              {viewModel.messageLabel || strings.addGame.selectMessage}
             </Text>
           </View>
         </TouchableOpacity>
@@ -187,7 +188,7 @@ export default function RegisterNewGame({navigation}) {
             viewModel.isButtonDisabled && styles.buttonDisabled,
           ]}
         >
-          <Text style={styles.buttonText}>Register a new game</Text>
+        <Text style={styles.buttonText}>{strings.addGame.registerButton}</Text>
         </TouchableOpacity>
       </View>
       <SuccessModal

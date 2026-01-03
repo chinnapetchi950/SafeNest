@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import authService from "../../features/auth/authService";
+import strings from "../../localization/en";
 
 export default function WhatsappOtpScreen({ navigation }) {
   const [otp, setOtp] = useState("");
@@ -35,17 +36,17 @@ export default function WhatsappOtpScreen({ navigation }) {
   /* ---------------- VERIFY OTP ---------------- */
   const verifyOtp = async () => {
     if (otp.length < 4) {
-      Alert.alert("Invalid OTP", "Please enter a valid OTP");
+      Alert.alert(strings.alerts.error || 'Error', strings.validation.required || 'Please enter a valid OTP');
       return;
     }
 
     try {
       setLoading(true);
       await authService.verifyOtp(otp);
-      Alert.alert("Success", "WhatsApp connected successfully");
+  Alert.alert(strings.alerts.success || 'Success', strings.settings.whatsappConnectedSuccess || 'WhatsApp connected successfully');
       navigation.goBack();
     } catch (e) {
-      Alert.alert("Error", "Invalid or expired OTP");
+  Alert.alert(strings.alerts.error || 'Error', strings.settings.whatsappInvalidOtp || 'Invalid or expired OTP');
     } finally {
       setLoading(false);
     }
@@ -56,10 +57,10 @@ export default function WhatsappOtpScreen({ navigation }) {
     try {
       setResendLoading(true);
       await authService.resendOtp(); // 🔁 API call
-      Alert.alert("OTP Sent", "A new OTP has been sent");
+  Alert.alert(strings.alerts.success || 'Success', strings.settings.otpSent || 'A new OTP has been sent');
       setResendTimer(60); // restart timer
     } catch (e) {
-      Alert.alert("Error", "Failed to resend OTP");
+  Alert.alert(strings.alerts.error || 'Error', strings.settings.otpResendFailed || 'Failed to resend OTP');
     } finally {
       setResendLoading(false);
     }
@@ -71,7 +72,7 @@ export default function WhatsappOtpScreen({ navigation }) {
         {/* HEADER */}
         <View style={styles.header}>
           <View style={{ width: 22 }} />
-          <Text style={styles.headerTitle}>Verify OTP</Text>
+          <Text style={styles.headerTitle}>{strings.settings.verifyOtpTitle || 'Verify OTP'}</Text>
           <Ionicons
             name="chevron-forward"
             size={22}
@@ -81,9 +82,9 @@ export default function WhatsappOtpScreen({ navigation }) {
         </View>
 
         {/* CONTENT */}
-        <Text style={styles.title}>Enter OTP</Text>
+        <Text style={styles.title}>{strings.settings.enterOtpTitle || 'Enter OTP'}</Text>
         <Text style={styles.subtitle}>
-          Please enter the OTP sent to your WhatsApp number
+          {strings.settings.enterOtpSubtitle || 'Please enter the OTP sent to your WhatsApp number'}
         </Text>
 
         <TextInput
@@ -92,7 +93,7 @@ export default function WhatsappOtpScreen({ navigation }) {
           maxLength={6}
           value={otp}
           onChangeText={setOtp}
-          placeholder="Enter OTP"
+          placeholder={strings.settings.enterOtpPlaceholder || 'Enter OTP'}
           placeholderTextColor="#999"
         />
 
@@ -108,7 +109,7 @@ export default function WhatsappOtpScreen({ navigation }) {
               disabled={resendLoading}
             >
               <Text style={styles.resendText}>
-                {resendLoading ? "Sending..." : "Resend OTP"}
+                {resendLoading ? strings.messageManagement.saving : strings.settings.resendOtp || 'Resend OTP'}
               </Text>
             </TouchableOpacity>
           )}
@@ -122,7 +123,7 @@ export default function WhatsappOtpScreen({ navigation }) {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Verify OTP</Text>
+            <Text style={styles.buttonText}>{strings.settings.verifyOtpButton || 'Verify OTP'}</Text>
           )}
         </TouchableOpacity>
       </View>

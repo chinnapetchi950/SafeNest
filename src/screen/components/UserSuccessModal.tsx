@@ -8,6 +8,7 @@ import {
   Pressable,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import strings from '../../localization/en';
 
 export default function SuccessModal({
   visible,
@@ -24,7 +25,7 @@ export default function SuccessModal({
 
           {/* GREEN HEADER */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Account creation card</Text>
+            <Text style={styles.headerTitle}>{strings.modal.accountCreationCard}</Text>
 
             <TouchableOpacity onPress={onClose} style={styles.headerCloseBtn}>
               <Ionicons name="close" size={20} color="#4CAF50" />
@@ -37,21 +38,11 @@ export default function SuccessModal({
           </View>
 
           {/* MAIN TITLE */}
-          <Text style={styles.mainTitle}>
-            The account has been
-          </Text>
-          <Text style={styles.mainTitle}>
-            created successfully
-          </Text>
+          <Text style={styles.mainTitle}>{strings.modal.accountCreatedTitle}</Text>
 
           {/* DESCRIPTION */}
-          <Text style={styles.description}>
-            You can now use the login credentials you entered
-            to access the system.
-          </Text>
-          <Text style={styles.description}>
-            Make sure to share the username and password with the owner.
-          </Text>
+          <Text style={styles.description}>{strings.modal.accountCreatedDesc1}</Text>
+          <Text style={styles.description}>{strings.modal.accountCreatedDesc2}</Text>
 
           {/* DIVIDER */}
           <View style={styles.divider} />
@@ -59,11 +50,11 @@ export default function SuccessModal({
           {/* BUTTONS */}
           <View style={styles.buttonsRow}>
             <TouchableOpacity style={styles.doneBtn} onPress={onDone}>
-              <Text style={styles.doneText}>        Done       </Text>
+              <Text style={styles.doneText}>{strings.modal.done}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.viewBtn} onPress={onViewAccount}>
-              <Text style={styles.viewText}>View account</Text>
+              <Text style={styles.viewText}>{strings.modal.viewAccount}</Text>
             </TouchableOpacity>
           </View>
 

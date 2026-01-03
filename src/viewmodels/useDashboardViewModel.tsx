@@ -7,6 +7,7 @@ import { fetchUserList } from "../features/auth/User/userSlice";
 import { fetchchildrenlistfilter } from "../features/auth/children/childrenfilterSlice";
 import { childHandover } from "../features/auth/staffSlice/registerNewChild/createChildSlice";
 import { Alert } from "react-native";
+import strings from "../localization/en";
 import authService from "../features/auth/authService";
 
 export const useDashboardViewModel = () => {
@@ -227,7 +228,7 @@ const childHandoverdata = async (data) => {
     if (res?.status) {
       //setChildrenList(res?.data);
       console.log("child Response:", res);
-       Alert.alert("Success",res.message)
+  Alert.alert(strings.alerts.success || 'Success', res.message)
        loadChildren()
        setShowModal(false)
     }
@@ -252,7 +253,7 @@ const endChildSession = async (childId) => {
     const res = await authService.childendSession(childId, formData);
 
     console.log("END SESSION RES:", res);
-    Alert.alert("Success", res.data?.message);
+  Alert.alert(strings.alerts.success || 'Success', res.data?.message);
 
     loadChildren();
   } catch (error) {
