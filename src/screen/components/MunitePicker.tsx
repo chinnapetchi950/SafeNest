@@ -11,9 +11,10 @@ import {
 
 const minutes = Array.from({ length: 60 }, (_, i) => i);
 
-import strings from '../../localization/en';
+import { useTranslation } from '../../contexts/LanguageContext';
 
 const MinuteOnlyPicker = ({ value = null, onChange }) => {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   const handleSelect = (minute) => {
@@ -29,7 +30,7 @@ const MinuteOnlyPicker = ({ value = null, onChange }) => {
         onPress={() => setVisible(true)}
       >
         <Text style={styles.triggerText}>
-          {value !== null ? `${value} ${strings.common.minuteSuffix}` : strings.picker.selectMinute}
+          {value !== null ? `${value} ${t('common.minuteSuffix')}` : t('picker.selectMinute')}
         </Text>
       </TouchableOpacity>
 
@@ -42,7 +43,7 @@ const MinuteOnlyPicker = ({ value = null, onChange }) => {
       >
         <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
           <Pressable style={styles.modal}>
-            <Text style={styles.title}>{strings.picker.selectMinutes}</Text>
+            <Text style={styles.title}>{t('picker.selectMinutes')}</Text>
 
             <FlatList
               data={minutes}
@@ -63,7 +64,7 @@ const MinuteOnlyPicker = ({ value = null, onChange }) => {
                       value === item && styles.selectedText,
                     ]}
                   >
-                    {item} {strings.common.minuteSuffix}
+                    {item} {t('common.minuteSuffix')}
                   </Text>
                 </TouchableOpacity>
               )}

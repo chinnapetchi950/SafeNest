@@ -31,6 +31,16 @@ export default {
   searchForChild: "Search for a child",
   ok: "OK",
   askMeLater: "Ask Me Later",
+  reset:'Reset',
+  filter:'Filter',
+  applyFilter:'Apply Filter',
+  price:'Price',
+  enterPrice:'Enter Price',
+  dateOfBirth:'Date of Birth',
+  dateOfBirthPlaceholder:'YYYY/MM/DD',
+  phoneNumber:'Phone Number',
+  phoneNumberPlaceholder:'XXXXXXXXXXX',
+
   },
 
   // ========== ADD MENU / SHORTCUTS ==========
@@ -50,6 +60,7 @@ export default {
     addMsgTitle: "Add message",
     selectMessage: "Select message",
     registerButton: "Register a new game",
+    success:'The game has been registered successfully'
   },
 
   // ========== AUTH & LOGIN ==========
@@ -266,7 +277,11 @@ export default {
     view: "View",
     upload: "Upload",
   },
-
+splash:{
+  splash_center1: "Welcome to the Game Management System",
+  splash_center2: "Please sign in to continue",
+  get_started: "Start Now",
+},
   // ========== SETTINGS ==========
   settings: {
     title: "Settings",
@@ -296,6 +311,16 @@ export default {
   phonePlaceholder: "+91XXXXXXXXXX",
   sendOtpButton: "Send OTP",
   whatsappNotInstalled: "WhatsApp is not installed on your device",
+  deleteAccountTitle: "Delete Account",
+  deleteAccountMessage: "Are you sure you want to delete your account?",  
+  accountManagement: "Account Management",
+  changePassword: "Change Password",
+  whatsappManagement: "WhatsApp Management",
+  messageManagement: "Message Management",
+  gameManagement: "Game Management",
+  resendOtpTimer: "Resend OTP in",
+  whatsappText: "WhatsApp",
+  whatsappSubtext: "Connect the application to the WhatsApp service",
   },
 
   // ========== MODALS ==========
@@ -363,5 +388,13 @@ export default {
   generalHelper: "Welcome Messages or Announcements",
   sendDate: "Sending Date",
   saveFailed: "Could not save message",
+  beforeSession: "Before the session starts",
+  afterSession: "After the session ends",
+  sendingTime: "Sending Time",
+  endOfWorkingHoursTime: "End of Working Hours Time",
+  whenPlaceCloses: "When the place closes",
+  
+
+
   },
 };

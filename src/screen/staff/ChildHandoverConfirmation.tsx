@@ -9,9 +9,11 @@ import {
 } from "react-native";
 import moment from "moment";
 import strings from "../../localization/en";
+import { useTranslation } from "../../contexts/LanguageContext";
 
 const ChildHandoverConfirmation = ({ data, onClose,onconfirm }) => {
   const child = JSON.parse(data?.barcode)
+  const { t } = useTranslation();
 
   return (
     <Modal visible transparent animationType="slide">
@@ -19,41 +21,41 @@ const ChildHandoverConfirmation = ({ data, onClose,onconfirm }) => {
 
       <View style={styles.sheet}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={styles.sheetTitle}>{strings.confirmation.title}</Text>
+          <Text style={styles.sheetTitle}>{t('confirmation.title')}</Text>
 
           <View style={styles.infoCard}>
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>{strings.child.guardianLabel}</Text>
+                <Text style={styles.label}>{t('child.guardianLabel')}</Text>
                 <Text style={styles.value}>{child.guardian_name}</Text>
               </View>
 
               <View style={styles.column}>
-                <Text style={styles.label}>{strings.child.childNameLabel}</Text>
+                <Text style={styles.label}>{t('child.childNameLabel')}</Text>
                 <Text style={styles.value}>{child.child_name}</Text>
               </View>
             </View>
 
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>{strings.child.sessionDateLabel || strings.session.sessionDate}</Text>
+                <Text style={styles.label}>{t('child.sessionDateLabel') || t('session.sessionDate')}</Text>
                 <Text style={styles.value}>{child.session_date}</Text>
               </View>
 
               <View style={styles.column}>
-                <Text style={styles.label}>{strings.child.dateOfBirth || strings.child.dateOfBirth}</Text>
+                <Text style={styles.label}>{t('child.dateOfBirth') || t('child.dateOfBirth')}</Text>
                 <Text style={styles.value}>{moment(child.date_of_birth).format('YYYY-MM-DD')}</Text>
               </View>
             </View>
 
             <View style={styles.row}>
               <View style={styles.column}>
-                <Text style={styles.label}>{strings.child.sessionPrice || strings.child.sessionPrice}</Text>
+                <Text style={styles.label}>{t('child.sessionPrice') || t('child.sessionPrice')}</Text>
                 <Text style={styles.value}>{child.calculated_price}</Text>
               </View>
 
               <View style={styles.column}>
-                <Text style={styles.label}>{strings.child.sessionDuration || strings.child.sessionDuration}</Text>
+                <Text style={styles.label}>{t('child.sessionDuration') || t('child.sessionDuration')}</Text>
                 <Text style={styles.value}>{child.total_play_duration}</Text>
               </View>
             </View>
@@ -71,11 +73,11 @@ const ChildHandoverConfirmation = ({ data, onClose,onconfirm }) => {
 
 
           <TouchableOpacity onPress={onconfirm} style={styles.confirmBtn}>
-            <Text style={styles.confirmText}>{strings.handover.confirm}</Text>
+            <Text style={styles.confirmText}>{t('handover.confirm')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
-            <Text style={styles.cancelText}>{strings.common.cancel}</Text>
+            <Text style={styles.cancelText}>{t('common.cancel')}</Text>
           </TouchableOpacity>
           </View>
         </ScrollView>

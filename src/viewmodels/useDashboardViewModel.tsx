@@ -9,10 +9,11 @@ import { childHandover } from "../features/auth/staffSlice/registerNewChild/crea
 import { Alert } from "react-native";
 import strings from "../localization/en";
 import authService from "../features/auth/authService";
+import { useTranslation } from "../contexts/LanguageContext";
 
 export const useDashboardViewModel = () => {
   const dispatch = useDispatch();
-
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [childList, setChildList] = useState([]);
     const [childrenList, setChildrenList] = useState([]);
@@ -228,7 +229,8 @@ const childHandoverdata = async (data) => {
     if (res?.status) {
       //setChildrenList(res?.data);
       console.log("child Response:", res);
-  Alert.alert(strings.alerts.success || 'Success', res.message)
+  Alert.alert(t('alerts.success') || 'Success', res.message)
+
        loadChildren()
        setShowModal(false)
     }
@@ -253,9 +255,8 @@ const endChildSession = async (childId) => {
     const res = await authService.childendSession(childId, formData);
 
     console.log("END SESSION RES:", res);
-  Alert.alert(strings.alerts.success || 'Success', res.data?.message);
-
-    loadChildren();
+  Alert.alert(t('alerts.success') || 'Success', res.data?.message);
+  loadChildren();
   } catch (error) {
     console.log("End Session Error:", error?.response);
   } finally {

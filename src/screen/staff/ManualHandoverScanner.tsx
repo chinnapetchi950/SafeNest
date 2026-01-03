@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { BarcodeScanner, CameraView } from "@pushpendersingh/react-native-scanner";
-import strings from "../../localization/en";
+import { useTranslation } from '../../contexts/LanguageContext';
 
 const ManualHandoverScanner = ({ navigation }) => {
   const [scanned, setScanned] = useState(false);
@@ -25,19 +25,19 @@ const ManualHandoverScanner = ({ navigation }) => {
     const requestCameraPermission = async () => {
       if (Platform.OS === "android") {
         try {
-          const granted = await PermissionsAndroid.request(
+      const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.CAMERA,
             {
-              title: strings.manualHandover.title || 'Camera Permission',
-              message: strings.manualHandover.cameraRequired || 'App needs access to your camera to scan barcodes',
-              buttonNeutral: strings.common.askMeLater || 'Ask Me Later',
-              buttonNegative: strings.common.cancel || 'Cancel',
-              buttonPositive: strings.common.ok || 'OK',
+        title: t('manualHandover.title') || 'Camera Permission',
+        message: t('manualHandover.cameraRequired') || 'App needs access to your camera to scan barcodes',
+        buttonNeutral: t('common.askMeLater') || 'Ask Me Later',
+        buttonNegative: t('common.cancel') || 'Cancel',
+        buttonPositive: t('common.ok') || 'OK',
             }
           );
           setHasPermission(granted === PermissionsAndroid.RESULTS.GRANTED);
           if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-            Alert.alert(strings.alerts.error || 'Permission Denied', strings.manualHandover.cameraRequired || 'Camera permission is required to scan barcodes.');
+            Alert.alert(t('alerts.error') || 'Permission Denied', t('manualHandover.cameraRequired') || 'Camera permission is required to scan barcodes.');
           }
         } catch (err) {
           console.warn(err);
@@ -47,7 +47,8 @@ const ManualHandoverScanner = ({ navigation }) => {
       }
     };
 
-    requestCameraPermission();
+  const { t } = useTranslation();
+  requestCameraPermission();
   }, []);
 
   // Start scanning automatically when permission is granted
@@ -99,13 +100,13 @@ const ManualHandoverScanner = ({ navigation }) => {
       },
     });
   };
-
+const {t}=useTranslation()
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.headerTitle}>{strings.manualHandover.title}</Text>
+        <Text style={styles.headerTitle}>{t('manualHandover.title')}</Text>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backText}>{strings.common.back}</Text>
+          <Text style={styles.backText}>{t('common.back')}</Text>
           <Ionicons name="chevron-forward" size={18} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -123,7 +124,7 @@ const ManualHandoverScanner = ({ navigation }) => {
         />
       ) : (
         <View style={[styles.camera, { justifyContent: "center", alignItems: "center" }]}>
-          <Text style={{ color: "#fff" }}>{strings.manualHandover.cameraRequired}</Text>
+          <Text style={{ color: "#fff" }}>{t('manualHandover.cameraRequired')}</Text>
         </View>
       )}
 
@@ -149,7 +150,7 @@ disabled={scanned?false:true}   // disable button
       scanned && { color: "#ccc" }  // lighter text when disabled
     ]}
   >
-  {scanned ? strings.manualHandover.scanCode : strings.manualHandover.scanCode}
+  {scanned ? t('manualHandover.scanCode') : t('manualHandover.scanCode')}
   </Text>
 </TouchableOpacity>
       

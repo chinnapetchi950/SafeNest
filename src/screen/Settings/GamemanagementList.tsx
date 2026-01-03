@@ -13,6 +13,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import authService from "../../features/auth/authService";
 import strings from '../../localization/en';
 import moment from "moment";
+import { useTranslation } from "../../contexts/LanguageContext";
 
 export default function GameManagementScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState("current");
@@ -21,6 +22,7 @@ export default function GameManagementScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
+  const { t } = useTranslation();
 
   // --------------------------
   // 📌 Fetch Games API
@@ -80,12 +82,12 @@ setLoading(false)
   // --------------------------
   const deleteGame = (id) => {
   Alert.alert(
-    strings.common.delete,
-    strings.gameManagement.deleteConfirm || "Are you sure you want to delete this game?",
+    t('common.delete'),
+    t('gameManagement.deleteConfirm') || "Are you sure you want to delete this game?",
     [
-      { text: strings.common.cancel },
+      { text: t('common.cancel') },
       {
-        text: strings.common.delete,
+        text: t('common.delete')  ,
         style: "destructive",
         onPress: async () => {
           setLoading(true)
@@ -164,7 +166,7 @@ setLoading(false)
                       color: "#888",
                     }}
                   >
-                    {strings.common.noData}
+                    {t('common.noData')}
                   </Text>
             )
           }

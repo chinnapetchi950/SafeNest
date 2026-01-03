@@ -12,7 +12,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useRegisterGameViewModel } from "../../viewmodels/registerNewgameViewmodal";
 import { SafeAreaView } from "react-native-safe-area-context";
-import strings from "../../localization/en";
+import { useTranslation } from '../../contexts/LanguageContext';
 import authService from "../../features/auth/authService";
 import MinutePicker from "../components/MunitePicker";
 import DatePickerInput from "../components/Datepicker";
@@ -21,6 +21,7 @@ export default function MessageManagementScreen({navigation}) {
   // const [activeTab, setActiveTab] = useState("saved");
 const [activeTab, setActiveTab] = useState("saved");
   const [messages, setMessages] = useState([]);
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [editingItem, setEditingItem] = useState(null); // 👈 selected message
 const [isEditMode, setIsEditMode] = useState(false);
@@ -76,10 +77,10 @@ const [isEditMode, setIsEditMode] = useState(false);
   // ]);
 
   const deleteMessage = async(id) => {
-    Alert.alert(strings.userList.confirmDeleteTitle, strings.messageManagement.deleteConfirm, [
-      { text: strings.common.cancel },
+    Alert.alert(t('userList.confirmDeleteTitle'), t('messageManagement.deleteConfirm'), [
+      { text: t('common.cancel') },
       {
-        text: strings.common.delete,
+        text: t('common.delete'),
         style: "destructive",
        onPress: async () => {
   try {
@@ -114,7 +115,7 @@ const onSuccess=() => {
             alignItems: "center",
           }}
         >
-          <Text style={styles.headerTitle}>{strings.messageManagement.title}</Text>
+          <Text style={styles.headerTitle}>{t('messageManagement.title')}</Text>
 
           <Ionicons
             onPress={() => navigation.goBack()}
@@ -150,7 +151,7 @@ const onSuccess=() => {
               activeTab === "create" && styles.activeTabText,
             ]}
           >
-            {isEditMode? strings.messageManagement.update : strings.messageManagement.createMessage}
+            {isEditMode? t('messageManagement.update') : t('messageManagement.createMessage')}
             
           </Text>
         </TouchableOpacity>
@@ -173,6 +174,7 @@ const onSuccess=() => {
 }
 
 const SavedMessages = ({ messages, deleteMessage,onEdit  }) => {
+  const { t } = useTranslation();
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 15 }}>
       {messages.map((msg) => (
@@ -182,14 +184,14 @@ const SavedMessages = ({ messages, deleteMessage,onEdit  }) => {
 <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',}}>
 <View style={styles.cardHeader}>
             <TouchableOpacity onPress={() => onEdit(msg)} style={styles.editBtn}>
-                  <Text style={styles.editText}>{strings.messageManagement.edit}</Text>
+                  <Text style={styles.editText}>{t('messageManagement.edit')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.deleteBtn}
               onPress={() => deleteMessage(msg.id)}
             >
-              <Text style={styles.deleteText}>{strings.messageManagement.delete}</Text>
+              <Text style={styles.deleteText}>{t('messageManagement.delete')}</Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.cardTitle}>{msg.name}</Text>
@@ -197,8 +199,8 @@ const SavedMessages = ({ messages, deleteMessage,onEdit  }) => {
           
           <Text style={styles.cardContent}>{msg.content}</Text>
 <View style={{flexDirection:'row',justifyContent:'flex-end',alignItems:'center'}}>
-          <Text style={styles.cardTiming}>{msg.send_time} {strings.messageManagement.minutesBefore}</Text>
-          <Text style={[styles.cardTitle,{fontWeight:'400'}]}> {strings.messageManagement.sendDate}</Text>
+          <Text style={styles.cardTiming}>{msg.send_time} {t('messageManagement.minutesBefore')}</Text>
+          <Text style={[styles.cardTitle,{fontWeight:'400'}]}> {t('messageManagement.sendDate')}</Text>
 </View>
           
 
@@ -294,6 +296,8 @@ const WorkingHoursForm = ({onSuccess,isEditMode, editItem }) => {
   const [sendMinute, setSendMinute] = useState(null);
   const [loading, setLoading] = useState(false);
   const [placescloses, setplaceclose] = useState(false);
+    const { t } = useTranslation();
+
  useEffect(() => {
     if (isEditMode && editItem) {
       setName(editItem.name || "");
@@ -328,10 +332,11 @@ console.log('formData',formData);
       setLoading(true);
       if (isEditMode) {
         await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
-        Alert.alert(strings.alerts.success || 'Updated', strings.messageManagement.successUpdated || 'working hrs message updated');
+        Alert.alert(t("alerts.success") || 'Updated', t("messageManagement.successUpdated") || 'working hrs message updated');
+
       } else {
         await authService.createMessage(formData); // 👈 CREATE
-        Alert.alert(strings.alerts.success || 'Success', strings.messageManagement.successSaved || 'working hrs message created');
+        Alert.alert(t("alerts.success") || 'Success', t("messageManagement.successSaved")  || 'working hrs message created');
       }
 
       // const res=await authService.createMessage(formData);
@@ -344,7 +349,7 @@ console.log('formData',formData);
       setEndMinute(null);
       setSendMinute(null);
     } catch {
-      Alert.alert(strings.alerts.error || 'Error', strings.messageManagement.saveFailed || 'Failed to create message');
+      Alert.alert(t("alerts.error") || 'Error', t("messageManagement.saveFailed") || 'Failed to create message');
     } finally {
       setLoading(false);
     }
@@ -352,12 +357,12 @@ console.log('formData',formData);
 
   return (
     <View style={styles.block}>
-      <Text style={styles.sectionTitle1}>End of Working Hours</Text>
+      <Text style={styles.sectionTitle1}>{t("messageManagement.endWork")}</Text>
 
-      <Text style={styles.label1}>Message Name *</Text>
+      <Text style={styles.label1}>{t("messageManagement.messageName")} *</Text>
       <TextInput style={styles.input1} value={name} onChangeText={setName} />
 
-      <Text style={styles.label1}>Message Content *</Text>
+      <Text style={styles.label1}>{t("messageManagement.messageContent")} *</Text>
       <TextInput
         style={[styles.input1, styles.textArea1]}
         multiline
@@ -367,12 +372,12 @@ console.log('formData',formData);
 
       <View style={styles.row1}>
         <View style={styles.timeBox}>
-          <Text style={styles.label1}>End of Working Hours Time</Text>
+          <Text style={styles.label1}>{t("messageManagement.endOfWorkingHoursTime")}</Text>
           <MinutePicker value={endMinute} onChange={setEndMinute} />
         </View>
 
         <View style={[styles.timeBox]}>
-          <Text style={styles.label1}>Sending Time</Text>
+          <Text style={styles.label1}>{t("messageManagement.sendingTime")}</Text>
           <View style={{marginTop:20}}></View>
           <MinutePicker value={sendMinute} onChange={setSendMinute} />
         </View>
@@ -384,7 +389,7 @@ console.log('formData',formData);
           style={styles.checkboxItem}
           onPress={() => setplaceclose(true)}
         >
-          <Text style={styles.checkboxLabel}>When the place closes</Text>
+          <Text style={styles.checkboxLabel}>{t("messageManagement.whenPlaceCloses")}</Text>
           <View
             style={[
               styles.checkbox1,
@@ -406,7 +411,7 @@ console.log('formData',formData);
         ]}
       >
         <Text style={styles.saveText}>
-          {loading ? strings.messageManagement.saving : strings.messageManagement.save}
+          {loading ? t("messageManagement.saving") : t("messageManagement.save")}
         </Text>
       </TouchableOpacity>
     </View>
@@ -456,10 +461,10 @@ console.log('formData',formData);
       setLoading(true);
       if (isEditMode) {
         await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
-        Alert.alert(strings.alerts.success || 'Updated', strings.messageManagement.successUpdated || 'Alert message updated');
+        Alert.alert(t("alerts.success") || 'Updated', t("messageManagement.successUpdated") || 'Alert message updated');
       } else {
         await authService.createMessage(formData); // 👈 CREATE
-        Alert.alert(strings.alerts.success || 'Success', strings.messageManagement.successSaved || 'Alert message created');
+        Alert.alert(t("alerts.success") || 'Success', t("messageManagement.successSaved") || 'Alert message created');
       }
 
       // reset
@@ -470,19 +475,20 @@ console.log('formData',formData);
       setAfterSession(null);
     } catch (e) {
       console.log(e?.response);
-      
-      Alert.alert(strings.alerts.error || 'Error', strings.messageManagement.saveFailed || 'Failed to create alert');
+
+      Alert.alert(t("alerts.error") || 'Error', t("messageManagement.saveFailed") || 'Failed to create alert');
     } finally {
       setLoading(false);
     }
   };
+  const { t } = useTranslation();
 
   return (
     <View style={styles.block}>
-      <Text style={styles.sectionTitle1}>Alert Message</Text>
+      <Text style={styles.sectionTitle1}>{t("messageManagement.alert")}</Text>
 
       {/* Message Name */}
-      <Text style={styles.label1}>Message Name *</Text>
+      <Text style={styles.label1}>{t("messageManagement.messageName")} *</Text>
       <TextInput
         style={styles.input1}
         value={name}
@@ -490,7 +496,7 @@ console.log('formData',formData);
       />
 
       {/* Message Content */}
-      <Text style={styles.label1}>Message Content *</Text>
+      <Text style={styles.label1}>{t("messageManagement.messageContent")} *</Text>
       <TextInput
         style={[styles.input1, styles.textArea1]}
         multiline
@@ -499,7 +505,7 @@ console.log('formData',formData);
       />
 
       {/* Sending Time */}
-      <Text style={styles.label1}>Sending Time</Text>
+      <Text style={styles.label1}>{t("messageManagement.sendingTime")}</Text>
       <View style={{ alignSelf: "flex-end" }}>
         <MinutePicker value={sendMinute} onChange={setSendMinute} />
       </View>
@@ -511,7 +517,7 @@ console.log('formData',formData);
           style={styles.checkboxItem}
           onPress={() => setAfterSession(true)}
         >
-          <Text style={styles.checkboxLabel}>After the session ends</Text>
+          <Text style={styles.checkboxLabel}>{t("messageManagement.afterSession")}</Text>
           <View
             style={[
               styles.checkbox1,
@@ -529,7 +535,7 @@ console.log('formData',formData);
           style={styles.checkboxItem}
           onPress={() => setBeforeSession(!beforeSession)}
         >
-          <Text style={styles.checkboxLabel}>Before the session ends</Text>
+          <Text style={styles.checkboxLabel}>{t("messageManagement.beforeSession")}</Text>
           <View
             style={[
               styles.checkbox1,
@@ -553,7 +559,7 @@ console.log('formData',formData);
         ]}
       >
         <Text style={styles.saveText}>
-          {loading ? strings.messageManagement.saving : strings.messageManagement.save}
+          {loading ? t("messageManagement.saving") : t("messageManagement.save")}
         </Text>
       </TouchableOpacity>
     </View>
@@ -567,6 +573,8 @@ const RewardMessageForm = ({onSuccess,isEditMode, editItem }) =>{
   const [sendDate, setSendDate] = useState(null);
   const [sendMinute, setSendMinute] = useState(null);
   const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
+
  useEffect(() => {
     if (isEditMode && editItem) {
       setName(editItem.name || "");
@@ -598,33 +606,32 @@ console.log('formData',formData);
       setLoading(true);
       if (isEditMode) {
         await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
-        Alert.alert(strings.alerts.success || 'Updated', strings.messageManagement.successUpdated || 'Reward message updated');
+        Alert.alert(t("alerts.success") || 'Updated', t("messageManagement.successUpdated") || 'Reward message updated');
       } else {
         await authService.createMessage(formData); // 👈 CREATE
-        Alert.alert(strings.alerts.success || 'Success', strings.messageManagement.successSaved || 'Reward message created');
+        Alert.alert(t("alerts.success") || 'Success', t("messageManagement.successSaved") || 'Reward message created');
       }
       // await authService.createMessage(formData);
       
       // Alert.alert("Success", "Reward message created");
       onSuccess()
     } catch {
-      Alert.alert(strings.alerts.error || 'Error', strings.messageManagement.saveFailed || 'Failed to create reward');
+      Alert.alert(t("alerts.error") || 'Error', t("messageManagement.saveFailed") || 'Failed to create reward');
     } finally {
       setLoading(false);
     }
   };
   return(
   <View style={styles.block}>
-    <Text style={styles.sectionTitle1}>Reward Messages</Text>
+    <Text style={styles.sectionTitle1}>{t("messageManagement.reward")}</Text>
       <Text style={styles.helperText}>
-        Sent to motivate children when they play for long periods or receive a
-        discount.
+        {t("messageManagement.rewardMessagesHelper")}
       </Text>
 
-      <Text style={styles.label1}>Message Name *</Text>
+      <Text style={styles.label1}>{t("messageManagement.messageName")} *</Text>
       <TextInput style={styles.input1} value={name} onChangeText={setName} />
 
-      <Text style={styles.label1}>Message Content *</Text>
+      <Text style={styles.label1}>{t("messageManagement.messageContent")} *</Text>
  <TextInput
         style={[styles.input1, styles.textArea1]}
         multiline
@@ -634,13 +641,13 @@ console.log('formData',formData);
             <View style={styles.row1}>
   {/* End of Working Hours */}
   <View style={styles.timeBox}>
-    <Text style={styles.label}>Sending Date</Text>
-    
+    <Text style={styles.label}>{t("messageManagement.sendingDate")}</Text>
+
   </View>
 
   {/* Sending Time */}
   <View style={styles.timeBox}>
-    <Text style={styles.label}>Sending Time</Text>
+    <Text style={styles.label}>{t("messageManagement.sendingTime")}</Text>
     
   </View>
 </View>
@@ -661,7 +668,7 @@ console.log('formData',formData);
           (!isValid || loading) && styles.disabledButton,
         ]}
       >
-        <Text style={styles.saveText}>Save Message</Text>
+        <Text style={styles.saveText}>{t("messageManagement.saveMessage")}</Text>
       </TouchableOpacity>
   </View>
 );}
@@ -671,6 +678,8 @@ const GeneralMessageForm = ({onSuccess,editItem,isEditMode}) =>{
   const [content, setContent] = useState("");
   const [sendMinute, setSendMinute] = useState(null);
   const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
+
 useEffect(() => {
     if (isEditMode && editItem) {
       setName(editItem.name || "");
@@ -696,16 +705,16 @@ console.log('formData',formData);
       setLoading(true);
       if (isEditMode) {
         await authService.updateMessage(editItem.id, formData); // 👈 UPDATE
-        Alert.alert(strings.alerts.success || 'Updated', strings.messageManagement.successUpdated || 'General message updated');
+        Alert.alert(t("alerts.success") || 'Updated', t("messageManagement.successUpdated") || 'General message updated');
       } else {
         await authService.createMessage(formData); // 👈 CREATE
-        Alert.alert(strings.alerts.success || 'Success', strings.messageManagement.successSaved || 'General message created');
+        Alert.alert(t("alerts.success") || 'Success', t("messageManagement.successSaved") || 'General message created');
       }
       // await authService.createMessage(formData);
       // Alert.alert("Success", "General message created");
       onSuccess()
     } catch {
-      Alert.alert(strings.alerts.error || 'Error', strings.messageManagement.saveFailed || 'Failed to create message');
+      Alert.alert(t("alerts.error") || 'Error', t("messageManagement.saveFailed") || 'Failed to create message');
     } finally {
       setLoading(false);
     }
@@ -714,22 +723,22 @@ console.log('formData',formData);
 
   return (
   <View style={styles.block}>
-    <Text style={styles.sectionTitle1}>General Messages</Text>
+    <Text style={styles.sectionTitle1}>{t("messageManagement.general")}</Text>
       <Text style={styles.helperText}>
-        Welcome Messages or Announcements
+        {t("messageManagement.generalMessagesHelper")}
       </Text>
 
-      <Text style={styles.label1}>Message Name *</Text>
+      <Text style={styles.label1}>{t("messageManagement.messageName")} *</Text>
       <TextInput style={styles.input1} value={name} onChangeText={setName} />
 
-      <Text style={styles.label1}>Message Content *</Text>
+      <Text style={styles.label1}>{t("messageManagement.messageContent")} *</Text>
       <TextInput
         style={[styles.input1, styles.textArea1]}
         multiline
         value={content}
         onChangeText={setContent}
       />
-      <Text style={styles.label1}>Sending Time</Text>
+      <Text style={styles.label1}>{t("messageManagement.sendingTime")}</Text>
       <View style={[styles.timeRow,{justifyContent:'flex-end',alignSelf: "flex-end",}]}>
                       <MinutePicker value={sendMinute} onChange={setSendMinute} />
 
@@ -744,7 +753,7 @@ console.log('formData',formData);
           (!isValid || loading) && styles.disabledButton,
         ]}
       >
-        <Text style={styles.saveText}>Save Message</Text>
+        <Text style={styles.saveText}>{t("messageManagement.saveMessage")}</Text>
       </TouchableOpacity>
   </View>
 );}

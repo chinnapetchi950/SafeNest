@@ -17,11 +17,13 @@ import globalstyles from '../../styles/globalstyles';
 import Storage from '../../utils/storage';
 //import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from '../../contexts/LanguageContext';
 
 const { width } = Dimensions.get('window');
 
 export default function SplashScreen() {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   useEffect(() => {
     const checkLogin = async () => {
       try {
@@ -86,10 +88,10 @@ export default function SplashScreen() {
         /> */}
 
         <Text style={[globalstyles.regular_FontMedium, styles.title]}>
-          {string.splash_center1}
+          {t("splash.splash_center1")}
         </Text>
         <Text style={[globalstyles.regular_Fontblack, styles.subtitle]}>
-          {string.splash_cente}
+          {t("splash.splash_center2")}
         </Text>
         {/* Button */}
         <View style={styles.bottomContainer}>
@@ -103,7 +105,7 @@ export default function SplashScreen() {
               </View>
             </View>
             <Text style={[globalstyles.semibold_black, styles.buttonText]}>
-              Start Now
+              {t("splash.get_started")}
             </Text>
           </TouchableOpacity>
         </View>

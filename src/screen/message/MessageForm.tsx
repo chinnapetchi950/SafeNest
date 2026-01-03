@@ -13,9 +13,10 @@ import {
 } from "react-native";
 
 import { useFocusEffect } from "@react-navigation/native";
-import strings from "../../localization/en";
+import { useTranslation } from '../../contexts/LanguageContext';
 
 export function MessageFormScreen({ navigation, route }) {
+  const { t } = useTranslation();
   const { mode = "create", id = null, initialType = "alert" } = route.params || {};
   const [type, setType] = useState(initialType); // alert/reward/general/working_hours
   const [messageName, setMessageName] = useState("");
@@ -53,19 +54,19 @@ export function MessageFormScreen({ navigation, route }) {
 
   function validate() {
     if (!messageName.trim()) {
-      Alert.alert(strings.alerts.error || strings.alerts.error, strings.validation.required || strings.messageManagement.messageName + ' is required');
+      Alert.alert(t('alerts.error') || t('alerts.error'), t('validation.required') || t('messageManagement.messageName') + ' is required');
       return false;
     }
     if (!messageContent.trim()) {
-      Alert.alert(strings.alerts.error || strings.alerts.error, strings.messageManagement.messageContent + ' is required');
+      Alert.alert(t('alerts.error') || t('alerts.error'), t('messageManagement.messageContent') + ' is required');
       return false;
     }
     if (type === "alert" && (!offsetTime || Number(offsetTime) < 0)) {
-  Alert.alert(strings.alerts.error || strings.alerts.error, strings.messageManagement.required);
+  Alert.alert(t('alerts.error') || t('alerts.error'), t('messageManagement.required'));
       return false;
     }
     if (type === "reward" && !sendDate) {
-  Alert.alert(strings.alerts.error || strings.alerts.error, strings.messageManagement.sendDate + ' is required');
+  Alert.alert(t('alerts.error') || t('alerts.error'), t('messageManagement.sendDate') + ' is required');
       return false;
     }
     return true;
@@ -89,11 +90,11 @@ export function MessageFormScreen({ navigation, route }) {
 
     try {
       await createOrUpdateMessage(payload);
-  Alert.alert(strings.alerts.success || strings.alerts.success, strings.messageManagement.successSaved);
+    Alert.alert(t('alerts.success') || t('alerts.success'), t('messageManagement.successSaved'));
       navigation.goBack();
     } catch (e) {
       console.warn("save error", e);
-  Alert.alert(strings.alerts.error || strings.alerts.error, strings.messageManagement.saveFailed);
+  Alert.alert(t('alerts.error') || t('alerts.error'), t('messageManagement.saveFailed'));
     } finally {
       setSaving(false);
     }

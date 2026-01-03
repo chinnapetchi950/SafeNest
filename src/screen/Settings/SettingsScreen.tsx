@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity,Alert ,ActivityIndicator} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import strings from '../../localization/en';
+import { useTranslation } from '../../contexts/LanguageContext';
 import globalstyles from '../../styles/globalstyles';
 import { logoutUser,deleteUserAccount } from '../../features/auth/authSlice';
 import Storage from '../../utils/storage';
@@ -38,6 +38,8 @@ useEffect(() => {
     };
     loadRole();
   }, []);
+  const { t } = useTranslation();
+
   const handleLogout = () => {
     dispatch(logoutUser()).then(() => {
       navigation.replace('Login'); // optional navigation
@@ -52,12 +54,12 @@ useEffect(() => {
   };
 const pickImage = () => {
   Alert.alert(
-    strings.settings.selectOption,
-    strings.settings.chooseImageSource,
+    t('settings.selectOption'),
+    t('settings.chooseImageSource'),
     [
-      { text: strings.common.camera, onPress: openCamera },
-      { text: strings.common.gallery, onPress: openGallery },
-      { text: strings.common.cancel, style: "cancel" }
+      { text: t('common.camera'), onPress: openCamera },
+      { text: t('common.gallery'), onPress: openGallery },
+      { text: t('common.cancel'), style: "cancel" }
     ]
   );
 };
@@ -86,7 +88,7 @@ const openGallery = () => {
 const handleImageResponse = (response) => {
   if (response.didCancel) return;
   if (response.errorMessage) {
-  Alert.alert(strings.alerts.error || 'Error', response.errorMessage || strings.alerts.error);
+  Alert.alert(t('alerts.error') || 'Error', response.errorMessage || t('alerts.error'));
     return;
   }
 
@@ -107,7 +109,7 @@ const handleImageResponse = (response) => {
         }));
   setUploadingImage(false); // start loader
 
-  Alert.alert(strings.alerts.success || 'Success', strings.settings.profileUpdatedSuccess || 'Profile updated successfully!');
+  Alert.alert(t('alerts.success') || 'Success', t('settings.profileUpdatedSuccess') || 'Profile updated successfully!');
       }
     })
     .catch(() => {});
@@ -135,11 +137,12 @@ const getFinalProfileImageUrl = (profile_image) => {
       <View style={styles.headerSpace} />
        {role === 'admin' && 
  <View style={styles.headerRow}>
-        <Text style={styles.title}>{strings.settings.title}</Text>
-        <Text style={styles.userName}>{strings.settings.manageAccount}</Text>
+        <Text style={styles.title}>{t('settings.title')}</Text>
+
+        <Text style={styles.userName}>{t('settings.manageAccount')}</Text>
       </View>
 }
-{console.log(profileData,'profileData')}
+{/* {console.log(profileData,'profileData')} */}
 
       {/* Profile Image */}
       {role != 'admin' && (
@@ -219,7 +222,7 @@ const getFinalProfileImageUrl = (profile_image) => {
                 { textAlign: 'right', fontSize: 18, marginRight: 20 },
               ]}
             >
-              Change Password
+              {t('settings.changePassword')}
             </Text>
             <Ionicons name="lock-closed-outline" size={22} color="#A78BFA" />
           </View>
@@ -237,7 +240,7 @@ const getFinalProfileImageUrl = (profile_image) => {
               { textAlign: 'right', fontSize: 18, marginRight: 20 },
             ]}
           >
-            Account Management
+            {t('settings.accountManagement')}
           </Text>
           <Ionicons name="person" size={22} color="#A78BFA" />
         </View>
@@ -254,7 +257,7 @@ const getFinalProfileImageUrl = (profile_image) => {
               { textAlign: 'right', fontSize: 18, marginRight: 20 },
             ]}
           >
-            Game Management
+            {t('settings.gameManagement')}
           </Text>
           <Ionicons name="game-controller-outline" size={22} color="#A78BFA" />
         </View>
@@ -272,7 +275,7 @@ const getFinalProfileImageUrl = (profile_image) => {
               { textAlign: 'right', fontSize: 18, marginRight: 20 },
             ]}
           >
-            Whatsapp Management
+            {t('settings.whatsappManagement')}
           </Text>
           <Ionicons name="call-outline" size={22} color="#A78BFA" />
         </View>
@@ -291,7 +294,7 @@ const getFinalProfileImageUrl = (profile_image) => {
               { textAlign: 'right', fontSize: 18, marginRight: 20 },
             ]}
           >
-            Message Management
+            {t('settings.messageManagement')}
           </Text>
           <Ionicons name="chatbubble-ellipses-outline" size={22} color="#A78BFA" />
         </View>
@@ -307,7 +310,7 @@ const getFinalProfileImageUrl = (profile_image) => {
               { textAlign: 'right', fontSize: 18, marginRight: 20 },
             ]}
           >
-            Delete Account
+            {t('settings.deleteAccount')}
           </Text>
           <Ionicons name="trash-outline" size={22} color="#A78BFA" />
         </View>
@@ -336,7 +339,7 @@ const getFinalProfileImageUrl = (profile_image) => {
               },
             ]}
           >
-            Log Out
+            {t('settings.logout')}
           </Text>
           <Ionicons name="log-out-outline" size={24} color="red" />
         </View>

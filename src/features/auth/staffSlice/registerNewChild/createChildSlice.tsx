@@ -3,7 +3,8 @@ import authService from "../../authService";
 import { createAsyncThunkHandlers } from "../../../../utils/asyncThunkHandler";
 
 import { Alert } from "react-native";
-import strings from '../../../../localization/en';
+import { useTranslation } from "../../../../contexts/LanguageContext";
+const { t } = useTranslation();
 
 /**
  * createChildUser USER (multipart/form-data)
@@ -21,7 +22,8 @@ export const createChildUser = createAsyncThunk(
         err.message ||
         "Something went wrong";
 
-  Alert.alert(strings.alerts.error || 'Error', message);
+  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
+
       return thunkAPI.rejectWithValue(err?.response?.data);
     }
   }
@@ -74,7 +76,8 @@ export const childHandover = createAsyncThunk(
       return res.data;
     } catch (err) {
       console.log("childHandover Error --->",  err?.response?.data); // PRINT FULL ERROR
-  Alert.alert(strings.alerts.error || 'Failed', err?.response?.data?.message)
+  Alert.alert(t("alerts.error") || 'Failed', err?.response?.data?.message || t("alerts.error"));
+
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || err.message
       );

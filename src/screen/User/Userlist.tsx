@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import strings from '../../localization/en';
+import { useTranslation } from '../../contexts/LanguageContext';
 import SearchBar from "../components/Searchcomponent";
 import { useDashboardViewModel } from "../../viewmodels/useDashboardViewModel";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -19,6 +19,7 @@ import { useDispatch } from "react-redux";
 import ViewAccountModal from "../components/ViewAccountModal";
 export default function UserlistScreen() {
   const viewModel = useDashboardViewModel();
+  const { t } = useTranslation();
 
   const dispatch = useDispatch();
 
@@ -74,28 +75,28 @@ const [user,setUser]=useState({})
       : userList.filter((u) => u.selected).map((u) => u.id);
 
     if (idsToDelete.length === 0) {
-      Alert.alert(strings.userList.noUserSelectedTitle, strings.userList.noUserSelectedMessage);
+      Alert.alert(t('userList.noUserSelectedTitle'), t('userList.noUserSelectedMessage'));
       return;
     }
 
     Alert.alert(
-      strings.userList.confirmDeleteTitle,
-      strings.userList.confirmDeleteMessage.replace('{count}', String(idsToDelete.length)),
+      t('userList.confirmDeleteTitle'),
+      t('userList.confirmDeleteMessage').replace('{count}', String(idsToDelete.length)),
       [
-        { text: strings.common.cancel, style: "cancel" },
+        { text: t('common.cancel'), style: "cancel" },
         {
-          text: strings.common.delete,
+          text: t('common.delete'),
           style: "destructive",
           onPress: async () => {
             try {
               const res = await dispatch(deleteUsers(idsToDelete)).unwrap();
               if (res?.status === true) {
-                Alert.alert(strings.common.success || 'Success', strings.userList.userDeletedSuccess);
+                Alert.alert(t('alerts.success') || 'Success', t('userList.userDeletedSuccess'));
                 viewModel?.loadUserlist();
                 setSelectAll(false);
               }
             } catch (err: any) {
-              Alert.alert(strings.common.error || 'Error', err || strings.userList.failedToDeleteUsers);
+              Alert.alert(t('alerts.error') || 'Error', err || t('userList.failedToDeleteUsers'));
             }
           },
         },
@@ -133,10 +134,10 @@ const [user,setUser]=useState({})
 
       {/* LABELS */}
       <View style={styles.labels}>
-        <Text style={styles.label}>{strings.userList.no}</Text>
-        <Text style={styles.label}>{strings.userList.userName}</Text>
-        <Text style={styles.label}>{strings.userList.phoneNumber}</Text>
-        <Text style={styles.label}>{strings.userList.email}</Text>
+  <Text style={styles.label}>{t('userList.no')}</Text>
+  <Text style={styles.label}>{t('userList.userName')}</Text>
+  <Text style={styles.label}>{t('userList.phoneNumber')}</Text>
+  <Text style={styles.label}>{t('userList.email')}</Text>
       </View>
 
       {/* RIGHT */}
@@ -160,7 +161,7 @@ const [user,setUser]=useState({})
                 // onEdit(item); // optional edit
               }}
             >
-              <Text style={styles.menuItem}>Edit</Text>
+              <Text style={styles.menuItem}>{t('common.edit')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -168,7 +169,7 @@ const [user,setUser]=useState({})
                 handleDelete(item);
               }}
             >
-              <Text style={[styles.menuItem, { color: "red" }]}>Delete</Text>
+              <Text style={[styles.menuItem, { color: "red" }]}>{t('common.delete')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -182,7 +183,7 @@ const [user,setUser]=useState({})
         {/* Search */}
         <View style={styles.searchWrapper}>
           <SearchBar
-            placeholder={strings.userList.searchPlaceholder}
+            placeholder={t('userList.searchPlaceholder')}
             onChangeText={(text) => setSearchText(text)}
           />
         </View>
@@ -191,7 +192,7 @@ const [user,setUser]=useState({})
       <View style={{ flexDirection: "column", marginVertical: 10 }}>
   {/* Select All Row */}
   <View style={styles.selectAllRow}>
-  <Text style={styles.selectAllText}>{strings.userList.selectAll}</Text>
+  <Text style={styles.selectAllText}>{t('userList.selectAll')}</Text>
     <TouchableOpacity
       onPress={toggleSelectAll}
       style={[styles.checkbox, selectAll && styles.checkboxChecked]}
@@ -213,7 +214,7 @@ const [user,setUser]=useState({})
        // marginTop: 10,
       }}
     >
-  <Text style={{ color: "#fff", fontWeight: "bold" }}>{strings.userList.deleteSelected}</Text>
+  <Text style={{ color: "#fff", fontWeight: "bold" }}>{t('userList.deleteSelected')}</Text>
     </TouchableOpacity>
   )}
 
@@ -228,7 +229,7 @@ const [user,setUser]=useState({})
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={() => (
               <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
-                <Text style={{ fontSize: 16, color: "#888" }}>No data available</Text>
+                <Text style={{ fontSize: 16, color: "#888" }}>{t('common.noData')}</Text>
               </View>
             )}
         />

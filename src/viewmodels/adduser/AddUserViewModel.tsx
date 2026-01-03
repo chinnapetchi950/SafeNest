@@ -3,10 +3,11 @@ import { Asset, ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } f
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../features/auth/staffSlice/registerSlice";
 import { Alert } from "react-native";
-import strings from "../../localization/en";
+import { useTranslation } from '../../contexts/LanguageContext';
 
 const useUserInformationViewModel = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const [step, setStep] = useState(1); // 👈 1 = User Info, 2 = Identity Info
   const [showSuccess, setShowSuccess] = useState(false);
   const [user, setuser] = useState({});
@@ -173,33 +174,33 @@ const [errors, setErrors] = useState({});
  const validateForm = () => {
   const newErrors: any = {};
 
-  if (!form.firstName.trim()) newErrors.firstName = strings.validation.firstNameRequired;
-  if (!form.secondName.trim()) newErrors.secondName = strings.validation.secondNameRequired;
+  if (!form.firstName.trim()) newErrors.firstName = t('validation.firstNameRequired');
+  if (!form.secondName.trim()) newErrors.secondName = t('validation.secondNameRequired');
   // if (!form.lastName.trim()) newErrors.lastName = strings.validation.nicknameRequired;
 
-  if (!form.email.trim()) newErrors.email = strings.validation.emailRequired;
+  if (!form.email.trim()) newErrors.email = t('validation.emailRequired');
   else if (!/^\S+@\S+\.\S+$/.test(form.email))
-    newErrors.email = strings.validation.emailInvalid;
+    newErrors.email = t('validation.emailInvalid');
 
-  if (!form.phone.trim()) newErrors.phone = strings.validation.phoneRequired;
+  if (!form.phone.trim()) newErrors.phone = t('validation.phoneRequired');
   else if (!/^\d{8,15}$/.test(form.phone))
-    newErrors.phone = strings.validation.phoneInvalid;
+    newErrors.phone = t('validation.phoneInvalid');
 
-  if (!form.password.trim()) newErrors.password = strings.validation.passwordRequired;
+  if (!form.password.trim()) newErrors.password = t('validation.passwordRequired');
   else if (form.password.length < 6)
-    newErrors.password = strings.validation.passwordMinLength;
+    newErrors.password = t('validation.passwordMinLength');
 
   if (!form.nationalId.trim())
-    newErrors.nationalId = strings.validation.nationalIdRequired || "National ID number is required";
+    newErrors.nationalId = t('validation.nationalIdRequired') || "National ID number is required";
 
   if (!form.nationalIdImage)
-    newErrors.nationalIdImage = strings.validation.nationalIdImageRequired || "National ID image is required";
+    newErrors.nationalIdImage = t('validation.nationalIdImageRequired') || "National ID image is required";
 
   if (!form.residenceCard.trim())
-    newErrors.residenceCard = strings.validation.residenceCardRequired || "Residence card number is required";
+    newErrors.residenceCard = t('validation.residenceCardRequired') || "Residence card number is required";
 
   if (!form.residenceCardImage)
-    newErrors.residenceCardImage = strings.validation.residenceCardImageRequired || "Residence card image is required";
+    newErrors.residenceCardImage = t('validation.residenceCardImageRequired') || "Residence card image is required";
 
   setErrors(newErrors);
   return Object.keys(newErrors).length === 0;
@@ -207,21 +208,21 @@ const [errors, setErrors] = useState({});
  const validateFormFirst = () => {
   const newErrors: any = {};
 
-  if (!form.firstName.trim()) newErrors.firstName = strings.validation.firstNameRequired;
-  if (!form.secondName.trim()) newErrors.secondName = strings.validation.secondNameRequired;
+  if (!form.firstName.trim()) newErrors.firstName = t('validation.firstNameRequired');
+  if (!form.secondName.trim()) newErrors.secondName = t('validation.secondNameRequired');
   // if (!form.lastName.trim()) newErrors.lastName = strings.validation.nicknameRequired;
 
-  if (!form.email.trim()) newErrors.email = strings.validation.emailRequired;
+  if (!form.email.trim()) newErrors.email = t('validation.emailRequired');
   else if (!/^\S+@\S+\.\S+$/.test(form.email))
-    newErrors.email = strings.validation.emailInvalid;
+    newErrors.email = t('validation.emailInvalid');
 
-  if (!form.phone.trim()) newErrors.phone = strings.validation.phoneRequired;
+  if (!form.phone.trim()) newErrors.phone = t('validation.phoneRequired');
   else if (!/^\d{8,15}$/.test(form.phone))
-    newErrors.phone = strings.validation.phoneInvalid;
+    newErrors.phone = t('validation.phoneInvalid');
 
-  if (!form.password.trim()) newErrors.password = strings.validation.passwordRequired;
+  if (!form.password.trim()) newErrors.password = t('validation.passwordRequired');
   else if (form.password.length < 6)
-    newErrors.password = strings.validation.passwordMinLength;
+    newErrors.password = t('validation.passwordMinLength');
 
   
   setErrors(newErrors);
@@ -250,7 +251,7 @@ const handleRegister = async () => {
     const isValid = validateForm();
     if (!isValid) {
       const msg = Object.values(errors).join("\n");
-  Alert.alert(strings.alerts.error || 'Error', msg);
+  Alert.alert(t('alerts.error') || 'Error', msg);
       return;
     }
 
@@ -310,19 +311,19 @@ console.log('form.nationalIdImage?.uri',form.nationalIdImage?.uri);
       const messages = Object.values(errData.errors)
         .flat()
         .join("\n");
-  Alert.alert(strings.alerts.error || 'Error', messages);
+  Alert.alert(t('alerts.error') || 'Error', messages);
       return;
     }
 
     // 2️⃣ Server message
     if (errData.message) {
-  Alert.alert(strings.alerts.error || 'Error', errData.message);
+  Alert.alert(t('alerts.error') || 'Error', errData.message);
       return;
     }
   }
 
   // 3️⃣ Fallback
-  Alert.alert(strings.alerts.error || 'Error', strings.alerts.error || 'Something went wrong. Please try again.');
+  Alert.alert(t('alerts.error') || 'Error', t('alerts.error') || 'Something went wrong. Please try again.');
 }
 
 };

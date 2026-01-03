@@ -4,8 +4,9 @@ import authService from "../authService";
 import { createAsyncThunkHandlers } from "../../../utils/asyncThunkHandler";
 
 import { Alert } from "react-native";
-import strings from "../../../../localization/en";
-
+// import strings from "../../../../localization/en";
+import { useTranslation } from "../../../contexts/LanguageContext";
+ const { t } = useTranslation();
 export const uploadProfileImage = createAsyncThunk(
   "api/user/profile_image",
   async ({ image }, thunkAPI) => {
@@ -29,7 +30,7 @@ export const uploadProfileImage = createAsyncThunk(
         err.message ||
         "Something went wrong";
 
-  Alert.alert(strings.alerts.error || 'Error', message || strings.alerts.error);
+  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
       return thunkAPI.rejectWithValue(err?.response?.data);
     }
   }

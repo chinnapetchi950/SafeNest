@@ -7,7 +7,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
-
+import { useTranslation } from "../../contexts/LanguageContext";
 const ProgressBarRTL = ({
   totalSteps = 3,
   currentStep = 1, // starts from right
@@ -28,6 +28,7 @@ const ProgressBarRTL = ({
       useNativeDriver: false,
     }).start();
   }, [currentStep]);
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
@@ -85,8 +86,8 @@ const ProgressBarRTL = ({
 
       {/* Titles */}
       <View style={styles.titleRow}>
-        <Text style={styles.dotTitle}>Identity Information</Text>
-        <Text style={styles.dotTitle}>User Information</Text>
+        <Text style={styles.dotTitle}>{t("user.identityInformation")}</Text>
+        <Text style={styles.dotTitle}>{t("user.userInformation")}</Text>
       </View>
     </View>
   );

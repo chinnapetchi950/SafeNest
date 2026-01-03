@@ -16,9 +16,10 @@ import FilterBottomSheet from "../components/FilterModal";
 import { useSelector } from "react-redux";
 
 import { useFocusEffect } from "@react-navigation/native";
-import strings from "../../localization/en";
+import { useTranslation } from '../../contexts/LanguageContext';
 import Storage from "../../utils/storage";
 export default function ChildListScreen() {
+  const { t } = useTranslation();
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 const pageSize = 10; // items per page
@@ -155,14 +156,14 @@ const renderCard = ({ item, index }) => {
 
   switch (item?.session_status) {
     case "delivered":
-      statusText = strings.session.delivered;
+      statusText = t('session.delivered');
       statusColor = "#2563EB"; // Blue
       badgeBg = "#DCE6FB";
       StatusIcon = Ionicons;
       iconName = "checkmark-circle";
       break;
     case "waiting":
-      statusText = strings.session.waiting;
+  statusText = t('session.waiting');
       statusColor = "#D69E2E"; // Orange
       badgeBg = "#FDFBF6";
       StatusIcon = Feather;
@@ -170,7 +171,7 @@ const renderCard = ({ item, index }) => {
       break;
     default:
       // any other non-waiting status considered Active
-  statusText = strings.session.activeNow;
+  statusText = t('session.activeNow');
       statusColor = "#3AB54A"; // Green
       badgeBg = "#D8F3DC";
       StatusIcon = Ionicons;
@@ -203,14 +204,14 @@ const renderCard = ({ item, index }) => {
 
       {/* LABELS */}
       <View style={styles.labels}>
-  <Text style={styles.label}>{strings.child.no}</Text>
-  <Text style={styles.label}>{strings.child.childNameLabel}</Text>
-  <Text style={styles.label}>{strings.child.guardianLabel}</Text>
-  <Text style={styles.label}>{strings.child.userNameLabel}</Text>
-  <Text style={styles.label}>{strings.child.phoneNumberLabel}</Text>
-  <Text style={styles.label}>{strings.child.addressLabel}</Text>
-  <Text style={styles.label}>{strings.child.playHoursLabel}</Text>
-  <Text style={styles.label}>{strings.child.statusLabel}</Text>
+  <Text style={styles.label}>{t('child.no')}</Text>
+  <Text style={styles.label}>{t('child.childNameLabel')}</Text>
+  <Text style={styles.label}>{t('child.guardianLabel')}</Text>
+  <Text style={styles.label}>{t('child.userNameLabel')}</Text>
+  <Text style={styles.label}>{t('child.phoneNumberLabel')}</Text>
+  <Text style={styles.label}>{t('child.addressLabel')}</Text>
+  <Text style={styles.label}>{t('child.playHoursLabel')}</Text>
+  <Text style={styles.label}>{t('child.statusLabel')}</Text>
       </View>
 
       {/* RIGHT SIDE */}
@@ -238,14 +239,14 @@ const renderCard = ({ item, index }) => {
       {/* Header */}
         {role!='admin'&&
       <View style={styles.headerRow}>
-        <Text style={styles.title}>{strings.common.appName}</Text>
+  <Text style={styles.title}>{t('common.appName')}</Text>
         <Text style={styles.userName}>{firstUsername}</Text>
       </View>
 }
       {/* Search */}
       <View style={styles.searchWrapper}>
         <SearchBar
-                 placeholder={strings.common.searchForChild}
+                 placeholder={t('common.searchForChild')}
                  onChangeText={text => viewModel?.handleSearchChange(text)}
                  onSearchPress={() => viewModel.handlechildrenSearch()}
           onFilterPress={() => {
@@ -256,7 +257,7 @@ const renderCard = ({ item, index }) => {
 
       {/* Select All */}
       <View style={styles.selectAllRow}>
-  <Text style={styles.selectAllText}>{strings.userList.selectAll}</Text>
+  <Text style={styles.selectAllText}>{t('userList.selectAll')}</Text>
         <TouchableOpacity
   onPress={toggleSelectAll}
   style={[
@@ -278,7 +279,7 @@ const renderCard = ({ item, index }) => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
-                <Text style={{ fontSize: 16, color: "#888" }}>{strings.common.noData}</Text>
+                <Text style={{ fontSize: 16, color: "#888" }}>{t('common.noData')}</Text>
             </View>
           )}
       />

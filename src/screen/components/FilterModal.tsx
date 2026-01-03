@@ -14,7 +14,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import CustomTextField from "../components/TextFieldComponent";
 import DropDownPicker from "react-native-dropdown-picker";
 import globalstyles from "../../styles/globalstyles";
-
+import { useTranslation } from "../../contexts/LanguageContext";
 const FilterBottomSheet = ({
   visible,
   onClose,
@@ -36,6 +36,7 @@ onReset,
   setShowDatePicker,
   handleDateChange,
 }) => {
+  const { t } = useTranslation();
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.overlay}>
@@ -47,10 +48,10 @@ onReset,
           {/* Header */}
           <View style={styles.headerRow}>
             <TouchableOpacity onPress={onReset}>
-              <Text style={styles.reset}>Reset</Text>
+              <Text style={styles.reset}>{t("common.reset")}</Text>
             </TouchableOpacity>
 
-            <Text style={styles.headerTitle}>Filter</Text>
+            <Text style={styles.headerTitle}>{t("common.filter")}</Text>
           </View>
 
           <View style={styles.divider} />
@@ -64,8 +65,8 @@ onReset,
             <CustomTextField
               value={viewModel.filters.phone}
               onChangeText={(text) => viewModel.handleInputChange("phone", text)}
-              label="Phone Number"
-              placeholder="xxxxxxxxxx"
+              label={t("common.phoneNumber")}
+              placeholder={t("common.phoneNumberPlaceholder")}
               prefixIcon="call-outline"
               keyboardType="number-pad"
               error={viewModel.errors.phone}
@@ -75,8 +76,8 @@ onReset,
             <TouchableOpacity onPress={() => setShowDatePicker(true)}>
               <CustomTextField
                 value={viewModel.filters.date_of_birth}
-                label="Date of Birth"
-                placeholder="YYYY/MM/DD"
+                label={t("common.dateOfBirth")}
+                placeholder={t("common.dateOfBirthPlaceholder")}
                 prefixIcon="calendar-outline"
                 editable={false}
                 error={viewModel.errors.date_of_birth}
@@ -100,13 +101,13 @@ onReset,
             <CustomTextField
               value={viewModel.filters.price}
               onChangeText={(text) => viewModel.handleInputChange("price", text)}
-              label="Session Price"
-              placeholder="Enter price"
+              label={t("common.price")}
+              placeholder={t("common.enterPrice")}
               error={viewModel.errors.price}
             />
 
             {/* Play Hours */}
-            <Text style={styles.smallLabel}>Play Hours</Text>
+            <Text style={styles.smallLabel}>{t("common.playHours")}</Text>
 
             <View style={styles.timerRow}>
               {/* Minutes Dropdown */}
@@ -121,7 +122,7 @@ onReset,
                     setSelectedMinute(val);
                     viewModel.handleInputChange("play_minutes", val);
                   }}
-                  placeholder="Minutes"
+                  placeholder={t("common.minutes")}
                   listMode="SCROLLVIEW"
                    ArrowDownIconComponent={() => (
                     <Ionicons name="chevron-expand" size={22} color="#999" />
@@ -174,7 +175,7 @@ onReset,
                     setSelectedHour(val);
                     viewModel.handleInputChange("play_hours", val);
                   }}
-                  placeholder="Hours"
+                  placeholder={t("common.hours")}
                   listMode="SCROLLVIEW"
                   ArrowDownIconComponent={() => (
                     <Ionicons name="chevron-expand" size={20} color="#999" />
@@ -217,7 +218,7 @@ onReset,
             </View>
 
             {/* Gender */}
-            <Text style={styles.smallLabel}>Gender</Text>
+            <Text style={styles.smallLabel}>{t("common.gender")}</Text>
 
             <View style={styles.genderRow}>
               {/* Female */}
@@ -225,7 +226,7 @@ onReset,
                 style={styles.genderOption}
                 onPress={() => viewModel.handleSelectGender("female")}
               >
-                <Text style={styles.optionText}>Female</Text>
+                <Text style={styles.optionText}>{t("common.female")}</Text>
                 <View
                   style={[
                     styles.checkbox,
@@ -244,7 +245,7 @@ onReset,
                 style={[styles.genderOption, { marginLeft: 30 }]}
                 onPress={() => viewModel.handleSelectGender("male")}
               >
-                <Text style={styles.optionText}>Male</Text>
+                <Text style={styles.optionText}>{t("common.male")}</Text>
                 <View
                   style={[
                     styles.checkbox,
@@ -261,7 +262,7 @@ onReset,
 
             {/* Apply Button */}
             <TouchableOpacity  disabled={viewModel?.isApplyDisabled}style={[styles.applyBtn,{backgroundColor:viewModel?.isApplyDisabled?"#ccc":'#A278F4'}]} onPress={onApply}>
-              <Text style={styles.applyText}>Apply Filter</Text>
+              <Text style={styles.applyText}>{t("common.applyFilter")}</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>

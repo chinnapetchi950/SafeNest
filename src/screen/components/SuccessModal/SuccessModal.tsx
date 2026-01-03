@@ -8,7 +8,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
-
+import { useTranslation } from "../../../contexts/LanguageContext";
 interface SuccessModalProps {
   visible: boolean;
   onDone: () => void;
@@ -16,6 +16,7 @@ interface SuccessModalProps {
 
 const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onDone }) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (visible) {
@@ -46,11 +47,11 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ visible, onDone }) => {
           </Animated.View>
 
           <Text style={styles.successText}>
-            The game has been registered successfully
+            {t("addGame.success")}
           </Text>
 
           <TouchableOpacity style={styles.doneButton} onPress={onDone}>
-            <Text style={styles.doneText}>Done</Text>
+            <Text style={styles.doneText}>{t("common.done")}</Text>
           </TouchableOpacity>
         </View>
       </View>

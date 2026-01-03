@@ -108,6 +108,7 @@ import { store } from "../store/store";
 import { setLoading } from "../features/auth/loadingSlice.tsx/loadingSlices";
 import { Alert } from "react-native";
 import strings from "../localization/en";
+import { useTranslation } from "../contexts/LanguageContext";
 import { navigationRef } from "../navigations/Appnavigator";
 const axiosInstance = axios.create({
   baseURL: "https://testlink3.pillersofttechnologies.com/",
@@ -176,6 +177,7 @@ axiosInstance.interceptors.response.use(
 
   async (error) => {
     const { response } = error;
+    const {t}=useTranslation();
     store.dispatch(setLoading(false));
 
     // 1️⃣ Detect expired token returning HTML (backend sends login page)

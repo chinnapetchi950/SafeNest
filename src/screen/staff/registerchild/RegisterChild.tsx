@@ -24,10 +24,11 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import useRegisterChildViewModel from '../../../viewmodels/useRegisterChildViewModel';
 import Storage from '../../../utils/storage';
-import strings from '../../../localization/en';
+import { useTranslation } from '../../../contexts/LanguageContext';
 export const RegisterChildScreen = () => {
   const navigation = useNavigation();
   const viewModel = useFilterBottomSheetViewModel();
+  const { t } = useTranslation();
     const [role, setRole] = useState(null);
     const [openUser, setOpenUser] = useState(false);
 
@@ -87,7 +88,7 @@ export const RegisterChildScreen = () => {
           <Ionicons name="close-circle-outline" size={20} color="red" />
         </TouchableOpacity>
         <View>
-          <Text style={styles.fileName}>{item.fileName} - {strings.child.attachment}</Text>
+          <Text style={styles.fileName}>{item.fileName} - {t('child.attachment')}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
             <Text style={styles.fileSize}>{item.fileSize}</Text>
           </View>
@@ -112,7 +113,7 @@ export const RegisterChildScreen = () => {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>{strings.child.registerNewChild}</Text>
+          <Text style={styles.title}>{t('child.registerNewChild')}</Text>
           <Ionicons name="chevron-forward" size={22} color="#000" />
         </View>
 
@@ -130,11 +131,11 @@ export const RegisterChildScreen = () => {
 
         {/* Texts Under Progress Bar */}
         <View style={styles.labelRow}>
-          <Text style={styles.inactiveLabel}>{strings.child.sessionDetails}</Text>
+          <Text style={styles.inactiveLabel}>{t('child.sessionDetails')}</Text>
           {/* <Text style={styles.activeLabel}>Child Details</Text> */}
         </View>
 
-  <Text style={styles.sectionTitle}>{strings.child.childDetails}</Text>
+  <Text style={styles.sectionTitle}>{t('child.childDetails')}</Text>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 80 }}
@@ -143,7 +144,7 @@ export const RegisterChildScreen = () => {
      {role === "admin" && (
   <>
   <Text style={[styles.label,    globalstyles.semibold_black
-]}> {strings.child.assignChildToStaff}</Text>
+]}> {t('child.assignChildToStaff')}</Text>
     <DropDownPicker
       open={openUser}
       value={viewModel.form.user_id}
@@ -152,7 +153,7 @@ export const RegisterChildScreen = () => {
       setValue={(cb) =>
         viewModel.handleInputChange("user_id", cb(viewModel.form.user_id))
       }
-  placeholder={strings.child.assignChildToStaffPlaceholder}
+  placeholder={t('child.assignChildToStaffPlaceholder')}
       // style={styles.dropdown}
       zIndex={3000}
       zIndexInverse={1000}
@@ -200,8 +201,8 @@ export const RegisterChildScreen = () => {
             <CustomTextField
               value={viewModel.form.phone}
               onChangeText={text => viewModel.handleInputChange('phone', text)}
-              label={strings.auth.phoneNumber}
-              placeholder={strings.child.phonePlaceholder}
+              label={t('auth.phoneNumber')}
+              placeholder={t('child.phonePlaceholder')}
               prefixIcon="call-outline"
               keyboardType="number-pad"
               error={viewModel.errors?.phone}
@@ -212,8 +213,8 @@ export const RegisterChildScreen = () => {
               onChangeText={text =>
                 viewModel.handleInputChange('guardian_name', text)
               }
-              label={strings.child.guardianName}
-              placeholder={strings.child.guardianNamePlaceholder}
+              label={t('child.guardianName')}
+              placeholder={t('child.guardianNamePlaceholder')}
               prefixIcon="person-sharp"
               error={viewModel.errors?.guardian_name}
             />
@@ -221,8 +222,8 @@ export const RegisterChildScreen = () => {
             <CustomTextField
               value={viewModel.form.name}
               onChangeText={text => viewModel.handleInputChange('name', text)}
-              label={strings.child.childName}
-              placeholder={strings.child.childNamePlaceholder}
+              label={t('child.childName')}
+              placeholder={t('child.childNamePlaceholder')}
               prefixIcon="person-sharp"
               error={viewModel.errors?.name}
             />
@@ -242,10 +243,10 @@ export const RegisterChildScreen = () => {
               activeOpacity={0.9}
               onPress={() => setShowDatePicker(true)}
             >
-              <CustomTextField
+                <CustomTextField
                 value={viewModel.form.date_of_birth}
-                label={strings.child.dateOfBirth}
-                placeholder={strings.child.dateOfBirthPlaceholder}
+                label={t('child.dateOfBirth')}
+                placeholder={t('child.dateOfBirthPlaceholder')}
                 prefixIcon="calendar-outline"
                 error={viewModel.errors?.date_of_birth}
                 editable={false} // disable manual typing
@@ -256,8 +257,8 @@ export const RegisterChildScreen = () => {
               onChangeText={text =>
                 viewModel.handleInputChange('address', text)
               }
-              label={strings.child.address}
-              placeholder={strings.child.addressPlaceholder}
+              label={t('child.address')}
+              placeholder={t('child.addressPlaceholder')}
               prefixIcon="location-outline"
               error={viewModel.errors?.address}
             />
@@ -310,13 +311,13 @@ export const RegisterChildScreen = () => {
               </View>
             </View>
           </View> */}
-            <Text
+              <Text
               style={[
                 globalstyles.semibold_black,
                 { alignSelf: 'flex-end', fontWeight: '700', marginRight: 6 },
               ]}
             >
-              {strings.child.gender}
+              {t('child.gender')}
             </Text>
             <View style={styles.genderRow}>
               {/* Female */}
@@ -324,7 +325,7 @@ export const RegisterChildScreen = () => {
                 style={[styles.genderOption, { marginRight: 30 }]}
                 onPress={() => viewModel?.handleSelectGender('female')}
               >
-                <Text style={styles.optionText}>{strings.child.female}</Text>
+                <Text style={styles.optionText}>{t('child.female')}</Text>
                 <View
                   style={[
                     styles.checkbox,
@@ -343,7 +344,7 @@ export const RegisterChildScreen = () => {
                 style={styles.genderOption}
                 onPress={() => viewModel?.handleSelectGender('male')}
               >
-                <Text style={styles.optionText}>{strings.child.male}</Text>
+                <Text style={styles.optionText}>{t('child.male')}</Text>
                 <View
                   style={[
                     styles.checkbox,
@@ -371,12 +372,12 @@ export const RegisterChildScreen = () => {
                   },
                 ]}
               >
-                {strings.child.uploadChildPhoto}
+                {t('child.uploadChildPhoto')}
               </Text>
               {images.length === 0 && (
                 <TouchableOpacity style={styles.emptyBox} onPress={pickImage}>
                   <Ionicons name={'images-outline'} size={22} color="#3AB54A" />
-                  <Text style={styles.addText}>{strings.child.addImageHere}</Text>
+                  <Text style={styles.addText}>{t('child.addImageHere')}</Text>
                 </TouchableOpacity>
               )}
 
@@ -395,7 +396,7 @@ export const RegisterChildScreen = () => {
                     onPress={pickImage}
                     style={styles.addMoreBtn}
                   >
-                    <Text style={styles.addMoreText}>{strings.child.addMore}</Text>
+        <Text style={styles.addMoreText}>{t('child.addMore')}</Text>
                   </TouchableOpacity>
                 )}
             </View>
@@ -410,7 +411,7 @@ export const RegisterChildScreen = () => {
             ]}
             disabled={viewModel.isnextButtonDisabled}
           >
-            <Text style={styles.buttonText}>{strings.buttons.next}</Text>
+      <Text style={styles.buttonText}>{t('buttons.next')}</Text>
           </TouchableOpacity>
         </View>
         {/* <CommonButton

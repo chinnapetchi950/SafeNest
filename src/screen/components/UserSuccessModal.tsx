@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import strings from '../../localization/en';
+import { useTranslation } from "../../contexts/LanguageContext";
 
 export default function SuccessModal({
   visible,
@@ -16,6 +17,7 @@ export default function SuccessModal({
   onDone,
   onViewAccount,
 }) {
+  const { t } = useTranslation();
   return (
     <Modal transparent visible={visible} animationType="fade">
       <View style={styles.overlay}>
@@ -25,7 +27,7 @@ export default function SuccessModal({
 
           {/* GREEN HEADER */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>{strings.modal.accountCreationCard}</Text>
+            <Text style={styles.headerTitle}>{t("modal.accountCreationCard")}</Text>
 
             <TouchableOpacity onPress={onClose} style={styles.headerCloseBtn}>
               <Ionicons name="close" size={20} color="#4CAF50" />
@@ -38,11 +40,11 @@ export default function SuccessModal({
           </View>
 
           {/* MAIN TITLE */}
-          <Text style={styles.mainTitle}>{strings.modal.accountCreatedTitle}</Text>
+          <Text style={styles.mainTitle}>{t("modal.accountCreatedTitle")}</Text>
 
           {/* DESCRIPTION */}
-          <Text style={styles.description}>{strings.modal.accountCreatedDesc1}</Text>
-          <Text style={styles.description}>{strings.modal.accountCreatedDesc2}</Text>
+          <Text style={styles.description}>{t("modal.accountCreatedDesc1")}</Text>
+          <Text style={styles.description}>{t("modal.accountCreatedDesc2")}</Text>
 
           {/* DIVIDER */}
           <View style={styles.divider} />
@@ -50,11 +52,11 @@ export default function SuccessModal({
           {/* BUTTONS */}
           <View style={styles.buttonsRow}>
             <TouchableOpacity style={styles.doneBtn} onPress={onDone}>
-              <Text style={styles.doneText}>{strings.modal.done}</Text>
+              <Text style={styles.doneText}>{t("modal.done")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.viewBtn} onPress={onViewAccount}>
-              <Text style={styles.viewText}>{strings.modal.viewAccount}</Text>
+              <Text style={styles.viewText}>{t("modal.viewAccount")}</Text>
             </TouchableOpacity>
           </View>
 

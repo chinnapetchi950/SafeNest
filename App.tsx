@@ -23,7 +23,7 @@ import { navigationRef } from './src/navigations/Appnavigator';
 import GameManagementScreen from './src/screen/Settings/GamemanagementList';
 import MessageManagementScreen from './src/screen/message/MessageMenagement';
 import { PersistGate } from 'redux-persist/integration/react';
-import { store, persistor } from "./src/store/store";
+import { store,persistor } from './src/store/store';
 import WhatsAppManagementScreen from './src/screen/Settings/WhatupManagement';
 import AccountManagementScreen from './src/screen/Settings/AccountManagement';
 import WhatsappOtpScreen from './src/screen/Settings/WhatsappOtpScreen';

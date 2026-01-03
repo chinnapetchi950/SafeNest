@@ -1,5 +1,6 @@
 
 // import { useState,useEffect } from "react";
+// import { useTranslation } from '../../contexts/LanguageContext';
 // import { useDispatch, useSelector } from "react-redux";
 // import { useNavigation } from "@react-navigation/native";
 // import { createChildUser } from "../../features/auth/staffSlice/registerNewChild/createChildSlice";
@@ -549,6 +550,7 @@ import { Alert } from "react-native";
 import moment from "moment";
 import strings from '../../localization/en';
 import { launchImageLibrary } from "react-native-image-picker";
+import { useTranslation } from '../../contexts/LanguageContext';
 
 import Storage from "../../utils/storage";
 import { fetchUserList } from "../../features/auth/User/userSlice";
@@ -557,6 +559,7 @@ import { createChildUser } from "../../features/auth/staffSlice/registerNewChild
 const useFilterBottomSheetViewModel = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const {t} = useTranslation();
 
   /* -------------------- ROLE & USERS -------------------- */
   const [role, setRole] = useState<string | null>(null);
@@ -699,26 +702,27 @@ const [errors, setErrors] = useState({});
   /* -------------------- VALIDATION -------------------- */
    const validateForm = () => {
     const newErrors: any = {};
-    if (!form.phone || !form.phone.trim()) newErrors.phone = strings.validation.phoneRequired;
-    if (!form.date_of_birth) newErrors.date_of_birth = strings.validation.dateOfBirthRequired;
-    if (!form.guardian_name || !form.guardian_name.trim()) newErrors.guardian_name = strings.validation.guardianNameRequired;
-    if (!form.name || !form.name.trim()) newErrors.name = strings.validation.nameRequired;
-    if (!form.gender) newErrors.gender = strings.validation.genderRequired;
-    if (!form.address) newErrors.address = strings.validation.addressRequired;
+  const { t } = useTranslation();
+   if (!form.phone || !form.phone.trim()) newErrors.phone = t('validation.phoneRequired');
+   if (!form.date_of_birth) newErrors.date_of_birth = t('validation.dateOfBirthRequired');
+   if (!form.guardian_name || !form.guardian_name.trim()) newErrors.guardian_name = t('validation.guardianNameRequired');
+   if (!form.name || !form.name.trim()) newErrors.name = t('validation.nameRequired');
+   if (!form.gender) newErrors.gender = t('validation.genderRequired');
+   if (!form.address) newErrors.address = t('validation.addressRequired');
  if (role === "admin" && !form.user_id) {
-    newErrors.user_id = strings.validation.required;
+   newErrors.user_id = t('validation.required');
   }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
      const validateFormadd = () => {
-    const newErrors: any = {};
-    if (!childform.game_type_id) newErrors.game_type_id = strings.validation.gameTypeRequired;
-    if (!childform.play_from) newErrors.play_from = strings.validation.playFromRequired;
-    if (!childform.play_to) newErrors.play_to = strings.validation.playToRequired;
-    if (!childform.session_date) newErrors.session_date = strings.validation.sessionDateRequired;
-    if (!childform.play_duration) newErrors.play_duration = strings.validation.durationRequired;
+  const newErrors: any = {};
+    if (!childform.game_type_id) newErrors.game_type_id = t('validation.gameTypeRequired');
+    if (!childform.play_from) newErrors.play_from = t('validation.playFromRequired');
+    if (!childform.play_to) newErrors.play_to = t('validation.playToRequired');
+    if (!childform.session_date) newErrors.session_date = t('validation.sessionDateRequired');
+    if (!childform.play_duration) newErrors.play_duration = t('validation.durationRequired');
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -759,7 +763,7 @@ const [errors, setErrors] = useState({});
         const from = moment(childform.play_from, "HH:mm");
         const to = moment(time, "HH:mm");
         if (to.isSameOrBefore(from)) {
-          Alert.alert(strings.validation.playToGreaterThanPlayFromTitle || 'Validation', strings.validation.playToGreaterThanPlayFrom || 'Play To must be greater than Play From');
+          Alert.alert(t('validation.playToGreaterThanPlayFromTitle') || 'Validation', t('validation.playToGreaterThanPlayFrom') || 'Play To must be greater than Play From');
           return;
         }
       }

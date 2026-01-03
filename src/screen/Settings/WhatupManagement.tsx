@@ -18,12 +18,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import authService from "../../features/auth/authService";
 import { images } from "../../utils/images";
 import strings from "../../localization/en";
+import { useTranslation } from "../../contexts/LanguageContext";
 
 export default function WhatsAppManagementScreen({ navigation }) {
   const [enabled, setEnabled] = useState(false);
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 const [showSetupFields, setShowSetupFields] = useState(false);
+const { t } = useTranslation();
 
   /* ---------------- LOAD STATUS ---------------- */
   useEffect(() => {
@@ -60,9 +62,9 @@ if (newValue) {
       setShowSetupFields(false);
       setPhone("");
     }
-  Alert.alert(strings.alerts.success || 'Success', newValue ? strings.settings.whatsappEnabled || 'WhatsApp enabled' : strings.settings.whatsappDisabled || 'WhatsApp disabled');
+  Alert.alert(t('alerts.success') || 'Success', newValue ? t('settings.whatsappEnabled') || 'WhatsApp enabled' : t('settings.whatsappDisabled') || 'WhatsApp disabled');
     } catch {
-  Alert.alert(strings.alerts.error || 'Error', strings.settings.whatsappUpdateFailed || 'Failed to update WhatsApp');
+  Alert.alert(t('alerts.error') || 'Error', t('settings.whatsappUpdateFailed') || 'Failed to update WhatsApp');
     } finally {
       setLoading(false);
     }
@@ -71,7 +73,7 @@ if (newValue) {
   /* ---------------- SEND OTP ---------------- */
   const sendActivationCode = async () => {
     if (!isValidPhone(phone)) {
-      Alert.alert(strings.alerts.error || 'Error', strings.settings.invalidPhoneNumber || 'Enter valid phone number with country code');
+      Alert.alert(t('alerts.error') || 'Error', t('settings.invalidPhoneNumber') || 'Enter valid phone number with country code');
       return;
     }
 
@@ -81,12 +83,12 @@ if (newValue) {
       formData.append('phone_number',phone)
       await authService.sendOtp(formData);
 
-  Alert.alert(strings.alerts.success || 'Success', strings.settings.otpSent || 'OTP sent to WhatsApp');
+  Alert.alert(t('alerts.success') || 'Success', t('settings.otpSent') || 'OTP sent to WhatsApp');
   navigation.navigate("WhatsappOtpScreen");
     } catch (e) {
       console.log("e",e?.response?.data);
-      
-  Alert.alert(strings.alerts.error || 'Error', strings.settings.otpSendFailed || 'Failed to send OTP');
+
+  Alert.alert(t('alerts.error') || 'Error', t('settings.otpSendFailed') || 'Failed to send OTP');
     } finally {
       setLoading(false);
     }
@@ -97,7 +99,7 @@ if (newValue) {
       <View style={styles.container}>
         {/* HEADER */}
         <View style={styles.header}>
-          <Text style={styles.title}>{strings.settings.whatsappManagementTitle || 'WhatsApp Management'}</Text>
+          <Text style={styles.title}>{t('settings.whatsappManagementTitle') || 'WhatsApp Management'}</Text>
           <Ionicons name="chevron-forward" size={20} color="#888" />
         </View>
 
@@ -112,13 +114,13 @@ if (newValue) {
             />
 
             <View style={styles.rowRight}>
-              <Text style={styles.whatsappText}>WhatsApp</Text>
+              <Text style={styles.whatsappText}>{t('settings.whatsappText') || 'WhatsApp'}</Text>
               <Image source={images.whatApp} />
             </View>
           </View>
 
           <Text style={styles.subtitle}>
-            Connect the application to the WhatsApp service
+            {t('settings.whatsappSubtitle') || 'Connect the application to the WhatsApp service'}
           </Text>
         </View>
 
@@ -126,7 +128,7 @@ if (newValue) {
         {enabled && showSetupFields  && (
           <>
             <Text style={styles.infoText}>
-              {strings.settings.whatsappInfo || 'Please enter the phone number linked to the WhatsApp service to complete the connection and receive the activation code.'}
+              {t('settings.whatsappInfo') || 'Please enter the phone number linked to the WhatsApp service to complete the connection and receive the activation code.'}
             </Text>
 
             <Text style={styles.label}>Phone Number</Text>
@@ -134,7 +136,7 @@ if (newValue) {
             <View style={styles.inputWrapper}>
               <Ionicons name="call-outline" size={18} color="#888" />
               <TextInput
-                placeholder={strings.settings.phonePlaceholder || '+91XXXXXXXXXX'}
+                placeholder={t('settings.phonePlaceholder') || '+91XXXXXXXXXX'}
                 style={styles.input}
                 keyboardType="phone-pad"
                 value={phone}
@@ -153,7 +155,7 @@ if (newValue) {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>{strings.settings.sendOtpButton || 'Send OTP'}</Text>
+                <Text style={styles.buttonText}>{t('settings.sendOtpButton') || 'Send OTP'}</Text>
               )}
             </TouchableOpacity>
           </>

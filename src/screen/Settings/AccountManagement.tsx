@@ -15,9 +15,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const BASE_URL = "https://testlink3.pillersofttechnologies.com/storage/";
 
-import strings from '../../localization/en';
+import { useTranslation } from '../../contexts/LanguageContext';
 
 export default function AccountManagementScreen({ user }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     firstname: user?.firstname || "",
     secondname: user?.secondname || "",
@@ -40,10 +41,10 @@ export default function AccountManagementScreen({ user }) {
   /* ---------------- IMAGE PICKER ---------------- */
 
   const pickImage = (type: "national" | "residency") => {
-    Alert.alert(strings.common.upload, strings.settings.chooseImageSource, [
-      { text: strings.common.camera, onPress: () => openCamera(type) },
-      { text: strings.common.gallery, onPress: () => openGallery(type) },
-      { text: strings.common.cancel, style: "cancel" }
+    Alert.alert(t('common.upload'), t('settings.chooseImageSource'), [
+      { text: t('common.camera'), onPress: () => openCamera(type) },
+      { text: t('common.gallery'), onPress: () => openGallery(type) },
+      { text: t('common.cancel'), style: "cancel" }
     ]);
   };
 
@@ -100,7 +101,8 @@ export default function AccountManagementScreen({ user }) {
 
     console.log("FORM DATA ===>", formData);
 
-  Alert.alert(strings.common.success || 'Success', strings.settings.profileUpdatedSuccess);
+  Alert.alert(t('common.success') || 'Success', t('settings.profileUpdatedSuccess'));
+
     // 🔗 CALL UPDATE PROFILE API HERE
   };
 
@@ -117,7 +119,7 @@ export default function AccountManagementScreen({ user }) {
   return (
     <SafeAreaView style={{flex:1}}>
   <ScrollView style={styles.container}>
-      <Text style={styles.header}>Account Management</Text>
+      <Text style={styles.header}>{t('settings.accountManagementTitle') || 'Account Management'}</Text>
 
       {/* AVATAR */}
       <View style={styles.avatarWrap}>
@@ -125,7 +127,7 @@ export default function AccountManagementScreen({ user }) {
       </View>
 
       {/* PERSONAL INFO */}
-      <Section title="Personal Information" />
+  <Section title={t('user.identityInformation') || 'Personal Information'} />
       <Row>
         <Input label="Second Name" value={form.secondname} onChangeText={v => handleChange("secondname", v)} />
         <Input label="First Name" value={form.firstname} onChangeText={v => handleChange("firstname", v)} />
@@ -139,12 +141,12 @@ export default function AccountManagementScreen({ user }) {
       <Input label="Last Name" value={form.lastname} onChangeText={v => handleChange("lastname", v)} />
 
       {/* LOGIN INFO */}
-      <Section title="Login Information" />
+  <Section title={t('auth.loginInfo') || 'Login Information'} />
       <Input label="Phone Number" value={form.phone} icon="call-outline" />
       <Input label="Email" value={form.email} icon="mail-outline" />
 
       {/* IDENTITY */}
-      <Section title="Identity Information" />
+  <Section title={t('user.identityInformation') || 'Identity Information'} />
       <Input label="National ID Number" value={form.national_id_number} />
       <Upload label="Upload National ID" onPress={() => pickImage("national")} />
       {renderPreview(nationalIdImage, user?.national_id_urls?.[0])}
@@ -155,7 +157,7 @@ export default function AccountManagementScreen({ user }) {
 
       {/* SAVE */}
       <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-        <Text style={styles.saveText}>Save Changes</Text>
+        <Text style={styles.saveText}>{t('settings.saveChanges') || 'Save Changes'}</Text>
       </TouchableOpacity>
     </ScrollView>
     </SafeAreaView>

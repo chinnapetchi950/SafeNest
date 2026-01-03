@@ -8,9 +8,10 @@ import {
   Image,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import strings from '../../localization/en';
+import { useTranslation } from '../../contexts/LanguageContext';
 
 export default function ViewAccountModal({ visible, onClose, user }) {
+  const { t } = useTranslation();
   if (!user) return null;
 
   const BASE_URL = "https://testlink3.pillersofttechnologies.com/storage/";
@@ -49,19 +50,19 @@ export default function ViewAccountModal({ visible, onClose, user }) {
           </TouchableOpacity>
 
           {/* TITLE */}
-          <Text style={styles.title}>{strings.modal.accountDetails}</Text>
+          <Text style={styles.title}>{t('modal.accountDetails')}</Text>
 
           {/* USER INFO */}
           <View style={styles.infoBox}>
-            {renderRow(strings.user.firstName || 'First Name', user.firstname)}
-            {renderRow(strings.user.secondName || 'Second Name', user.secondname)}
-            {renderRow(strings.user.thirdName || 'Third Name', user.thirdname)}
-            {renderRow(strings.user.fourthName || 'Fourth Name', user.fourthname)}
-            {renderRow(strings.user.nickname || 'Nickname', user.nickname)}
-            {renderRow(strings.user.email || 'Email', user.email)}
-            {renderRow(strings.user.phoneNumber || 'Phone', user.phone)}
-            {renderRow(strings.user.nationalId || 'National ID', user.national_id_number)}
-            {renderRow(strings.user.residenceCard || 'Residency Card', user.residency_card_number)}
+            {renderRow(t('user.firstName') || 'First Name', user.firstname)}
+            {renderRow(t('user.secondName') || 'Second Name', user.secondname)}
+            {renderRow(t('user.thirdName') || 'Third Name', user.thirdname)}
+            {renderRow(t('user.fourthName') || 'Fourth Name', user.fourthname)}
+            {renderRow(t('user.nickname') || 'Nickname', user.nickname)}
+            {renderRow(t('user.email') || 'Email', user.email)}
+            {renderRow(t('user.phoneNumber') || 'Phone', user.phone)}
+            {renderRow(t('user.nationalId') || 'National ID', user.national_id_number)}
+            {renderRow(t('user.residenceCard') || 'Residency Card', user.residency_card_number)}
 
             {renderImageRow("National ID Image", user.national_id_urls)}
             {renderImageRow("Residency Card Image", user.residency_card_urls)}
@@ -69,7 +70,7 @@ export default function ViewAccountModal({ visible, onClose, user }) {
 
           {/* DONE BUTTON */}
           <TouchableOpacity style={styles.doneBtn} onPress={onClose}>
-            <Text style={styles.doneText}>{strings.modal.done}</Text>
+            <Text style={styles.doneText}>{t('modal.done')}</Text>
           </TouchableOpacity>
         </View>
       </View>

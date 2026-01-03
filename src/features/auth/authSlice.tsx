@@ -4,7 +4,8 @@ import authService from "./authService";
 import { createAsyncThunkHandlers } from "../../utils/asyncThunkHandler";
 import Storage from "../../utils/storage";
 import { Alert } from "react-native";
-import strings from "../../../localization/en";
+import { useTranslation } from "../../contexts/LanguageContext";
+const { t } = useTranslation();
 
 /* ---------------- LOGIN ---------------- */
 export const loginUser = createAsyncThunk("api/login", async (credentials, thunkAPI) => {
@@ -18,7 +19,8 @@ export const loginUser = createAsyncThunk("api/login", async (credentials, thunk
     return res.data;
   } catch (err) {
     const message = err?.response?.data?.message || err.message || "Something went wrong";
-  Alert.alert(strings.alerts.error || 'Error', message);
+  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
+
     return thunkAPI.rejectWithValue(message);
   }
 });
@@ -27,7 +29,7 @@ export const loginUser = createAsyncThunk("api/login", async (credentials, thunk
 export const logoutUser = createAsyncThunk("api/user/logout", async (_, thunkAPI) => {
   try {
     const res = await authService.logout();
-  Alert.alert(strings.alerts.success || 'Success', res?.data?.message);
+  Alert.alert(t("alerts.success") || 'Success', res?.data?.message || t("alerts.success"));
 
     await Storage.removeItem("token");
     await Storage.removeItem("admin");
@@ -35,7 +37,8 @@ export const logoutUser = createAsyncThunk("api/user/logout", async (_, thunkAPI
     return true;
   } catch (err) {
     const message = err?.response?.data?.message || err.message || "Logout failed";
-  Alert.alert(strings.alerts.error || 'Error', message);
+  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
+
     return thunkAPI.rejectWithValue(message);
   }
 });
@@ -50,7 +53,7 @@ export const deleteUserAccount = createAsyncThunk("api/user/delete-account", asy
 
       
     const res = await authService.delete_account(formData);
-  Alert.alert(strings.alerts.accountDeleted || 'Account Deleted', res?.data?.message);
+  Alert.alert(t("alerts.accountDeleted") || 'Account Deleted', res?.data?.message || t("alerts.accountDeleted"));
 
     await Storage.removeItem("token");
     await Storage.removeItem("admin");
@@ -58,7 +61,8 @@ export const deleteUserAccount = createAsyncThunk("api/user/delete-account", asy
     return true;
   } catch (err) {
     const message = err?.response?.data?.message || err.message || "Account deletion failed";
-  Alert.alert(strings.alerts.error || 'Error', message);
+  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
+
     return thunkAPI.rejectWithValue(message);
   }
 });
@@ -73,15 +77,16 @@ export const changePassword = createAsyncThunk(
       console.log("------------------>",res?.data);
       
 
-  Alert.alert(strings.alerts.success || 'Success', res?.data?.message || strings.auth.passwordsDoNotMatch || 'Password changed successfully');
- 
+  Alert.alert(t("alerts.success") || 'Success', res?.data?.message || t("auth.passwordsDoNotMatch") || 'Password changed successfully');
+
       return res.data;
     } catch (err) {
       console.log("Change Password Error --->",  err?.response?.data); // PRINT FULL ERROR
       const message =
         err?.response?.data?.message || err.message || "Failed to change password";
 
-  Alert.alert(strings.alerts.error || 'Error', message);
+  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
+
       return thunkAPI.rejectWithValue(message);
     }
   }

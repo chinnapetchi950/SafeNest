@@ -14,6 +14,7 @@ import apiClient from '../../api/apiClient';
 import authService from '../../features/auth/authService';
 import { timeAgo } from '../../utils/dateTime';
 import strings from '../../localization/en';
+import { useTranslation } from '../../contexts/LanguageContext';
 export default function NotificationScreen({navigation}) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -21,6 +22,7 @@ export default function NotificationScreen({navigation}) {
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
+  const {t}=useTranslation();
 
   useEffect(() => {
     fetchNotifications(1);
@@ -57,17 +59,17 @@ console.log(pagination);
 
   /* ---------------- DELETE NOTIFICATION ---------------- */
   const deleteNotification = async (id: number) => {
-    Alert.alert(strings.common.delete, strings.alerts.deleteConfirm, [
-      { text: strings.common.cancel },
+    Alert.alert(t('common.delete'), t('alerts.deleteConfirm'), [
+      { text: t('common.cancel') },
       {
-        text: strings.common.delete,
+        text: t('common.delete'),
         style: 'destructive',
         onPress: async () => {
           try {
             const res = await authService.deletenotification(id);
             console.log(res, 'responsedelete');
             if(res?.status){
-              Alert.alert(strings.alerts.success, res.data?.message)
+              Alert.alert(t('alerts.success'), res.data?.message)
               setNotifications(prev => prev.filter(item => item.id !== id));
             }
 
@@ -174,7 +176,7 @@ console.log(pagination);
         {loadingMore ? (
           <ActivityIndicator color="#764AF1" />
         ) : (
-          <Text style={styles.viewAllText}>{strings.dashboard.loadMore}</Text>
+          <Text style={styles.viewAllText}>{t('dashboard.loadMore')}</Text>
         )}
       </TouchableOpacity>
     );

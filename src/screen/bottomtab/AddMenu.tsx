@@ -2,7 +2,7 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated, Dimensions, TextInput } from "react-native";
-import strings from "../../localization/en";
+import { useTranslation } from '../../contexts/LanguageContext';
 import { colors } from "../../styles/colors";
 import globalstyles from "../../styles/globalstyles";
 import { useNavigation } from "@react-navigation/native";
@@ -12,10 +12,11 @@ import { RegisterChildScreen } from '../staff/registerchild/RegisterChild';
 const { height } = Dimensions.get("window");
 
 const AddMenuModal = ({ visible, onClose }) => {
+  const { t } = useTranslation();
   const options = [
-    { id: 1, label: strings.addMenu.addGame, icon: "game-controller-outline" , screen: "RegisterNewGame"},
-    { id: 2, label: strings.addMenu.addUser, icon: "person-add-outline" , screen: "AccountTypeScreen"},
-    { id: 3, label: strings.addMenu.registerChild, icon: "people-outline", screen: "RegisterChildScreen" },
+    { id: 1, label: t('addMenu.addGame'), icon: "game-controller-outline" , screen: "RegisterNewGame"},
+    { id: 2, label: t('addMenu.addUser'), icon: "person-add-outline" , screen: "AccountTypeScreen"},
+    { id: 3, label: t('addMenu.registerChild'), icon: "people-outline", screen: "RegisterChildScreen" },
   ];
   const navigation = useNavigation();
   const handleSelect = (item) => {
@@ -56,52 +57,46 @@ const AddMenuModal = ({ visible, onClose }) => {
 
 export default AddMenuModal;
 
-
-
 export const AddMenuModalStaff = ({ visible, onClose }) => {
   const [showChildSheet, setShowChildSheet] = useState(false);
   const slideAnim = useState(new Animated.Value(height))[0];
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
-  const options = [
+ const options = [
     {
       id: 1,
-      label: "Add a new game",
+      label: t('addMenu.addGame'),
       icon: "game-controller-outline",
       screen: "UserInformationScreen",
     },
     {
       id: 2,
-      label: "Register a new child",
+      label: t('addMenu.registerChild'),
       icon: "people-outline",
-       screen: "UserInformationScreen",
+      screen: "UserInformationScreen",
     },
   ];
 
-  const handleSelect = (item) => {
-    // Close main menu first
-    onClose();
-
-    if (item.id === 3) {
-      // Wait for main modal to close before opening bottom sheet
-      setTimeout(() => {
-        openBottomSheet();
-      }, 300); // Delay matches animationType="fade" duration
-    } else {
-      // Navigate for normal item
-  label: strings.addMenu.addGame,
-        navigation.navigate(item.screen);
-      }, 300);
-    }
-  };
-
-  label: strings.addMenu.registerChild,
+  const openBottomSheet = () => {
     setShowChildSheet(true);
     Animated.timing(slideAnim, {
       toValue: 0,
       duration: 300,
       useNativeDriver: true,
     }).start();
+  };
+
+  const handleSelect = (item) => {
+    onClose();
+
+    setTimeout(() => {
+      if (item.id === 2) {
+        openBottomSheet();
+      } else {
+        navigation.navigate(item.screen);
+      }
+    }, 300);
   };
 
   const closeBottomSheet = () => {
@@ -136,6 +131,7 @@ export const AddMenuModalStaff = ({ visible, onClose }) => {
                 >
                   {item.label}
                 </Text>
+
                 <View
                   style={{
                     backgroundColor: colors.lightgrey,
@@ -157,7 +153,6 @@ export const AddMenuModalStaff = ({ visible, onClose }) => {
         <View style={styles.sheetOverlay}>
           <TouchableOpacity
             style={styles.backgroundTouch}
-      {item.label}
             onPress={closeBottomSheet}
           />
           <Animated.View
@@ -173,6 +168,123 @@ export const AddMenuModalStaff = ({ visible, onClose }) => {
     </>
   );
 };
+
+
+// export const AddMenuModalStaff = ({ visible, onClose }) => {
+//   const [showChildSheet, setShowChildSheet] = useState(false);
+//   const slideAnim = useState(new Animated.Value(height))[0];
+//   const navigation = useNavigation();
+
+//   const options = [
+//     {
+//       id: 1,
+//       label: "Add a new game",
+//       icon: "game-controller-outline",
+//       screen: "UserInformationScreen",
+//     },
+//     {
+//       id: 2,
+//       label: "Register a new child",
+//       icon: "people-outline",
+//        screen: "UserInformationScreen",
+//     },
+//   ];
+
+//   const handleSelect = (item) => {
+//     // Close main menu first
+//     onClose();
+
+//     if (item.id === 3) {
+//       // Wait for main modal to close before opening bottom sheet
+//       setTimeout(() => {
+//         openBottomSheet();
+//       }, 300); // Delay matches animationType="fade" duration
+//     } else {
+//       // Navigate for normal item
+//   label: strings.addMenu.addGame,
+//         navigation.navigate(item.screen);
+//       }, 300);
+//     }
+//   };
+
+//   label: strings.addMenu.registerChild,
+//     setShowChildSheet(true);
+//     Animated.timing(slideAnim, {
+//       toValue: 0,
+//       duration: 300,
+//       useNativeDriver: true,
+//     }).start();
+//   };
+
+//   const closeBottomSheet = () => {
+//     Animated.timing(slideAnim, {
+//       toValue: height,
+//       duration: 300,
+//       useNativeDriver: true,
+//     }).start(() => setShowChildSheet(false));
+//   };
+
+//   return (
+//     <>
+//       {/* 🟣 Floating Menu Modal */}
+//       <Modal transparent visible={visible} animationType="fade">
+//         <TouchableOpacity
+//           style={styles.overlay}
+//           activeOpacity={1}
+//           onPress={onClose}
+//         >
+//           <View style={styles.menuContainer}>
+//             {options.map((item, index) => (
+//               <TouchableOpacity
+//                 key={item.id}
+//                 style={[
+//                   styles.menuItem,
+//                   index === options.length - 1 && styles.menuItemLast,
+//                 ]}
+//                 onPress={() => handleSelect(item)}
+//               >
+//                 <Text
+//                   style={[globalstyles.regular_FontMedium, styles.menuText]}
+//                 >
+//                   {item.label}
+//                 </Text>
+//                 <View
+//                   style={{
+//                     backgroundColor: colors.lightgrey,
+//                     borderRadius: 25,
+//                     padding: 8,
+//                   }}
+//                 >
+//                   <Ionicons name={item.icon} size={22} color="#A1A1AA" />
+//                 </View>
+//               </TouchableOpacity>
+//             ))}
+//             <View style={styles.pointer} />
+//           </View>
+//         </TouchableOpacity>
+//       </Modal>
+
+//       {/* 🟢 Child Registration Bottom Sheet */}
+//       <Modal transparent visible={showChildSheet} animationType="fade">
+//         <View style={styles.sheetOverlay}>
+//           <TouchableOpacity
+//             style={styles.backgroundTouch}
+//       {item.label}
+//             onPress={closeBottomSheet}
+//           />
+//           <Animated.View
+//             style={[
+//               styles.bottomSheet,
+//               { transform: [{ translateY: slideAnim }] },
+//             ]}
+//           >
+//             <ChildRegisterSheet onClose={closeBottomSheet} />
+//           </Animated.View>
+//         </View>
+//       </Modal>
+//     </>
+//   );
+// };
 const styles = StyleSheet.create({
   genderRow: {
   flexDirection: "row",
