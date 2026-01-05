@@ -1,6 +1,6 @@
 
 // import { useState,useEffect } from "react";
-// import { useTranslation } from '../../contexts/LanguageContext';
+// import { useTranslation } from 'react-i18next'; } from '../../contexts/LanguageContext';
 // import { useDispatch, useSelector } from "react-redux";
 // import { useNavigation } from "@react-navigation/native";
 // import { createChildUser } from "../../features/auth/staffSlice/registerNewChild/createChildSlice";
@@ -550,7 +550,7 @@ import { Alert } from "react-native";
 import moment from "moment";
 import strings from '../../localization/en';
 import { launchImageLibrary } from "react-native-image-picker";
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 import Storage from "../../utils/storage";
 import { fetchUserList } from "../../features/auth/User/userSlice";

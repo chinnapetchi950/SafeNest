@@ -13,7 +13,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomTextField from '../components/TextFieldComponent';
 import globalstyles from '../../styles/globalstyles';
 import { useLoginViewModel } from '../../viewmodels/loginViewModel';
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
+import LanguageHeader from '../components/Language';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -23,7 +24,8 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-
+      <LanguageHeader headerContainerStyle={{paddingHorizontal: 20, elevation: 0}}
+        showLanguage/>
       {/* Main content area */}
       <View style={styles.container}>
         <View style={styles.formWrapper}>

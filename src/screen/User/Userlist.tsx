@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import SearchBar from "../components/Searchcomponent";
 import { useDashboardViewModel } from "../../viewmodels/useDashboardViewModel";
 import Ionicons from "react-native-vector-icons/Ionicons";

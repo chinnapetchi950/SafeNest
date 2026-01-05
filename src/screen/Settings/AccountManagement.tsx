@@ -15,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const BASE_URL = "https://testlink3.pillersofttechnologies.com/storage/";
 
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 export default function AccountManagementScreen({ user }) {
   const { t } = useTranslation();
@@ -129,30 +129,30 @@ export default function AccountManagementScreen({ user }) {
       {/* PERSONAL INFO */}
   <Section title={t('user.identityInformation') || 'Personal Information'} />
       <Row>
-        <Input label="Second Name" value={form.secondname} onChangeText={v => handleChange("secondname", v)} />
-        <Input label="First Name" value={form.firstname} onChangeText={v => handleChange("firstname", v)} />
+        <Input label={t('form.secondName') || "Second Name"} value={form.secondname} onChangeText={v => handleChange("secondname", v)} />
+        <Input label={t('form.firstName') || "First Name"} value={form.firstname} onChangeText={v => handleChange("firstname", v)} />
       </Row>
 
       <Row>
-        <Input label="Fourth Name" value={form.fourthname} onChangeText={(v: string) => handleChange("fourthname", v)} />
-        <Input label="Third Name" value={form.thirdname} onChangeText={(v: string) => handleChange("thirdname", v)} />
+        <Input label={t('form.fourthName') || "Fourth Name"} value={form.fourthname} onChangeText={(v: string) => handleChange("fourthname", v)} />
+        <Input label={t('form.thirdName') || "Third Name"} value={form.thirdname} onChangeText={(v: string) => handleChange("thirdname", v)} />
       </Row>
 
-      <Input label="Last Name" value={form.lastname} onChangeText={v => handleChange("lastname", v)} />
+      <Input label={t('form.lastName') || "Last Name"} value={form.lastname} onChangeText={v => handleChange("lastname", v)} />
 
       {/* LOGIN INFO */}
   <Section title={t('auth.loginInfo') || 'Login Information'} />
-      <Input label="Phone Number" value={form.phone} icon="call-outline" />
-      <Input label="Email" value={form.email} icon="mail-outline" />
+      <Input label={t('form.phoneNumber') || "Phone Number"} value={form.phone} icon="call-outline" />
+      <Input label={t('form.email') || "Email"} value={form.email} icon="mail-outline" />
 
       {/* IDENTITY */}
   <Section title={t('user.identityInformation') || 'Identity Information'} />
-      <Input label="National ID Number" value={form.national_id_number} />
-      <Upload label="Upload National ID" onPress={() => pickImage("national")} />
+      <Input label={t('form.nationalIdNumber') || "National ID Number"} value={form.national_id_number} />
+      <Upload label={t('form.uploadNationalId') || "Upload National ID"} onPress={() => pickImage("national")} />
       {renderPreview(nationalIdImage, user?.national_id_urls?.[0])}
 
-      <Input label="Residency Card Number" value={form.residency_card_number} />
-      <Upload label="Upload Residency Card" onPress={() => pickImage("residency")} />
+      <Input label={t('form.residencyCardNumber') || "Residency Card Number"} value={form.residency_card_number} />
+      <Upload label={t('form.uploadResidencyCard') || "Upload Residency Card"} onPress={() => pickImage("residency")} />
       {renderPreview(residencyImage, user?.residency_card_urls?.[0])}
 
       {/* SAVE */}

@@ -13,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import ProgressBarRTL from '../../components/ProgressLine';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from '../../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const AccountTypeScreen = () => {
   const { t } = useTranslation();

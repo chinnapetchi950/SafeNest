@@ -18,7 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import authService from "../../features/auth/authService";
 import { images } from "../../utils/images";
 import strings from "../../localization/en";
-import { useTranslation } from "../../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next';
 
 export default function WhatsAppManagementScreen({ navigation }) {
   const [enabled, setEnabled] = useState(false);

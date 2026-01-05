@@ -21,7 +21,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { fetchGameTypes } from '../../../features/auth/staffSlice/registerNewChild/createChildSlice';
 import BottomTabsStaff from '../BottomTabStaff';
 import Storage from '../../../utils/storage';
-import { useTranslation } from '../../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 const SessionDetailsScreen = ({ route, navigation }) => {
   const { t } = useTranslation();
   const viewModel = useFilterBottomSheetViewModel();

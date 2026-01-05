@@ -7,7 +7,7 @@
 // import { SafeAreaView } from "react-native-safe-area-context";
 // import strings from "../../localization/en";
 // import Icon from 'react-native-vector-icons/Feather';
-// import { useTranslation } from "../../contexts/LanguageContext";
+// import { useTranslation } from 'react-i18next'; } from 'react-i18next';
 
 
 // const DashboardScreen = () => {
@@ -184,7 +184,7 @@ import LineChartCard from "../components/LineChart";
 import BarChartCard from "../components/BarChart";
 
 import { colors } from "../../styles/colors";
-import { useTranslation } from "../../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next';
 import { useDashboardViewModel } from "../../viewmodels/adminDashboard/adminDashboardViewmodal";
 import Icon from "react-native-vector-icons/Feather";
 import DashboardFilterModal from "../components/DashboardFiltermodal";
@@ -230,11 +230,11 @@ useEffect(() => {
   columnWrapperStyle={{ justifyContent: "space-between", marginBottom: 10 }}
   renderItem={({ item }) => (
     <DashboardCard
-      title={`Children ${item.period}`}   // ✅ REQUIRED
+      title={t('dashboard.childrenForPeriod').replace('{period}', `${item.period}`)}
       subtitle={t("dashboard.childrenCount")}
-      value={item.current_value}          // ✅ current_value
-      percent={`${item.percentage}%`}     // ✅ percentage
-      trend={item.trend}                  // up / down
+      value={item.current_value}
+      percent={`${item.percentage}%`}
+      trend={item.trend}
     />
   )}
 />

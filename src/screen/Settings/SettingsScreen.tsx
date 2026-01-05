@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity,Alert ,ActivityIndicator} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import globalstyles from '../../styles/globalstyles';
 import { logoutUser,deleteUserAccount } from '../../features/auth/authSlice';
 import Storage from '../../utils/storage';
@@ -310,7 +310,7 @@ const getFinalProfileImageUrl = (profile_image) => {
               { textAlign: 'right', fontSize: 18, marginRight: 20 },
             ]}
           >
-            {t('settings.deleteAccount')}
+            {t('settings.deleteAccountTitle')}
           </Text>
           <Ionicons name="trash-outline" size={22} color="#A78BFA" />
         </View>

@@ -109,7 +109,7 @@ import { setLoading } from "../features/auth/loadingSlice.tsx/loadingSlices";
 import { Alert } from "react-native";
 import strings from "../localization/en";
 import { navigationRef } from "../navigations/Appnavigator";
-import usetranslation, { useTranslation } from "../contexts/LanguageContext";
+import { translate, getGlobalTranslations } from "../contexts/translationService";
 const axiosInstance = axios.create({
   baseURL: "https://testlink3.pillersofttechnologies.com/",
   headers: {
@@ -179,7 +179,6 @@ axiosInstance.interceptors.response.use(
   async (error) => {
   const { response } = error;
   store.dispatch(setLoading(false));
-const {t}=useTranslation()
     // 1️⃣ Detect expired token returning HTML (backend sends login page)
     if (
       response?.status === 500 &&
@@ -190,9 +189,9 @@ const {t}=useTranslation()
 
       await Storage.removeItem("token");
 
-      Alert.alert(t('alerts.sessionExpiredTitle') || 'Session Expired', t('alerts.sessionExpiredMessage') || 'Your login has expired. Please login again.', [
+      Alert.alert(translate('alerts.sessionExpiredTitle') || 'Session Expired', translate('alerts.sessionExpiredMessage') || 'Your login has expired. Please login again.', [
     {
-      text: strings.common.ok || 'OK',
+      text: getGlobalTranslations().common?.ok || 'OK',
       onPress: () => {
         if (navigationRef.isReady()) {
           navigationRef.navigate('Login');
@@ -210,9 +209,9 @@ const {t}=useTranslation()
     if (response?.status === 401) {
       await Storage.removeItem("token");
 
-      Alert.alert(t('alerts.sessionExpiredTitle') || 'Session Expired', t('alerts.sessionExpiredMessage') || 'Your login has expired. Please login again.', [
+      Alert.alert(translate('alerts.sessionExpiredTitle') || 'Session Expired', translate('alerts.sessionExpiredMessage') || 'Your login has expired. Please login again.', [
     {
-      text: strings.common.ok || 'OK',
+      text: getGlobalTranslations().common?.ok || 'OK',
       onPress: () => {
         if (navigationRef.isReady()) {
           navigationRef.navigate('Login');

@@ -12,7 +12,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useRegisterGameViewModel } from "../../viewmodels/registerNewgameViewmodal";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import authService from "../../features/auth/authService";
 import MinutePicker from "../components/MunitePicker";
 import DatePickerInput from "../components/Datepicker";
@@ -137,7 +137,7 @@ const onSuccess=() => {
               activeTab === "saved" && styles.activeTabText,
             ]}
           >
-            Saved Messages
+            {t('messageManagement.savedMessages')}
           </Text>
         </TouchableOpacity>
 
@@ -214,20 +214,27 @@ const CreateMessageForm = ({onSuccess,editItem,isEditMode}) => {
   const [messageName, setMessageName] = useState("");
   const [messageContent, setMessageContent] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const { t } = useTranslation();
   // const viewModel = useRegisterGameViewModel();
-const [msglist,setmsglist]=useState([{'id':1, 'name':'End of the working hours'},{'id':2, 'name':'Alert Message'},{'id':3, 'name':'Reward Message'},{'id':3, 'name':'General Message'}])
+// const [msglist,setmsglist]=useState([{'id':1, 'name':'End of the working hours'},{'id':2, 'name':'Alert Message'},{'id':3, 'name':'Reward Message'},{'id':3, 'name':'General Message'}])
   const [selectedType, setSelectedType] = useState("");
+  const MESSAGE_TYPES = {
+  END_WORK: "end_work",
+  ALERT: "alert",
+  REWARD: "reward",
+  GENERAL: "general",
+};
+const msglist = [
+  { id: 1, type: MESSAGE_TYPES.END_WORK, label: t("messageManagement.endWork") },
+  { id: 2, type: MESSAGE_TYPES.ALERT, label: t("messageManagement.alert") },
+  { id: 3, type: MESSAGE_TYPES.REWARD, label: t("messageManagement.reward") },
+  { id: 4, type: MESSAGE_TYPES.GENERAL, label: t("messageManagement.general") },
+];
 useEffect(() => {
-  if (isEditMode && editItem) {
-    const mapType = {
-      end_work: "End of the working hours",
-      alert: "Alert Message",
-      reward: "Reward Message",
-      general: "General Message",
-    };
-    setSelectedType(mapType[editItem.type]);
-  }
-}, [isEditMode, editItem]);
+    if (isEditMode && editItem?.type) {
+      setSelectedType(editItem.type); // 🔥 store backend type directly
+    }
+  }, [isEditMode, editItem]);
   // const saveMessage = () => {
   //   if (!messageName || !messageContent) {
   //     Alert.alert("Error", "Please fill all fields");
@@ -239,8 +246,8 @@ useEffect(() => {
 
   return (
     <ScrollView style={{ flex: 1, paddingHorizontal: 20, }}>
-       <Text style={styles.addMsgTitle}>Select Message Type</Text>
-      
+       <Text style={styles.addMsgTitle}>{t("messageManagement.selectMessageType")}</Text>
+
               <TouchableOpacity  style={{marginTop:8}} onPress={() => setModalVisible(!modalVisible)}>
                 <View style={styles.msgInputBox}>
                   <Ionicons
@@ -249,7 +256,7 @@ useEffect(() => {
                     color="#999"
                   />
                   <Text style={{ color:selectedType?"#000": "#888" }}>
-                    {selectedType || "Select message"}
+                    {selectedType || t("messageManagement.selectMessage")}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -258,19 +265,18 @@ useEffect(() => {
                 <View style={styles.messageBox}>
                   {msglist.map((msg) => (
         <View key={msg.id} style={styles.msgRow}>
-          <Text style={styles.msgLabel}>{msg.name}</Text> {/* use name */}
+          <Text style={styles.msgLabel}>{msg.label}</Text> {/* use label */}
           <TouchableOpacity
             onPress={() => {
-              setSelectedType(msg?.name)
-              //handleMessageSelect(msg);
-              setModalVisible(false); // close modal on select
+               setSelectedType(msg.type);
+  setModalVisible(false); // close modal on select
             }}
             style={[
               styles.checkbox,
-              selectedType === msg.name && styles.checkboxChecked,
+              selectedType === msg.type && styles.checkboxChecked,
             ]}
           >
-            {selectedType ===msg.name && (
+            {selectedType ===msg.type && (
                <Ionicons name="checkmark" size={16} color="#fff" />
             )}
           </TouchableOpacity>
@@ -279,10 +285,10 @@ useEffect(() => {
       
                 </View>
               )}
-               {selectedType === "End of the working hours" && <WorkingHoursForm onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode}/>}
-      {selectedType === "Alert Message" && <AlertMessageForm onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode} />}
-      {selectedType === "Reward Message" && <RewardMessageForm onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode}/>}
-      {selectedType === "General Message" && <GeneralMessageForm  onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode}/>}
+               {selectedType === MESSAGE_TYPES.END_WORK && <WorkingHoursForm onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode}/>}
+      {selectedType === MESSAGE_TYPES.ALERT && <AlertMessageForm onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode} />}
+      {selectedType === MESSAGE_TYPES.REWARD && <RewardMessageForm onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode}/>}
+      {selectedType === MESSAGE_TYPES.GENERAL && <GeneralMessageForm  onSuccess={onSuccess} editItem={editItem} isEditMode={isEditMode}/>}
 
       <View style={{ height: 50 }} />
       

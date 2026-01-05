@@ -14,7 +14,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import CustomTextField from "../components/TextFieldComponent";
 import DropDownPicker from "react-native-dropdown-picker";
 import globalstyles from "../../styles/globalstyles";
-import { useTranslation } from "../../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next';
 const FilterBottomSheet = ({
   visible,
   onClose,

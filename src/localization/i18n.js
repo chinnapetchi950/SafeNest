@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import en from './en';
 import ar from './ar';
+// import fr from './fr';
 
 const LANGUAGE_KEY = '@app_language';
 

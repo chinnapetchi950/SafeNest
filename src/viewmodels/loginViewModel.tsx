@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import Storage from "../utils/storage";
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, getToken } from '@react-native-firebase/messaging';
-import { useTranslation } from "../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next';
 export const useLoginViewModel = () => {
 
   const dispatch = useDispatch();

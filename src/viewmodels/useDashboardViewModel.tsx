@@ -9,7 +9,7 @@ import { childHandover } from "../features/auth/staffSlice/registerNewChild/crea
 import { Alert } from "react-native";
 import strings from "../localization/en";
 import authService from "../features/auth/authService";
-import { useTranslation } from "../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next';
 
 export const useDashboardViewModel = () => {
   const dispatch = useDispatch();

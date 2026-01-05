@@ -32,7 +32,7 @@ import moment from 'moment';
 import ChildHandoverConfirmation from './ChildHandoverConfirmation';
 import { setLoading } from '../../features/auth/loadingSlice.tsx/loadingSlices';
 import { useDispatch } from 'react-redux';
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next'; 
 
 export default function Dashboard({navigation,route}) {
   const viewModel = useDashboardViewModel();

@@ -3,7 +3,7 @@ import { Asset, ImageLibraryOptions, ImagePickerResponse, launchImageLibrary } f
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../features/auth/staffSlice/registerSlice";
 import { Alert } from "react-native";
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const useUserInformationViewModel = () => {
   const dispatch = useDispatch();

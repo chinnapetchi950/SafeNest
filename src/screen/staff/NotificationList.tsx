@@ -14,7 +14,7 @@ import apiClient from '../../api/apiClient';
 import authService from '../../features/auth/authService';
 import { timeAgo } from '../../utils/dateTime';
 import strings from '../../localization/en';
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 export default function NotificationScreen({navigation}) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);

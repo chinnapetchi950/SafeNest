@@ -2,7 +2,7 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Animated, Dimensions, TextInput } from "react-native";
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { colors } from "../../styles/colors";
 import globalstyles from "../../styles/globalstyles";
 import { useNavigation } from "@react-navigation/native";

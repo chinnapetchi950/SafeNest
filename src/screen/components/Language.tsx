@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, Modal, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+} from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { RFValue } from "react-native-responsive-fontsize";
-import { StatusBar } from "react-native";
-import { useTranslation } from "../../contexts/LanguageContext";
-import { changeLanguage } from "i18next";
+import { useTranslation } from 'react-i18next';
 
-const CustomHeader = ({
-  title,
+const LanguageHeader = ({
+  title = "",
   showLanguage = true,
-  onLanguageChange = (lang) => {},
+  onLanguageChange = () => {},
   leftComponent = null,
   rightComponent = null,
-  headertextstyle,
+  headerTextStyle,
   headerContainerStyle = {},
 }) => {
+  // ✅ Correct hook usage
   const { t, i18n } = useTranslation();
+
   const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState(i18n.language || "en");
+  const [currentLanguage, setCurrentLanguage] = useState(
+    i18n.language || "en"
+  );
 
   useEffect(() => {
     setCurrentLanguage(i18n.language || "en");
@@ -26,36 +35,29 @@ const CustomHeader = ({
   const toggleDropdown = () => setDropdownVisible(!dropdownVisible);
 
   const selectLanguage = async (langCode) => {
-    const langMap = { "En": "en", "Fr": "fr" };
-    const code = langMap[langCode] || langCode.toLowerCase();
-    await changeLanguage(code);
-    setCurrentLanguage(code);
-    onLanguageChange(code);
+    await i18n.changeLanguage(langCode); // ✅ correct
+    setCurrentLanguage(langCode);
+    onLanguageChange(langCode);
     setDropdownVisible(false);
   };
 
-  const getLanguageDisplay = (code) => {
-    return code === "en" || code === "En" ? "En" : "Fr";
-  };
+  const getLanguageDisplay = (code) => (code === "ar" ? "Ar" : "En");
 
   const languages = [
-    { code: "En", label: t("language.english") },
-    { code: "Fr", label: t("language.french") },
+    { code: "en", label: t("language.english") },
+    { code: "ar", label: t("language.arabic") },
   ];
 
   return (
-<View style={[styles.container, headerContainerStyle]}>
-      <StatusBar backgroundColor="white" barStyle="dark-content" />
+    <View style={[styles.container, headerContainerStyle]}>
+      <StatusBar backgroundColor="#fff" barStyle="dark-content" />
 
-      {/* Header Row */}
-      <View style={[styles.headerRow]}>
-        {/* Left Custom Component */}
+      <View style={styles.headerRow}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           {leftComponent}
-          <Text style={[styles.title, headertextstyle]}>{title}</Text>
+          <Text style={[styles.title, headerTextStyle]}>{title}</Text>
         </View>
 
-        {/* Right Area */}
         {rightComponent ? (
           rightComponent
         ) : (
@@ -63,14 +65,19 @@ const CustomHeader = ({
             <View>
               <TouchableOpacity style={styles.langBox} onPress={toggleDropdown}>
                 <Image
-                  source={require("../assets/images/flag.png")}
+                  source={require("../../../assets/images/flag.png")}
                   style={styles.flag}
                 />
-                <Text style={styles.langText}>{getLanguageDisplay(currentLanguage)}</Text>
-                <Ionicons name={dropdownVisible ? "chevron-up" : "chevron-down"} size={16} color="#555" />
+                <Text style={styles.langText}>
+                  {getLanguageDisplay(currentLanguage)}
+                </Text>
+                <Ionicons
+                  name={dropdownVisible ? "chevron-up" : "chevron-down"}
+                  size={16}
+                  color="#555"
+                />
               </TouchableOpacity>
 
-              {/* Dropdown Below Icon */}
               {dropdownVisible && (
                 <View style={styles.dropdown}>
                   {languages.map((lang) => (
@@ -92,7 +99,9 @@ const CustomHeader = ({
   );
 };
 
-export default CustomHeader;
+export default LanguageHeader;
+
+
 
 const styles = StyleSheet.create({
   container: {

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import moment from "moment";
 import strings from "../../localization/en";
-import { useTranslation } from "../../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next';
 
 const ChildHandoverConfirmation = ({ data, onClose,onconfirm }) => {
   const child = JSON.parse(data?.barcode)

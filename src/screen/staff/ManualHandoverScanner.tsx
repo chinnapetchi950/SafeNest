@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { BarcodeScanner, CameraView } from "@pushpendersingh/react-native-scanner";
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const ManualHandoverScanner = ({ navigation }) => {
   const [scanned, setScanned] = useState(false);

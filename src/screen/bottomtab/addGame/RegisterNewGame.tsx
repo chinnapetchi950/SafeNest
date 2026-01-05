@@ -14,7 +14,7 @@ import globalstyles from "../../../styles/globalstyles";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRegisterGameViewModel } from "../../../viewmodels/registerNewgameViewmodal";
 import SuccessModal from "../../components/SuccessModal/SuccessModal";
-import { useTranslation } from "../../../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next'; 
 
 export default function RegisterNewGame({navigation}) {
   const viewModel = useRegisterGameViewModel();

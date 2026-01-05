@@ -24,7 +24,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import useRegisterChildViewModel from '../../../viewmodels/useRegisterChildViewModel';
 import Storage from '../../../utils/storage';
-import { useTranslation } from '../../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 export const RegisterChildScreen = () => {
   const navigation = useNavigation();
   const viewModel = useFilterBottomSheetViewModel();

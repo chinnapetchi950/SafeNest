@@ -40,6 +40,8 @@ export default {
   "dateOfBirthPlaceholder": "YYYY/MM/DD",
   "phoneNumber": "رقم الهاتف",
   "phoneNumberPlaceholder": "XXXXXXXXXXX",
+    "cancel": "إلغاء",
+    "success": "تم بنجاح"
 
   },
 
@@ -89,9 +91,16 @@ export default {
 "emailInvalid": "يرجى إدخال عنوان بريد إلكتروني صالح",
 "passwordRequired": "كلمة المرور مطلوبة",
 "passwordMinLength": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+    "loginInfo": "معلومات تسجيل الدخول"
+
 
   },
-
+gameManagement: {
+  title: "إدارة الألعاب",
+  currentGames: "الألعاب الحالية",
+  pastGames: "الألعاب السابقة",
+  noGamesFound: "لم يتم العثور على ألعاب",
+},
   // ========== DASHBOARD ==========
   dashboard: {
     "title": "SafeNest",
@@ -103,6 +112,7 @@ export default {
 "numberOfChildren": "عدد الأطفال",
 "children": "الأطفال",
 "currentDate": "15 أبريل 2025",
+"childrenForPeriod": "الأطفال {period}",
 "loadMore": "تحميل المزيد",
 "endSession": "إنهاء الجلسة",
 "deliver": "تسليم",
@@ -117,10 +127,23 @@ export default {
 "cameraRequired": "إذن الكاميرا مطلوب",
 "scanCode": "مسح الرمز"
   },
-
+"form": {
+    "firstName": "الاسم الأول",
+    "secondName": "الاسم الثاني",
+    "thirdName": "الاسم الثالث",
+    "fourthName": "الاسم الرابع",
+    "lastName": "اسم العائلة",
+    "phoneNumber": "رقم الهاتف",
+    "email": "البريد الإلكتروني",
+    "nationalIdNumber": "رقم الهوية الوطنية",
+    "residencyCardNumber": "رقم بطاقة الإقامة",
+    "uploadNationalId": "رفع الهوية الوطنية",
+    "uploadResidencyCard": "رفع بطاقة الإقامة"
+  },
   // ========== USER REGISTRATION ==========
   user: {
    "identityInformation": "معلومات الهوية",
+   "personalInformation": "المعلومات الشخصية",
 "accountType": "نوع الحساب",
 "userInformation": "معلومات المستخدم",
 "accountInformation": "معلومات الحساب",
@@ -285,8 +308,9 @@ export default {
 
   },
 splash:{
-  "splash_center1": "مرحبًا بك في نظام إدارة الألعاب",
-"splash_center2": "يرجى تسجيل الدخول للمتابعة",
+ splash_center1:"تجربة آمنة وذكية",
+
+splash_center2:"نضمن تسليم الطفل بشكل آمن باستخدام رمز التحقق، مع تتبع دقيق للدخول والخروج، وإشعارات فورية للولي في كل خطوة.",
 "get_started": "ابدأ الآن"
 },
   // ========== SETTINGS ==========
@@ -328,6 +352,8 @@ splash:{
 "resendOtpTimer": "إعادة إرسال رمز التحقق خلال",
 "whatsappText": "واتساب",
 "whatsappSubtext": "ربط التطبيق بخدمة واتساب",
+"logout": "تسجيل الخروج",
+"whatsappSubtitle":"قم بربط التطبيق بخدمة واتساب",
   },
 
   // ========== MODALS ==========
@@ -346,7 +372,10 @@ splash:{
    "selectMinute": "اختر دقيقة",
 "selectMinutes": "اختر الدقائق"
   },
-
+ language: {
+    english: "English",
+    arabic: "Arabic",
+  },
   // ========== ALERTS & MESSAGES ==========
   alerts: {
   "deleteConfirm": "هل أنت متأكد أنك تريد الحذف؟",
@@ -359,6 +388,8 @@ splash:{
 "accountDeleted": "تم حذف الحساب",
 "sessionExpiredTitle": "انتهت الجلسة",
 "sessionExpiredMessage": "انتهت صلاحية تسجيل الدخول. يرجى تسجيل الدخول مرة أخرى.",
+"restartRequiredTitle": "إعادة التشغيل مطلوبة",
+"restartRequiredMessage": "يرجى إعادة تشغيل التطبيق لتطبيق تغيير اللغة.",
   },
 
   // ========== MESSAGE MANAGEMENT ==========
@@ -400,5 +431,6 @@ splash:{
 "sendingTime": "وقت الإرسال",
 "endOfWorkingHoursTime": "وقت نهاية ساعات العمل",
 "whenPlaceCloses": "عند إغلاق المكان",
+"selectMessageType": "اختر نوع الرسالة",
   },
 };

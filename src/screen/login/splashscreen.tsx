@@ -17,7 +17,7 @@ import globalstyles from '../../styles/globalstyles';
 import Storage from '../../utils/storage';
 //import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 

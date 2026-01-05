@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 export default function ViewAccountModal({ visible, onClose, user }) {
   const { t } = useTranslation();

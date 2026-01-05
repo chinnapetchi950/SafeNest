@@ -65,6 +65,8 @@ export default {
 
   // ========== AUTH & LOGIN ==========
   auth: {
+        "loginInfo": "Login Information",
+
     welcome: "Welcome",
     signInToAccount: "Sign in to your account",
     username: "Username",
@@ -90,7 +92,10 @@ export default {
     passwordRequired: "Password is required",
     passwordMinLength: "Password must be at least 6 characters",
   },
-
+ language: {
+    english: "English",
+    arabic: "Arabic",
+  },
   // ========== DASHBOARD ==========
   dashboard: {
     title: "SafeNest",
@@ -102,6 +107,7 @@ export default {
     numberOfChildren: "عدد الأطفال", // Arabic text - should be translated
     children: "Children",
   currentDate: "2025 April 15",
+  childrenForPeriod: "Children {period}",
   loadMore: "Load More",
   endSession: "End Session",
   deliver: "Deliver",
@@ -116,9 +122,17 @@ export default {
     cameraRequired: "Camera permission is required",
     scanCode: "Scan Code",
   },
+  gameManagement: {
+    title: "Game Management",
+    currentGames: "Current Games",
+    pastGames: "Past Games",
+    noGamesFound: "No games found",
+  },
 
   // ========== USER REGISTRATION ==========
   user: {
+        personalInformation: "Personal Information",
+
     identityInformation: "Identity Information",
     accountType: "Account Type",
     userInformation: "User Information",
@@ -282,6 +296,8 @@ splash:{
    splash_center1:"A Safe and Smart Experience",
   splash_center2:"We ensure a secure handover of the child using a verification code, with precise tracking of entry and exit, and instant notifications to the guardian at every step.",
   get_started: "Start Now",
+   
+
 },
   // ========== SETTINGS ==========
   settings: {
@@ -322,6 +338,8 @@ splash:{
   resendOtpTimer: "Resend OTP in",
   whatsappText: "WhatsApp",
   whatsappSubtext: "Connect the application to the WhatsApp service",
+  logout: "Logout",
+  whatsappSubtitle: "Connect the application to the WhatsApp service",
   },
 
   // ========== MODALS ==========
@@ -353,8 +371,22 @@ splash:{
   accountDeleted: "Account Deleted",
   sessionExpiredTitle: "Session Expired",
   sessionExpiredMessage: "Your login has expired. Please login again.",
+  restartRequiredTitle: "Restart required",
+  restartRequiredMessage: "Please restart the app to apply language change.",
   },
-
+form: {
+    "firstName": "First Name",
+    "secondName": "Second Name",
+    "thirdName": "Third Name",
+    "fourthName": "Fourth Name",
+    "lastName": "Last Name",
+    "phoneNumber": "Phone Number",
+    "email": "Email",
+    "nationalIdNumber": "National ID Number",
+    "residencyCardNumber": "Residency Card Number",
+    "uploadNationalId": "Upload National ID",
+    "uploadResidencyCard": "Upload Residency Card"
+  },
   // ========== MESSAGE MANAGEMENT ==========
   messageManagement: {
     title: "Message Management",
@@ -394,7 +426,8 @@ splash:{
   sendingTime: "Sending Time",
   endOfWorkingHoursTime: "End of Working Hours Time",
   whenPlaceCloses: "When the place closes",
-  
+  selectMessageType: "Select Message Type",
+
 
 
   },

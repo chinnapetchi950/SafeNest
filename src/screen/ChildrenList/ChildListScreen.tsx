@@ -16,7 +16,7 @@ import FilterBottomSheet from "../components/FilterModal";
 import { useSelector } from "react-redux";
 
 import { useFocusEffect } from "@react-navigation/native";
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import Storage from "../../utils/storage";
 export default function ChildListScreen() {
   const { t } = useTranslation();

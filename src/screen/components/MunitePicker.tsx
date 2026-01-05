@@ -11,8 +11,7 @@ import {
 
 const minutes = Array.from({ length: 60 }, (_, i) => i);
 
-import { useTranslation } from '../../contexts/LanguageContext';
-
+import { useTranslation } from 'react-i18next';
 const MinuteOnlyPicker = ({ value = null, onChange }) => {
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);

@@ -13,7 +13,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import authService from "../../features/auth/authService";
 import strings from '../../localization/en';
 import moment from "moment";
-import { useTranslation } from "../../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next';
 
 export default function GameManagementScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState("current");
@@ -120,7 +120,7 @@ setLoading(false)
             alignItems: "center",
           }}
         >
-          <Text style={styles.headerTitle}>Game Management</Text>
+          <Text style={styles.headerTitle}>{t('gameManagement.title') || "Game Management"}</Text>
 
           <Ionicons
             onPress={() => navigation.goBack()}
@@ -140,7 +140,7 @@ setLoading(false)
                 activeTab === "current" && styles.activeTabText,
               ]}
             >
-              Current Games
+              {t('gameManagement.currentGames') || "Current Games"}
             </Text>
           </TouchableOpacity>
         </View>

@@ -11,7 +11,7 @@ import ProgressBarRTL from '../../components/ProgressLine';
 import React from 'react';
 import SuccessModal from '../../components/UserSuccessModal';
 import ViewAccountModal from '../../components/ViewAccountModal';
-import { useTranslation } from "../../../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next';
 
 export const UserInformationScreen = ({navigation}) => {
   const { t } = useTranslation();

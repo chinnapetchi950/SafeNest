@@ -7,7 +7,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import { useTranslation } from "../../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next'; 
 const ProgressBarRTL = ({
   totalSteps = 3,
   currentStep = 1, // starts from right

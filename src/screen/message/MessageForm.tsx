@@ -13,7 +13,7 @@ import {
 } from "react-native";
 
 import { useFocusEffect } from "@react-navigation/native";
-import { useTranslation } from '../../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next'; } from '../../contexts/LanguageContext';
 
 export function MessageFormScreen({ navigation, route }) {
   const { t } = useTranslation();

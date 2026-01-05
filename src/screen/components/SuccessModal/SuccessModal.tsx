@@ -8,7 +8,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import { useTranslation } from "../../../contexts/LanguageContext";
+import { useTranslation } from 'react-i18next';
 interface SuccessModalProps {
   visible: boolean;
   onDone: () => void;
