@@ -10,7 +10,7 @@ const DashboardCard = ({ title, subtitle, value, percent, trend }) => {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.subtitle}>{subtitle}</Text>
+      <Text style={styles.subtitle}>{value}  {subtitle}</Text>
 
       <View style={styles.trendRow}>
         <Ionicons
@@ -28,7 +28,7 @@ const DashboardCard = ({ title, subtitle, value, percent, trend }) => {
         </Text>
       </View>
 
-      <Text style={styles.value}>{value}</Text>
+      {/* <Text style={styles.value}>{value}</Text> */}
     </View>
   );
 };
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
   trendRow: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 6,
   },
   percent: {
     fontSize: 12,

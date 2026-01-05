@@ -6,22 +6,59 @@ import { colors } from "../../styles/colors";
 const LineChartCard = ({ title, data }) => {
   const screenWidth = Dimensions.get("window").width - 40;
 
+  const values = data.datasets[0].data.map(v => Number(v) || 0);
+  const isEmpty = values.every(v => v === 0);
+
+  if (isEmpty) {
+    return (
+      <View style={styles.card}>
+        <Text style={styles.title}>{title}</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No revenue data available</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{title}</Text>
+
       <LineChart
-        data={data}
+        data={{
+          ...data,
+          datasets: [
+            {
+              ...data.datasets[0],
+              data: values,
+            },
+          ],
+        }}
         width={screenWidth}
-        height={180}
-        yAxisLabel=""
-        yAxisSuffix=""
+        height={220}
+        withInnerLines={true}
+        withOuterLines={false}
+        withVerticalLabels={true}
+        withHorizontalLabels={true}
+        yAxisLabel="₹ "
         chartConfig={{
           backgroundGradientFrom: "#fff",
           backgroundGradientTo: "#fff",
           decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(165, 148, 249, ${opacity})`,
-          labelColor: () => colors.textLight,
-          propsForDots: { r: "4", strokeWidth: "2", stroke: colors.primary },
+          color: (opacity = 1) =>
+            `rgba(165, 148, 249, ${opacity})`,
+          labelColor: () => "#9E9E9E",
+          fillShadowGradient: colors.primary,
+          fillShadowGradientOpacity: 0.15,
+          propsForDots: {
+            r: "3",
+            strokeWidth: "2",
+            stroke: colors.primary,
+          },
+          propsForBackgroundLines: {
+            strokeDasharray: "6",
+            stroke: "#EDE7FF",
+          },
         }}
         bezier
         style={styles.chart}
@@ -31,6 +68,7 @@ const LineChartCard = ({ title, data }) => {
 };
 
 export default LineChartCard;
+
 
 const styles = StyleSheet.create({
   card: {
@@ -54,4 +92,15 @@ const styles = StyleSheet.create({
   chart: {
     borderRadius: 16,
   },
+  emptyContainer: {
+  height: 200,
+  justifyContent: "center",
+  alignItems: "center",
+},
+emptyText: {
+  color: "#B0B0B0",
+  fontSize: 14,
+  fontWeight: "500",
+},
+
 });

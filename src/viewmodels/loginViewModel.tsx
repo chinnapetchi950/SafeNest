@@ -7,7 +7,8 @@ import Storage from "../utils/storage";
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, getToken } from '@react-native-firebase/messaging';
 import { useTranslation } from "../contexts/LanguageContext";
-export const loginViewModel = () => {
+export const useLoginViewModel = () => {
+
   const dispatch = useDispatch();
   const { loading, error, data } = useSelector((state) => state.auth);
   const { t } = useTranslation();

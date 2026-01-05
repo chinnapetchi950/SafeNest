@@ -96,7 +96,7 @@ export default {
     title: "SafeNest",
     year: "Year",
     numberOfChildrenRegisteredWeekly: "Number of Children Registered Weekly",
-    childrenCount: "700 Children",
+    childrenCount: "Children",
     value: "500,000",
     budget: "Budget",
     numberOfChildren: "عدد الأطفال", // Arabic text - should be translated
@@ -278,8 +278,9 @@ export default {
     upload: "Upload",
   },
 splash:{
-  splash_center1: "Welcome to the Game Management System",
-  splash_center2: "Please sign in to continue",
+
+   splash_center1:"A Safe and Smart Experience",
+  splash_center2:"We ensure a secure handover of the child using a verification code, with precise tracking of entry and exit, and instant notifications to the guardian at every step.",
   get_started: "Start Now",
 },
   // ========== SETTINGS ==========

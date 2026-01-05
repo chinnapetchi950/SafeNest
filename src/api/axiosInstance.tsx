@@ -108,8 +108,8 @@ import { store } from "../store/store";
 import { setLoading } from "../features/auth/loadingSlice.tsx/loadingSlices";
 import { Alert } from "react-native";
 import strings from "../localization/en";
-import { useTranslation } from "../contexts/LanguageContext";
 import { navigationRef } from "../navigations/Appnavigator";
+import usetranslation, { useTranslation } from "../contexts/LanguageContext";
 const axiosInstance = axios.create({
   baseURL: "https://testlink3.pillersofttechnologies.com/",
   headers: {
@@ -122,6 +122,7 @@ const axiosInstance = axios.create({
 ------------------------------------------------------ */
 axiosInstance.interceptors.request.use(
   async (config) => {
+
     try {
       store.dispatch(setLoading(true));
 
@@ -176,10 +177,9 @@ axiosInstance.interceptors.response.use(
   },
 
   async (error) => {
-    const { response } = error;
-    const {t}=useTranslation();
-    store.dispatch(setLoading(false));
-
+  const { response } = error;
+  store.dispatch(setLoading(false));
+const {t}=useTranslation()
     // 1️⃣ Detect expired token returning HTML (backend sends login page)
     if (
       response?.status === 500 &&
@@ -190,7 +190,7 @@ axiosInstance.interceptors.response.use(
 
       await Storage.removeItem("token");
 
-      Alert.alert(strings.alerts.sessionExpiredTitle || 'Session Expired', strings.alerts.sessionExpiredMessage || 'Your login has expired. Please login again.', [
+      Alert.alert(t('alerts.sessionExpiredTitle') || 'Session Expired', t('alerts.sessionExpiredMessage') || 'Your login has expired. Please login again.', [
     {
       text: strings.common.ok || 'OK',
       onPress: () => {
@@ -210,7 +210,7 @@ axiosInstance.interceptors.response.use(
     if (response?.status === 401) {
       await Storage.removeItem("token");
 
-      Alert.alert(strings.alerts.sessionExpiredTitle || 'Session Expired', strings.alerts.sessionExpiredMessage || 'Your login has expired. Please login again.', [
+      Alert.alert(t('alerts.sessionExpiredTitle') || 'Session Expired', t('alerts.sessionExpiredMessage') || 'Your login has expired. Please login again.', [
     {
       text: strings.common.ok || 'OK',
       onPress: () => {

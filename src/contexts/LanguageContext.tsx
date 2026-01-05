@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import en from '../localization/en';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+// src/contexts/LanguageContext.js
+import i18n from "i18next";
+export default i18n;
+
 
 // Define supported languages
 type Language = 'en' | 'ar' | 'fr' | 'ta'; // Add more as needed

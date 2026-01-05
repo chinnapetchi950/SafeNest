@@ -4,8 +4,8 @@ import authService from "./authService";
 import { createAsyncThunkHandlers } from "../../utils/asyncThunkHandler";
 import Storage from "../../utils/storage";
 import { Alert } from "react-native";
-import { useTranslation } from "../../contexts/LanguageContext";
-const { t } = useTranslation();
+import strings from '../../localization/en';
+import i18n from "../../contexts/LanguageContext";
 
 /* ---------------- LOGIN ---------------- */
 export const loginUser = createAsyncThunk("api/login", async (credentials, thunkAPI) => {
@@ -18,8 +18,10 @@ export const loginUser = createAsyncThunk("api/login", async (credentials, thunk
 
     return res.data;
   } catch (err) {
+    console.log(err);
+    
     const message = err?.response?.data?.message || err.message || "Something went wrong";
-  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
+  Alert.alert(i18n.t('alerts?.error') || 'Error', message || i18n.t('alerts?.error'));
 
     return thunkAPI.rejectWithValue(message);
   }
@@ -29,7 +31,7 @@ export const loginUser = createAsyncThunk("api/login", async (credentials, thunk
 export const logoutUser = createAsyncThunk("api/user/logout", async (_, thunkAPI) => {
   try {
     const res = await authService.logout();
-  Alert.alert(t("alerts.success") || 'Success', res?.data?.message || t("alerts.success"));
+  Alert.alert(strings.alerts?.success || 'Success', res?.data?.message || strings.alerts?.success);
 
     await Storage.removeItem("token");
     await Storage.removeItem("admin");
@@ -37,7 +39,7 @@ export const logoutUser = createAsyncThunk("api/user/logout", async (_, thunkAPI
     return true;
   } catch (err) {
     const message = err?.response?.data?.message || err.message || "Logout failed";
-  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
+  Alert.alert(i18n.t('alerts?.error') || 'Error', message || i18n.t('alerts?.error'));
 
     return thunkAPI.rejectWithValue(message);
   }
@@ -53,7 +55,7 @@ export const deleteUserAccount = createAsyncThunk("api/user/delete-account", asy
 
       
     const res = await authService.delete_account(formData);
-  Alert.alert(t("alerts.accountDeleted") || 'Account Deleted', res?.data?.message || t("alerts.accountDeleted"));
+  Alert.alert(i18n.t('alerts?.accountDeleted') || 'Account Deleted', res?.data?.message || i18n.t('alerts?.accountDeleted'));
 
     await Storage.removeItem("token");
     await Storage.removeItem("admin");
@@ -61,7 +63,7 @@ export const deleteUserAccount = createAsyncThunk("api/user/delete-account", asy
     return true;
   } catch (err) {
     const message = err?.response?.data?.message || err.message || "Account deletion failed";
-  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
+  Alert.alert(strings.alerts?.error || 'Error', message || strings.alerts?.error);
 
     return thunkAPI.rejectWithValue(message);
   }
@@ -77,7 +79,7 @@ export const changePassword = createAsyncThunk(
       console.log("------------------>",res?.data);
       
 
-  Alert.alert(t("alerts.success") || 'Success', res?.data?.message || t("auth.passwordsDoNotMatch") || 'Password changed successfully');
+  Alert.alert(i18n.t('alerts?.success') || 'Success', res?.data?.message || i18n.t('auth?.passwordsDoNotMatch') || 'Password changed successfully');
 
       return res.data;
     } catch (err) {
@@ -85,7 +87,7 @@ export const changePassword = createAsyncThunk(
       const message =
         err?.response?.data?.message || err.message || "Failed to change password";
 
-  Alert.alert(t("alerts.error") || 'Error', message || t("alerts.error"));
+  Alert.alert(strings.alerts?.error || 'Error', message || strings.alerts?.error);
 
       return thunkAPI.rejectWithValue(message);
     }

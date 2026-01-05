@@ -12,12 +12,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomTextField from '../components/TextFieldComponent';
 import globalstyles from '../../styles/globalstyles';
-import { loginViewModel } from '../../viewmodels/loginViewModel';
+import { useLoginViewModel } from '../../viewmodels/loginViewModel';
 import { useTranslation } from '../../contexts/LanguageContext';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const viewModel = loginViewModel();
+  const viewModel = useLoginViewModel();
   const [showPassword, setShowPassword] = useState(false);
 
   return (

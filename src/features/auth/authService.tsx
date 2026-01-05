@@ -138,6 +138,9 @@ sendOtp:async(data) =>{
       
     );
   },
+  getAdminHome : (params) => {
+  return apiClient.get("api/admin/home", { params });
+},
   //  profile: () => apiClient.get("/auth/profile"),
 };
 
