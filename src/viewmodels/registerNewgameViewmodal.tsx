@@ -14,6 +14,8 @@ export const useRegisterGameViewModel = () => {
   ]);
 
   const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const [selectedMessageIds, setSelectedMessageIds] = useState([]);
+
   const [messageLabel, setMessageLabel] = useState("");
   const [messageList, setMessageList] = useState([]);
 const [successModal, setSuccessModal] = useState(false);
@@ -56,10 +58,10 @@ const messages = useSelector((state) => state.createGameType?.messageList || [])
     const areSessionsValid = sessions.every(
       (s) => s.duration !== null && s.price.trim().length > 0
     );
-    const isMessageValid = selectedMessageId !== null;
+  const isMessageValid = selectedMessageIds.length > 0;
 
     setIsButtonDisabled(!(isNameValid && areSessionsValid && isMessageValid));
-  }, [gameName, sessions, selectedMessageId]);
+  }, [gameName, sessions, selectedMessageIds]);
 
   // ============================
   // SESSION METHODS
@@ -109,9 +111,17 @@ const messages = useSelector((state) => state.createGameType?.messageList || [])
   // MESSAGE SELECT
   // ============================
   const handleMessageSelect = (msg) => {
-    setSelectedMessageId(msg.id);
-    setMessageLabel(msg.name);
-  };
+  setSelectedMessageIds((prev) => {
+    if (prev.includes(msg.id)) {
+      // unselect
+      return prev.filter((id) => id !== msg.id);
+    } else {
+      // select
+      return [...prev, msg.id];
+    }
+  });
+};
+
 
   // ============================
   // PAYLOAD BUILDER
@@ -126,8 +136,10 @@ const messages = useSelector((state) => state.createGameType?.messageList || [])
         formData.append(`sessions[${i}][duration]`, s.duration);
       }
     });
-
-    formData.append("message_id", selectedMessageId);
+ selectedMessageIds.forEach((id) => {
+    formData.append("message_ids[]", id);
+  });
+    //formData.append("message_id", selectedMessageId);
     console.log(formData,'formdata');
     
 
@@ -145,7 +157,13 @@ try {
     console.log("ERROR:", error);
   }    
   };
-
+const selectedMessageLabel =
+  selectedMessageIds.length > 0
+    ? messageList
+        .filter((m) => selectedMessageIds.includes(m.id))
+        .map((m) => m.name)
+        .join(', ')
+    : '';
   // ============================
   // RETURN VALUES
   // ============================
@@ -161,7 +179,7 @@ try {
     handleOpenChange,
 
     messageList,
-    messageLabel,
+    messageLabel: selectedMessageLabel,
     selectedMessageId,
     handleMessageSelect,
 
@@ -169,6 +187,8 @@ try {
     registerGame,
     isButtonDisabled,
     successModal,
-    setSuccessModal
+    setSuccessModal,
+    selectedMessageIds,
+    setSelectedMessageIds,
   };
 };

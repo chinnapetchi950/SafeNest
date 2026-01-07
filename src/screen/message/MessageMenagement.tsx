@@ -214,6 +214,7 @@ const CreateMessageForm = ({onSuccess,editItem,isEditMode}) => {
   const [messageName, setMessageName] = useState("");
   const [messageContent, setMessageContent] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedlabel,setselectedLabel]=useState("");
   const { t } = useTranslation();
   // const viewModel = useRegisterGameViewModel();
 // const [msglist,setmsglist]=useState([{'id':1, 'name':'End of the working hours'},{'id':2, 'name':'Alert Message'},{'id':3, 'name':'Reward Message'},{'id':3, 'name':'General Message'}])
@@ -256,7 +257,7 @@ useEffect(() => {
                     color="#999"
                   />
                   <Text style={{ color:selectedType?"#000": "#888" }}>
-                    {selectedType || t("messageManagement.selectMessage")}
+                    {selectedlabel || t("messageManagement.selectMessage")}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -269,6 +270,7 @@ useEffect(() => {
           <TouchableOpacity
             onPress={() => {
                setSelectedType(msg.type);
+               setselectedLabel(msg.label);
   setModalVisible(false); // close modal on select
             }}
             style={[

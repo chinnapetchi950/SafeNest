@@ -40,8 +40,13 @@ export default {
   "dateOfBirthPlaceholder": "YYYY/MM/DD",
   "phoneNumber": "رقم الهاتف",
   "phoneNumberPlaceholder": "XXXXXXXXXXX",
-    "cancel": "إلغاء",
-    "success": "تم بنجاح"
+  "cancel": "إلغاء",
+  "success": "تم بنجاح",
+  "yes": "نعم",
+  "no": "لا",
+  "cancel": "إلغاء",
+  "endSession": "إنهاء الجلسة",
+  "deliver": "تسليم"
 
   },
 
@@ -288,6 +293,8 @@ gameManagement: {
 "nicknameRequired": "الاسم المستعار مطلوب",
 "playToGreaterThanPlayFromTitle": "التحقق",
 "playToGreaterThanPlayFrom": "يجب أن يكون وقت اللعب (إلى) أكبر من وقت اللعب (من)",
+ "phoneRequired": "رقم هاتف المستخدم غير متوفر.",
+    "phoneInvalid": "يرجى إدخال رقم هاتف صحيح."
   },
 
   // ========== BUTTONS ==========
@@ -390,6 +397,10 @@ splash_center2:"نضمن تسليم الطفل بشكل آمن باستخدام 
 "sessionExpiredMessage": "انتهت صلاحية تسجيل الدخول. يرجى تسجيل الدخول مرة أخرى.",
 "restartRequiredTitle": "إعادة التشغيل مطلوبة",
 "restartRequiredMessage": "يرجى إعادة تشغيل التطبيق لتطبيق تغيير اللغة.",
+ "error": "خطأ",
+    "success": "تم بنجاح",
+    "callFailed": "تعذر إجراء المكالمة",
+    "whatsappNotInstalled": "تطبيق واتساب غير مثبت على الجهاز"
   },
 
   // ========== MESSAGE MANAGEMENT ==========
@@ -432,5 +443,51 @@ splash_center2:"نضمن تسليم الطفل بشكل آمن باستخدام 
 "endOfWorkingHoursTime": "وقت نهاية ساعات العمل",
 "whenPlaceCloses": "عند إغلاق المكان",
 "selectMessageType": "اختر نوع الرسالة",
+"notification": "إشعار"
   },
-};
+  userdashboard: {
+    "title": "لوحة التحكم",
+    "searchPlaceholder": "ابحث عن طفل",
+    "loadMore": "عرض المزيد",
+    "noData": "لا توجد بيانات"
+
+    ,
+    sections: {
+      "activeChildren": "الأطفال النشطون",
+      "waitingHandover": "أطفال بانتظار التسليم"
+    }
+  },
+
+  userchildSession: {
+    "activeNow": "نشط الآن",
+    "waiting": "قيد الانتظار",
+    "guardian": "ولي الأمر",
+    "totalPlaytime": "إجمالي وقت اللعب",
+    "endSession": "إنهاء الجلسة",
+    "deliver": "تسليم"
+  },
+
+  filter: {
+    "title": "تصفية",
+    "reset": "إعادة تعيين",
+    "apply": "تطبيق",
+    "date": "التاريخ",
+    "hour": "الساعة",
+    "minute": "الدقيقة",
+    "gender": "الجنس",
+    "male": "ذكر",
+    "female": "أنثى"
+  },
+  printer: {
+    "title": "الطابعة",
+    "enable_bluetooth": "يرجى تمكين البلوتوث لتوصيل الطابعة",
+    "enable_bluetooth_message": "يرجى تمكين البلوتوث لتوصيل الطابعة",
+    "no_device_found": "لم يتم العثور على طابعة بلوتوث",
+    "error": "خطأ بلوتوث",
+    "connect_bluetooth": "يرجى توصيل طابعة بلوتوث أولاً",
+    "print_failed": "فشل الطباعة",
+    "unable_to_print": "تعذر الطباعة",
+    "bluetooth_required_msg": "مطلوب إذن بلوتوث لطباعة الإيصالات.",
+    "bluetooth_required": "مطلوب بلوتوث",
+  },
+}

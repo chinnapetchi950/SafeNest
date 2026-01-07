@@ -40,6 +40,11 @@ export default {
   dateOfBirthPlaceholder:'YYYY/MM/DD',
   phoneNumber:'Phone Number',
   phoneNumberPlaceholder:'XXXXXXXXXXX',
+  yes: "Yes",
+  no: "No",
+  cancel: "Cancel",
+  deliver: "Deliver",
+  endSession: "End Session"
 
   },
 
@@ -273,7 +278,9 @@ export default {
   nicknameRequired: "Nickname is required",
   playToGreaterThanPlayFromTitle: 'Validation',
   playToGreaterThanPlayFrom: 'Play To must be greater than Play From',
-  },
+  phoneRequired: "User phone number is missing.",
+  phoneInvalid: "Please enter a valid phone number."
+},
 
   // ========== BUTTONS ==========
   buttons: {
@@ -373,19 +380,34 @@ splash:{
   sessionExpiredMessage: "Your login has expired. Please login again.",
   restartRequiredTitle: "Restart required",
   restartRequiredMessage: "Please restart the app to apply language change.",
+      error: "Error",
+    success: "Success",
+    callFailed: "Unable to place the call",
+    whatsappNotInstalled: "WhatsApp is not installed on your device"
   },
 form: {
-    "firstName": "First Name",
-    "secondName": "Second Name",
-    "thirdName": "Third Name",
-    "fourthName": "Fourth Name",
-    "lastName": "Last Name",
-    "phoneNumber": "Phone Number",
-    "email": "Email",
-    "nationalIdNumber": "National ID Number",
-    "residencyCardNumber": "Residency Card Number",
-    "uploadNationalId": "Upload National ID",
-    "uploadResidencyCard": "Upload Residency Card"
+    firstName: "First Name",
+    secondName: "Second Name",
+    thirdName: "Third Name",
+    fourthName: "Fourth Name",
+    lastName: "Last Name",
+    phoneNumber: "Phone Number",
+    email: "Email",
+    nationalIdNumber: "National ID Number",
+    residencyCardNumber: "Residency Card Number",
+    uploadNationalId: "Upload National ID",
+    uploadResidencyCard: "Upload Residency Card"
+  },
+  filter: {
+    "title": "Filter",
+    "reset": "Reset",
+    "apply": "Apply",
+    "date": "Date",
+    "hour": "Hour",
+    "minute": "Minute",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female"
   },
   // ========== MESSAGE MANAGEMENT ==========
   messageManagement: {
@@ -427,8 +449,43 @@ form: {
   endOfWorkingHoursTime: "End of Working Hours Time",
   whenPlaceCloses: "When the place closes",
   selectMessageType: "Select Message Type",
-
+  notification: "Notification",
 
 
   },
+  userdashboard: {
+    "title": "Dashboard",
+    "searchPlaceholder": "Search for a child",
+    "loadMore": "Load more",
+    "noData": "No data available",
+
+    sections: {
+      "activeChildren": "Active Children",
+      "waitingHandover": "Children Waiting for Handover"
+    }
+  },
+
+  userchildSession: {
+    "activeNow": "Active Now",
+    "waiting": "Waiting",
+    "guardian": "Guardian",
+    "totalPlaytime": "Total Playtime",
+    "endSession": "End Session",
+    "deliver": "Deliver"
+  },
+  printer: {
+    "title": "Printer",
+    "enable_bluetooth": "Please enable Bluetooth to connect printer",
+    "enable_bluetooth_message": "Please enable Bluetooth to connect printer",
+    "no_device_found": "No Bluetooth printer found",
+    "error": "Bluetooth Error",
+    "connect_bluetooth": "Please connect Bluetooth printer first",
+    "print_failed": "Print Failed",
+    "unable_to_print": "Unable to print",
+    "Bluetooth Required": "Bluetooth Required",
+    "bluetooth_required_msg": "Bluetooth permission is required for printing receipts."
+
+  }
+
+
 };

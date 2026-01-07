@@ -139,45 +139,51 @@ export default function RegisterNewGame({navigation}) {
         ))}
 
   {/* MESSAGE SELECT */}
-  <Text style={styles.addMsgTitle}>{t("addGame.addMsgTitle")}</Text>
+  {/* <Text style={styles.addMsgTitle}>{t("addGame.addMsgTitle")}</Text> */}
 
-        <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-          <View style={styles.msgInputBox}>
-            <Ionicons
-              name={modalVisible ? "chevron-up" : "chevron-down"}
-              size={20}
-              color="#999"
-            />
-            <Text style={{ color:viewModel.messageLabel?"#000": "#888" }}>
-              {viewModel.messageLabel || t("addGame.selectMessage")}
-            </Text>
-          </View>
-        </TouchableOpacity>
+       <Text style={styles.addMsgTitle}>
+  {t("addGame.addMsgTitle")}
+</Text>
 
-        {modalVisible && (
-          <View style={styles.messageBox}>
-            {viewModel.messageList.map((msg) => (
-  <View key={msg.id} style={styles.msgRow}>
-    <Text style={styles.msgLabel}>{msg.name}</Text> {/* use name */}
-    <TouchableOpacity
-      onPress={() => {
-        viewModel.handleMessageSelect(msg);
-        setModalVisible(false); // close modal on select
-      }}
-      style={[
-        styles.checkbox,
-        viewModel.selectedMessageId === msg.id && styles.checkboxChecked,
-      ]}
-    >
-      {viewModel.selectedMessageId === msg.id && (
-        <Ionicons name="checkmark" size={15} color="#fff" />
-      )}
-    </TouchableOpacity>
+<TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
+  <View style={styles.msgInputBox}>
+    <Ionicons
+      name={modalVisible ? "chevron-up" : "chevron-down"}
+      size={20}
+      color="#999"
+    />
+    <Text style={{ color: viewModel.messageLabel ? "#000" : "#888" }}>
+      {viewModel.messageLabel || t("addGame.selectMessage")}
+    </Text>
   </View>
-))}
+</TouchableOpacity>
 
-          </View>
-        )}
+{modalVisible && (
+  <View style={styles.messageBox}>
+    {viewModel.messageList.map((msg) => {
+      const isSelected = viewModel.selectedMessageIds.includes(msg.id);
+
+      return (
+        <View key={msg.id} style={styles.msgRow}>
+          <Text style={styles.msgLabel}>{msg.name}</Text>
+
+          <TouchableOpacity
+            onPress={() => viewModel.handleMessageSelect(msg)}
+            style={[
+              styles.checkbox,
+              isSelected && styles.checkboxChecked,
+            ]}
+          >
+            {isSelected && (
+              <Ionicons name="checkmark" size={15} color="#fff" />
+            )}
+          </TouchableOpacity>
+        </View>
+      );
+    })}
+  </View>
+)}
+
       </ScrollView>
 
       {/* SUBMIT BUTTON */}

@@ -557,6 +557,7 @@ import { fetchUserList } from "../../features/auth/User/userSlice";
 import { createChildUser } from "../../features/auth/staffSlice/registerNewChild/createChildSlice";
 
 const useFilterBottomSheetViewModel = () => {
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const {t} = useTranslation();
@@ -702,7 +703,7 @@ const [errors, setErrors] = useState({});
   /* -------------------- VALIDATION -------------------- */
    const validateForm = () => {
     const newErrors: any = {};
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
    if (!form.phone || !form.phone.trim()) newErrors.phone = t('validation.phoneRequired');
    if (!form.date_of_birth) newErrors.date_of_birth = t('validation.dateOfBirthRequired');
    if (!form.guardian_name || !form.guardian_name.trim()) newErrors.guardian_name = t('validation.guardianNameRequired');

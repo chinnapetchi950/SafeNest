@@ -33,7 +33,7 @@ import ChildHandoverConfirmation from './ChildHandoverConfirmation';
 import { setLoading } from '../../features/auth/loadingSlice.tsx/loadingSlices';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next'; 
-
+import { requestBluetoothPermission } from '../../utils/bluetoothPermission';
 export default function Dashboard({navigation,route}) {
   const viewModel = useDashboardViewModel();
   const { t } = useTranslation();
@@ -55,7 +55,7 @@ const [scannedData, setScannedData] = useState(null);
 const [refreshing, setRefreshing] = useState(false);
 const [activeLimit, setActiveLimit] = useState(4);
 const [expiredLimit, setExpiredLimit] = useState(4);
-
+ 
 useEffect(() => {
   if (route?.params?.showHandoverModal) {
     // console.log(route?.params?.showHandoverModal,'route?.params?.showHandoverModal');
@@ -243,7 +243,20 @@ useEffect(() => {
 
   return () => clearInterval(interval);
 }, [viewModel?.childList]);
+useEffect(() => {
+    const initBluetooth = async () => {
+      const granted = await requestBluetoothPermission();
 
+      if (!granted) {
+        Alert.alert(
+          t('printer.bluetooth_required'),
+          t('printer.bluetooth_required_msg'),
+        );
+      }
+    };
+
+    initBluetooth();
+  }, []);
 
   const formatDate = date => {
     const d = new Date(date);
@@ -408,7 +421,7 @@ const onRefresh = async () => {
           <Text style={styles.userName}>{firstUsername}</Text>
         </View>
         <SearchBar
-          placeholder="Search for a child"
+          placeholder={t('common.searchForChild')}
           onChangeText={text => viewModel.handleSearchChange(text)}
           // onChangeText={text => {}}
           onSearchPress={() => viewModel.handleSearch()}
@@ -430,7 +443,7 @@ const onRefresh = async () => {
   onRefresh={onRefresh}
    ListEmptyComponent={() => (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
-      <Text style={{ fontSize: 16, color: "#888" }}>No data available</Text>
+      <Text style={{ fontSize: 16, color: "#888" }}>{t('common.noData')}</Text>
     </View>
   )}
         />
@@ -578,16 +591,16 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
                 style={[styles.button, styles.endButton]}
                 onPress={onEndSession}
               >
-                
-                <Text style={styles.endText}>End Session</Text>
+
+                <Text style={styles.endText}>{t('common.endSession')}</Text>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
                 style={[styles.button, styles.deliverButton]}
                 onPress={onDeliver}
               >
-                
-                <Text style={styles.deliverText}>Deliver</Text>
+
+                <Text style={styles.deliverText}>{t('common.deliver')}</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity

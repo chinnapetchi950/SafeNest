@@ -1,5 +1,5 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import React, { useState ,useEffect} from 'react';
+import React, { useState ,useEffect,useRef} from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Platform,
   StyleSheet,
-  Modal
+  Modal,
+  Image
 } from 'react-native';
 import CustomTextField, {
   CommonButton,
@@ -22,14 +23,169 @@ import { fetchGameTypes } from '../../../features/auth/staffSlice/registerNewChi
 import BottomTabsStaff from '../BottomTabStaff';
 import Storage from '../../../utils/storage';
 import { useTranslation } from 'react-i18next';
+import {
+  BLEPrinter,
+} from 'react-native-thermal-receipt-printer-image-qr';
+
+import { PermissionsAndroid, Alert } from 'react-native';
+import QRCodeSVG from '../../components/SvgXml';
+import SvgToPng from '../../components/svgtoPng';
+const PAPER_58 = 32;
+const PAPER_80 = 48;
+const line = (width) => '-'.repeat(width);
+
+const center = (text, width) => {
+  const pad = Math.max(0, Math.floor((width - text.length) / 2));
+  return ' '.repeat(pad) + text;
+};
+
+const row = (label, value, width) => {
+  const space = width - label.length - value.length;
+  return label + ' '.repeat(Math.max(1, space)) + value;
+};
+const USE_MOCK_PRINTER = true; // 🔥 METHOD-1 ENABLED
+
 const SessionDetailsScreen = ({ route, navigation }) => {
   const { t } = useTranslation();
   const viewModel = useFilterBottomSheetViewModel();
   const options = ['45 min', '30 min', '15 min'];
   const [selected, setSelected] = useState('');
+  const [printerConnected, setPrinterConnected] = useState(false);
+const [printerMac, setPrinterMac] = useState(null);
+
       const [role, setRole] = useState(null);
-  
+  const svgToPngRef = useRef();
+
 const dispatch = useDispatch();
+
+const buildReceiptText = (paperWidth = PAPER_58) => {
+  return `
+${center('CHILD REGISTRATION', paperWidth)}
+${line(paperWidth)}
+
+${row('Child', childData?.data?.name || '-', paperWidth)}
+${row('Guardian', childData?.data?.guardian_name || '-', paperWidth)}
+${row('Phone', childData?.data?.phone || '-', paperWidth)}
+
+${line(paperWidth)}
+${row('Session', childData?.data?.play_to || '-', paperWidth)}
+${row('Price', `${viewModel?.childform?.price}`, paperWidth)}
+
+${line(paperWidth)}
+${center('Thank You', paperWidth)}
+
+`;
+};
+const buildQRData = () => {
+  return JSON.stringify({
+    child: childData?.data?.name,
+    guardian: childData?.data?.guardian_name,
+    phone: childData?.data?.phone,
+    session: childData?.data?.play_to,
+  });
+};
+
+const requestBluetoothPermission = async () => {
+  if (Platform.OS === 'android') {
+    if (Platform.Version >= 31) {
+      const result = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+      ]);
+      // Check if granted
+      if (
+        result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] !== 'granted' ||
+        result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] !== 'granted'
+      ) {
+        throw new Error('Bluetooth permission denied');
+      }
+    } else {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+      if (granted !== 'granted') {
+        throw new Error('Location permission required for Bluetooth');
+      }
+    }
+  }
+};
+
+
+
+useEffect(() => {
+  const initBluetoothAndConnect = async () => {
+    try {
+      // 1️⃣ Request permissions
+      await requestBluetoothPermission();
+
+      // 2️⃣ Initialize BLEPrinter
+      await BLEPrinter.init();
+
+      // 3️⃣ Connect to printer
+      await connectPrinter();
+    } catch (error) {
+      console.log('Bluetooth init error:', error);
+      Alert.alert(
+        t('printer.enable_bluetooth'),
+        t('printer.enable_bluetooth_message')
+      );
+    }
+  };
+
+  initBluetoothAndConnect();
+}, []);
+
+const connectPrinter = async () => {
+  try {
+    await requestBluetoothPermission();
+    await BLEPrinter.init();
+
+    const devices = await BLEPrinter.getDeviceList();
+
+    if (!devices || devices.length === 0) {
+      Alert.alert(t('printer.title'), t('printer.no_device_found'));
+      return;
+    }
+
+    const mac = devices[0].inner_mac_address;
+
+    await BLEPrinter.connectPrinter(mac);
+
+    setPrinterMac(mac);
+    setPrinterConnected(true);
+
+    console.log('Printer connected:', mac);
+  } catch (error) {
+    setPrinterConnected(false);
+    Alert.alert(
+      t('printer.error'),
+      error?.message || t('printer.enable_bluetooth')
+    );
+  }
+};
+
+
+// const connectPrinter = async () => {
+//   try {
+//     await requestBluetoothPermission();
+//     await BLEPrinter.init();
+
+//     const devices = await BLEPrinter.getDeviceList();
+
+//     if (!devices || devices.length === 0) {
+//       Alert.alert('Printer', 'No Bluetooth printer found');
+//       return;
+//     }
+
+//     // Recommended: show picker instead of auto connect
+//     await BLEPrinter.connectPrinter(devices[0].inner_mac_address);
+
+//     Alert.alert('Printer Connected');
+//   } catch (e) {
+//     Alert.alert('Printer Error', e?.message || 'Bluetooth not enabled');
+//   }
+// };
+
 
 useEffect(() => {
   dispatch(fetchGameTypes());
@@ -53,6 +209,9 @@ useEffect(() => {
   const [open, setOpen] = useState(false);
   const [gameType, setGameType] = useState(null);
 const [childData, setChildData] = useState(null);
+const [showPrintPreview, setShowPrintPreview] = useState(false);
+const [printedText, setPrintedText] = useState('');
+const [printedImage, setPrintedImage] = useState(null);
 
  const [items, setItems] = useState([]);
  const[duration,setduration]=useState([])
@@ -144,7 +303,6 @@ const formatDate = (date) => {
   }
 };
 const { parentform } = route.params;
-console.log("parentform",parentform);
 
  const handleAdd = async () => {
     const result = await viewModel.handleAddChild(parentform);
@@ -164,7 +322,211 @@ navigation.navigate("BottomTabs")
 navigation.navigate("BottomTabsStaff")
 }
   }
+const getPrintPayload = () => ({
+  text: `
+==============================
+     CHILD REGISTRATION
+==============================
+
+Child   : ${childData?.data?.name}
+Guardian: ${childData?.data?.guardian_name}
+Phone   : ${childData?.data?.phone}
+Session : ${childData?.data?.play_to}
+Price   : ${viewModel?.childform?.price}
+`,
+  qr: JSON.stringify({
+    id: childData?.data?.id,
+    phone: childData?.data?.phone,
+    child: childData?.data?.name,
+    guardian: childData?.data?.guardian_name,
+    session: childData?.data?.play_to,
     
+  }),
+});
+
+// const mockSendToPrinter = (payload) => {
+//   console.log('✅ PRINT TEXT:\n', payload.text);
+//   console.log('✅ PRINT QR:\n', payload.qr);
+
+//   Alert.alert(
+//     'Printer Payload (Test Mode)',
+//     payload.text
+//   );
+
+//   return true; // simulate success
+// };
+// const onPrint = async () => {
+//   const payload = getPrintPayload();
+//  try {
+//     if (!childData?.data) {
+//       Alert.alert('Print', 'No data available to print');
+//       return;
+//     }
+//   if (USE_MOCK_PRINTER) {
+//     mockSendToPrinter(payload);
+//     return;
+//   }
+//  } catch (e) {
+//     Alert.alert('Print Error', e?.message || 'Unknown error');
+//   }
+//   await BLEPrinter.printText(payload.text);
+//   await BLEPrinter.printQR(payload.qr);
+
+// };
+   
+// const onPrint = async (paperSize = '58') => {
+//   try {
+//     if (!childData?.data) {
+//       Alert.alert('Print', 'No data available to print');
+//       return;
+//     }
+
+//     const width = paperSize === '80' ? PAPER_80 : PAPER_58;
+//     const receiptText = buildReceiptText(width);
+//     const qrData = buildQRData();
+
+//     // ✅ METHOD-1: MOCK PRINTER (NO DEVICE REQUIRED)
+//     if (USE_MOCK_PRINTER) {
+//       console.log('🧾 PRINT TEXT:\n', receiptText);
+//       console.log('🔳 QR DATA:', qrData);
+
+//       Alert.alert(
+//         `Print Preview (${paperSize}mm)`,
+//         receiptText
+//       );
+//       return;
+//     }
+
+//     // 🔥 REAL PRINTER (ENABLE LATER)
+//     /*
+//     if (!printerConnected) {
+//       Alert.alert('Printer', 'Printer not connected');
+//       return;
+//     }
+
+//     await BLEPrinter.printText(receiptText);
+//     await BLEPrinter.printQR(qrData, {
+//       size: paperSize === '80' ? 8 : 6,
+//       alignment: 1,
+//     });
+//     await BLEPrinter.printText('\n\n');
+//     */
+
+//   } catch (e) {
+//     Alert.alert('Print Error', e?.message || 'Unknown error');
+//   }
+// };
+
+///final code 
+// const onPrint = async () => {
+//   try {
+//     if (!childData?.data) {
+//       Alert.alert('Print', 'No data available');
+//       return;
+//     }
+
+//     const payload = getPrintPayload();
+
+//     // 🔴 MOCK MODE
+//     if (USE_MOCK_PRINTER) {
+//       console.log('🧾 TEXT:\n', payload.text);
+//       console.log('🔳 QR STRING:\n', payload.qr);
+//       return;
+//     }
+
+//     // 1️⃣ Print receipt text
+//     await BLEPrinter.printText(payload.text);
+
+//     // 2️⃣ Convert SVG → PNG
+//     const pngUri = await svgToPngRef.current?.convertToPng();
+
+//     if (pngUri) {
+//       // 3️⃣ Print QR IMAGE
+//       await BLEPrinter.printImage(pngUri, {
+//         width: 384, // 58mm printer
+//       });
+//     } else {
+//       // fallback
+//       await BLEPrinter.printQR(payload.qr);
+//     }
+
+//     await BLEPrinter.printText('\n\n');
+
+//   } catch (e) {
+//     Alert.alert('Print Error', e?.message || 'Unknown error');
+//   }
+// };
+
+
+const onPrint = async () => {
+  try {
+    if (!childData?.data) {
+      Alert.alert('Print', 'No data available');
+      return;
+    }
+
+    const payload = getPrintPayload();
+
+    console.log('PRINT STARTED');
+
+    // 🔴 Ensure SVG ref exists
+    if (!svgToPngRef.current) {
+      Alert.alert('Print', 'QR image not ready');
+      return;
+    }
+
+    // 1️⃣ Convert SVG → PNG (ONLY ONCE)
+    const pngUri = await svgToPngRef.current.convertToPng();
+    console.log('PNG URI:', pngUri);
+
+    // ===============================
+    // 🔴 MOCK MODE (NO PRINTER)
+    // ===============================
+    // if (USE_MOCK_PRINTER) {
+    //   console.log('MOCK MODE ENABLED');
+
+    //   setPrintedText(payload.text);
+    //   setPrintedImage(pngUri);
+    //   setShowPrintPreview(true);
+    //   return;
+    // }
+
+    // ===============================
+    // 🟢 REAL PRINTER MODE
+    // ===============================
+
+    // ⚠️ SAFETY CHECK (avoid native crash)
+    const isConnected = await BLEPrinter.isConnected?.();
+    if (!isConnected) {
+      Alert.alert('Printer', 'Printer not connected');
+      return;
+    }
+
+    // 2️⃣ Print text
+    await BLEPrinter.printText(payload.text);
+
+    // 3️⃣ Print image / QR
+    if (pngUri) {
+      await BLEPrinter.printImage(pngUri, { width: 384 }); // 58mm
+      //setPrintedImage(pngUri);
+    } else {
+      await BLEPrinter.printQR(payload.qr);
+      //setPrintedImage(null);
+    }
+
+    await BLEPrinter.printText('\n\n');
+
+    // 4️⃣ Show preview after printing
+    // setPrintedText(payload.text);
+    // setShowPrintPreview(true);
+
+  } catch (e) {
+    console.log('PRINT ERROR:', e);
+    Alert.alert('Print Error', e?.message || 'Unknown error');
+  }
+};
+
+
   
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -369,6 +731,7 @@ onPress={() => openPicker('time', 'play_to')}
             </TouchableOpacity>
           ))}
         </View>  */}
+
         {duration.length!=0?
           <View style={styles.containerslot}>
   {duration.map((item, index) => (
@@ -426,7 +789,7 @@ onPress={() => openPicker('time', 'play_to')}
           </TouchableOpacity>
         </View>
       </View>
-      <Modal transparent visible={viewModel.showSuccessModal}  animationType="fade">
+      <Modal transparent visible={viewModel?.showSuccessModal}  animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.containermodal}>
     <TouchableOpacity onPress={()=>closemodal()} style={styles.closeBtn} >
@@ -447,12 +810,21 @@ onPress={() => openPicker('time', 'play_to')}
 
           {/* Wristband style */}
           <View style={styles.bandContainer}>
+
+
+
             <View style={styles.bandBox}>
-              <Text style={styles.bandText}>{childData?.data?.name} – {t('child.childNameLabel')}</Text>
+              <View>
+<Text style={styles.bandText}>{childData?.data?.name} – {t('child.childNameLabel')}</Text>
               <Text style={styles.bandText}>{childData?.data?.guardian_name} – {t('child.guardianLabel')}</Text>
               <Text style={styles.bandText}>{childData?.data?.phone} – {t('child.phoneNumberLabel')}</Text>
               <Text style={styles.bandText}>{childData?.data?.play_to} – {t('child.sessionEndDuration')}</Text>
+
+              </View>
+                          <QRCodeSVG svgBase64={childData?.data?.qr_code_base64} />
+
             </View>
+
 
             <View style={styles.bandDots}>
               {Array.from({ length: 10 }).map((_, i) => (
@@ -501,7 +873,7 @@ onPress={() => openPicker('time', 'play_to')}
           </View>
 
           {/* Print Button */}
-          <TouchableOpacity style={styles.printBtn} 
+          <TouchableOpacity onPress={() =>  onPrint('58')} style={styles.printBtn} 
           //onPress={onClose} 
           >
             <Text style={styles.printText}>{t('buttons.print')}</Text>
@@ -510,11 +882,106 @@ onPress={() => openPicker('time', 'play_to')}
         </View>
       </View>
     </Modal>
+    <SvgToPng
+  ref={svgToPngRef}
+  svgBase64={childData?.data?.qr_code_base64}
+/>
+    {/* <Modal
+  transparent
+  visible={showPrintPreview}
+  animationType="fade"
+>
+  <View style={styles.overlay}>
+    <View style={styles.printPreviewContainer}>
+
+      <Text style={styles.previewTitle}>
+        Printer Payload (Final Output)
+      </Text>
+
+      <ScrollView style={styles.previewBox}>
+        <Text style={styles.previewText}>
+          {printedText}
+        </Text>
+
+        {printedImage && (
+          <>
+            <Text style={styles.previewSubtitle}>QR Code</Text>
+            <Image
+              source={{ uri: printedImage }}
+              style={styles.qrPreview}
+              resizeMode="contain"
+            />
+          </>
+        )}
+      </ScrollView>
+
+      <TouchableOpacity
+        style={styles.okButton}
+        onPress={() => setShowPrintPreview(false)}
+      >
+        <Text style={styles.okText}>OK</Text>
+      </TouchableOpacity>
+
+    </View>
+  </View>
+</Modal> */}
+
     </SafeAreaView>
   );
 };
 
 export const styles = StyleSheet.create({
+  printPreviewContainer: {
+  width: '85%',
+  backgroundColor: '#fff',
+  borderRadius: 12,
+  padding: 16,
+  alignSelf: 'center',
+  maxHeight: '80%',
+},
+
+previewTitle: {
+  fontSize: 16,
+  fontWeight: '700',
+  marginBottom: 10,
+  textAlign: 'center',
+},
+
+previewBox: {
+  marginBottom: 15,
+},
+
+previewText: {
+  fontSize: 12,
+  fontFamily: Platform.OS === 'android' ? 'monospace' : 'Courier',
+  color: '#000',
+},
+
+previewSubtitle: {
+  marginTop: 12,
+  fontWeight: '600',
+  textAlign: 'center',
+},
+
+qrPreview: {
+  width: 180,
+  height: 180,
+  alignSelf: 'center',
+  marginTop: 10,
+},
+
+okButton: {
+  backgroundColor: '#A278F4',
+  paddingVertical: 12,
+  borderRadius: 20,
+  alignItems: 'center',
+},
+
+okText: {
+  color: '#fff',
+  fontWeight: '700',
+},
+
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -795,8 +1262,9 @@ closeBtn: {
   bandBox: {
     backgroundColor: "#fff",
     borderRadius: 20,
-    padding: 10,
+    padding: 12,
     width: "70%",
+    flexDirection:'row',justifyContent:'space-between',alignItems:'center',
   },
   bandText: {
     fontSize: 10,

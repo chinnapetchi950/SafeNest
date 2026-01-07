@@ -4,7 +4,7 @@ import { createAsyncThunkHandlers } from "../../../../utils/asyncThunkHandler";
 
 import { Alert } from "react-native";
 import strings from '../../../../localization/en';
-import i18n from "../../../../contexts/LanguageContext";
+import i18n from '../../../../localization/i18n'; // adjust the path to your i18n.js
 
 /**
  * createChildUser USER (multipart/form-data)
