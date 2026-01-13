@@ -34,6 +34,10 @@ import { setLoading } from '../../features/auth/loadingSlice.tsx/loadingSlices';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next'; 
 import { requestBluetoothPermission } from '../../utils/bluetoothPermission';
+import { 
+   BluetoothEscposPrinter,
+   BluetoothManager 
+ } from 'react-native-bluetooth-escpos-printer';
 export default function Dashboard({navigation,route}) {
   const viewModel = useDashboardViewModel();
   const { t } = useTranslation();
@@ -55,7 +59,8 @@ const [scannedData, setScannedData] = useState(null);
 const [refreshing, setRefreshing] = useState(false);
 const [activeLimit, setActiveLimit] = useState(4);
 const [expiredLimit, setExpiredLimit] = useState(4);
- 
+ const [reloadFlag, setReloadFlag] = useState(false);
+
 useEffect(() => {
   if (route?.params?.showHandoverModal) {
     // console.log(route?.params?.showHandoverModal,'route?.params?.showHandoverModal');
@@ -180,71 +185,61 @@ useEffect(() => {
   //   return () => clearInterval(interval);
   // }, [viewModel?.childList]);
 
-  useEffect(() => {
+ useEffect(() => {
   const interval = setInterval(() => {
-    const updateTimers = async () => {
-      const updatedTimers = {};
+    const updatedTimers = {};
+    let shouldReload = false;
 
-      const getFullName = (child) => {
-        if (!child) return '';
-        return [
-          child?.firstname,
-          child?.secondname,
-          child?.thirdname,
-          child?.fourthname,
-        ]
-          .filter(Boolean)
-          .join(' ');
-      };
-
-      if (viewModel?.childList?.active_children?.length > 0) {
-        const fullName = getFullName(viewModel.childList.active_children[0].user);
-        setFirstUsername(fullName);
-      } else if (viewModel?.childList?.expired_children?.length > 0) {
-        const fullName = getFullName(viewModel.childList.expired_children[0].user);
-        setFirstUsername(fullName);
-      }
-
-      let shouldReload = false;
-
-      viewModel?.childList?.active_children?.forEach((child) => {
-        const now = moment();
-        const sessionDate = moment(child.session_date, 'YYYY-MM-DD');
-        const playToTime = moment(`${child.session_date} ${child.play_to}`, 'YYYY-MM-DD HH:mm:ss');
-
-        if (child?.session_status === 'active' && sessionDate.isSame(now, 'day')) {
-          const duration = moment.duration(playToTime.diff(now));
-          if (duration.asMilliseconds() > 0) {
-            const hours = Math.floor(duration.asHours());
-            const minutes = duration.minutes();
-            const seconds = duration.seconds();
-            updatedTimers[child.id] = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
-              .toString()
-              .padStart(2, '0')}`;
-          } else {
-            updatedTimers[child.id] = '0:00:00';
-            shouldReload = true; // mark that we need to reload children
-          }
-        } else {
-          updatedTimers[child.id] = '0:00:00';
-        }
-      });
-
-      setTimers(updatedTimers);
-
-      // Call API outside of loop to avoid multiple calls
-      if (shouldReload) {
-        await viewModel.loadChildren();
-      }
+    const getFullName = (child) => {
+      if (!child) return '';
+      return [child?.firstname, child?.secondname, child?.thirdname, child?.fourthname]
+        .filter(Boolean)
+        .join(' ');
     };
 
-    updateTimers();
+    if (viewModel?.childList?.active_children?.length > 0) {
+      setFirstUsername(getFullName(viewModel.childList.active_children[0].user));
+    } else if (viewModel?.childList?.expired_children?.length > 0) {
+      setFirstUsername(getFullName(viewModel.childList.expired_children[0].user));
+    }
+
+    viewModel?.childList?.active_children?.forEach((child) => {
+      const now = moment();
+      const sessionDate = moment(child.session_date, 'YYYY-MM-DD');
+      const playToTime = moment(`${child.session_date} ${child.play_to}`, 'YYYY-MM-DD HH:mm:ss');
+
+      if (child?.session_status === 'active' && sessionDate.isSame(now, 'day')) {
+        const duration = moment.duration(playToTime.diff(now));
+        if (duration.asMilliseconds() > 0) {
+          const hours = Math.floor(duration.asHours());
+          const minutes = duration.minutes();
+          const seconds = duration.seconds();
+          updatedTimers[child.id] = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
+            .toString()
+            .padStart(2, '0')}`;
+        } else {
+          updatedTimers[child.id] = '0:00:00';
+          shouldReload = true;
+        }
+      } else {
+        updatedTimers[child.id] = '0:00:00';
+      }
+    });
+
+    setTimers(updatedTimers);
+
+    if (shouldReload && !reloadFlag) {
+      setReloadFlag(true); // prevent repeated API calls
+      viewModel.loadChildren().finally(() => setReloadFlag(false));
+    }
   }, 1000);
 
   return () => clearInterval(interval);
-}, [viewModel?.childList]);
+}, []);
+
 useEffect(() => {
-    const initBluetooth = async () => {
+  const initBluetooth = async () => {
+    try {
       const granted = await requestBluetoothPermission();
 
       if (!granted) {
@@ -252,11 +247,76 @@ useEffect(() => {
           t('printer.bluetooth_required'),
           t('printer.bluetooth_required_msg'),
         );
+        return;
       }
-    };
 
-    initBluetooth();
-  }, []);
+      // Wait a bit to let permission take effect before checking
+      setTimeout(async () => {
+        const ready = await ensureBluetoothReady();
+        if (!ready) {
+          console.log('Bluetooth not ready');
+        }
+      }, 300);
+    } catch (e) {
+      console.log('Bluetooth init error', e);
+    }
+  };
+
+  initBluetooth();
+}, []);
+
+
+
+// Check & enable Bluetooth
+const ensureBluetoothReady = async () => {
+  try {
+    let isEnabled = false;
+
+    try {
+      isEnabled = await BluetoothManager.isBluetoothEnabled();
+    } catch (e) {
+      console.log('Bluetooth check error', e);
+      isEnabled = false;
+    }
+
+    if (!isEnabled) {
+      return new Promise((resolve) => {
+        Alert.alert(
+          'Bluetooth Disabled',
+          'Please turn ON Bluetooth to connect printer',
+          [
+            {
+              text: 'Cancel',
+              onPress: () => resolve(false),
+              style: 'cancel',
+            },
+            {
+              text: 'Turn On',
+              onPress: async () => {
+                try {
+                  await BluetoothManager.enableBluetooth();
+                  // 🔥 wait a moment for system to enable Bluetooth
+                  setTimeout(() => resolve(true), 1500);
+                } catch (e) {
+                  console.log('Failed to enable Bluetooth', e);
+                  resolve(false);
+                }
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      });
+    }
+
+    return true;
+  } catch (e) {
+    console.log('Bluetooth check error', e);
+    return false;
+  }
+};
+
+
 
   const formatDate = date => {
     const d = new Date(date);

@@ -23,10 +23,16 @@ import { fetchGameTypes } from '../../../features/auth/staffSlice/registerNewChi
 import BottomTabsStaff from '../BottomTabStaff';
 import Storage from '../../../utils/storage';
 import { useTranslation } from 'react-i18next';
-import {
-  BLEPrinter,
-} from 'react-native-thermal-receipt-printer-image-qr';
-
+// import {
+//   BLEPrinter,
+// } from 'react-native-thermal-receipt-printer-image-qr';
+import {requestBluetoothPermission} from '../../../utils/bluetoothPermission';
+// import BluetoothStateManager from 'react-native-bluetooth-state-manager';
+import { 
+   BluetoothEscposPrinter,
+   BluetoothManager 
+ } from 'react-native-bluetooth-escpos-printer';
+ 
 import { PermissionsAndroid, Alert } from 'react-native';
 import QRCodeSVG from '../../components/SvgXml';
 import SvgToPng from '../../components/svgtoPng';
@@ -44,14 +50,17 @@ const row = (label, value, width) => {
   return label + ' '.repeat(Math.max(1, space)) + value;
 };
 const USE_MOCK_PRINTER = true; // 🔥 METHOD-1 ENABLED
+const PAPER_58_WIDTH = 384; // 58mm
 
 const SessionDetailsScreen = ({ route, navigation }) => {
   const { t } = useTranslation();
   const viewModel = useFilterBottomSheetViewModel();
   const options = ['45 min', '30 min', '15 min'];
   const [selected, setSelected] = useState('');
-  const [printerConnected, setPrinterConnected] = useState(false);
-const [printerMac, setPrinterMac] = useState(null);
+  const [showPrinterModal, setShowPrinterModal] = useState(false);
+
+//   const [printerConnected, setPrinterConnected] = useState(false);
+// const [printerMac, setPrinterMac] = useState(null);
 
       const [role, setRole] = useState(null);
   const svgToPngRef = useRef();
@@ -76,6 +85,8 @@ ${center('Thank You', paperWidth)}
 
 `;
 };
+const connectingRef = useRef(false);
+
 const buildQRData = () => {
   return JSON.stringify({
     child: childData?.data?.name,
@@ -85,106 +96,307 @@ const buildQRData = () => {
   });
 };
 
-const requestBluetoothPermission = async () => {
-  if (Platform.OS === 'android') {
-    if (Platform.Version >= 31) {
-      const result = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-        PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-      ]);
-      // Check if granted
-      if (
-        result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN] !== 'granted' ||
-        result[PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT] !== 'granted'
-      ) {
-        throw new Error('Bluetooth permission denied');
-      }
-    } else {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
-      if (granted !== 'granted') {
-        throw new Error('Location permission required for Bluetooth');
-      }
+const [printerConnected, setPrinterConnected] = useState(false);
+const [printerMac, setPrinterMac] = useState(null);
+const [printers, setPrinters] = useState([]);
+const [connectingPrinter, setConnectingPrinter] = useState(false);
+const safeParse = (value) => {
+  console.log(value);
+
+  if (!value) return [];
+
+  // ✅ already parsed (Android newer versions)
+  if (Array.isArray(value)) return value;
+
+  // ✅ string case (older versions)
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return [];
     }
+  }
+
+  return [];
+};
+const filterPrinters = (devices = []) => {
+  return devices.filter(d =>
+    d.name 
+  );
+};
+// && (
+//       d.name.toLowerCase().includes('zeb') ||
+//       d.name.toLowerCase().includes('sg') ||
+//       d.name.toLowerCase().includes('printer')
+//     )
+const safeDisconnect = async () => {
+  try {
+    await BluetoothManager.disconnect();
+  } catch {}
+};
+
+
+const combineDevices = (paired = [], found = []) => {
+  const map = new Map();
+
+  [...paired, ...found].forEach(device => {
+    if (device?.address) {
+      map.set(device.address, device);
+    }
+  });
+
+  return Array.from(map.values());
+};
+
+const fetchPairedPrinters = async () => {
+  try {
+    const ready = await ensureBluetoothReady();
+    if (!ready) return;
+
+    const result = await BluetoothManager.scanDevices();
+    console.log(result);
+    
+    const pairedDevices = normalizeScanResult(result);
+    const allDevices = combineDevices(
+  pairedDevices?.paired,
+  pairedDevices?.found
+);
+
+console.log('All Devices:', allDevices);
+
+const printerList = filterPrinters(allDevices);
+
+console.log('Filtered Printers:', printerList);
+
+    if (printerList.length === 0) {
+      Alert.alert('Printer', 'No paired printers found');
+      return;
+    }
+
+    setPrinters(printerList);
+    setShowPrinterModal(true);
+  } catch (e) {
+    console.log('Fetch printers error:', e);
+    Alert.alert('Printer', 'Failed to scan printers');
   }
 };
 
 
 
 useEffect(() => {
-  const initBluetoothAndConnect = async () => {
+  const autoConnectLastPrinter = async () => {
     try {
-      // 1️⃣ Request permissions
-      await requestBluetoothPermission();
+      const savedMac = await Storage.getItem('LAST_PRINTER_KEY');
+      if (!savedMac) return;
 
-      // 2️⃣ Initialize BLEPrinter
-      await BLEPrinter.init();
+      const enabled = await BluetoothManager.isBluetoothEnabled();
+      if (!enabled) return;
 
-      // 3️⃣ Connect to printer
-      await connectPrinter();
-    } catch (error) {
-      console.log('Bluetooth init error:', error);
-      Alert.alert(
-        t('printer.enable_bluetooth'),
-        t('printer.enable_bluetooth_message')
-      );
+      await BluetoothManager.connect(savedMac);
+      setPrinterMac(savedMac);
+      setPrinterConnected(true);
+
+      console.log('Auto-connected printer:', savedMac);
+    } catch (e) {
+      console.log('Auto-connect failed:', e);
     }
   };
 
-  initBluetoothAndConnect();
+  autoConnectLastPrinter();
 }, []);
 
-const connectPrinter = async () => {
+// Ensure Bluetooth is ON
+const ensureBluetoothReady = async () => {
   try {
-    await requestBluetoothPermission();
-    await BLEPrinter.init();
-
-    const devices = await BLEPrinter.getDeviceList();
-
-    if (!devices || devices.length === 0) {
-      Alert.alert(t('printer.title'), t('printer.no_device_found'));
-      return;
+    const enabled = await BluetoothManager.isBluetoothEnabled();
+    if (!enabled) {
+      await BluetoothManager.enableBluetooth();
+      await new Promise(res => setTimeout(res, 1000)); // wait 1 second
     }
-
-    const mac = devices[0].inner_mac_address;
-
-    await BLEPrinter.connectPrinter(mac);
-
-    setPrinterMac(mac);
-    setPrinterConnected(true);
-
-    console.log('Printer connected:', mac);
-  } catch (error) {
-    setPrinterConnected(false);
-    Alert.alert(
-      t('printer.error'),
-      error?.message || t('printer.enable_bluetooth')
-    );
+    return true;
+  } catch (e) {
+    console.log('Bluetooth check error', e);
+    return false;
   }
 };
 
 
-// const connectPrinter = async () => {
-//   try {
-//     await requestBluetoothPermission();
-//     await BLEPrinter.init();
 
-//     const devices = await BLEPrinter.getDeviceList();
 
-//     if (!devices || devices.length === 0) {
-//       Alert.alert('Printer', 'No Bluetooth printer found');
-//       return;
-//     }
+const normalizeScanResult = (result) => {
+  if (!result) return { paired: [], found: [] };
 
-//     // Recommended: show picker instead of auto connect
-//     await BLEPrinter.connectPrinter(devices[0].inner_mac_address);
+  if (typeof result === 'string') {
+    try {
+      return JSON.parse(result);
+    } catch {
+      return { paired: [], found: [] };
+    }
+  }
 
-//     Alert.alert('Printer Connected');
-//   } catch (e) {
-//     Alert.alert('Printer Error', e?.message || 'Bluetooth not enabled');
-//   }
-// };
+  return result;
+};
+const connectPrinter = async (printer) => {
+  setConnectingPrinter(true)
+  if (!printer?.address) {
+    Alert.alert('Printer', 'Invalid printer selected');
+    return false;
+  }
+
+  // if (connectingRef.current) {
+  //   console.log('Printer: already connecting');
+  //   return false;
+  // }
+
+  // connectingRef.current = true;
+
+  try {
+    console.log('Requesting Bluetooth permissions...');
+    const granted = await requestBluetoothPermission();
+    if (!granted) {
+      Alert.alert('Printer', 'Bluetooth & Location permissions are required');
+      return false;
+    }
+
+    // -----------------------------
+    // ENSURE BLUETOOTH IS READY
+    // -----------------------------
+    let btEnabled = await BluetoothManager.isBluetoothEnabled();
+    if (!btEnabled) {
+      console.log('Bluetooth not enabled, enabling...');
+      await BluetoothManager.enableBluetooth();
+    }
+
+    // poll until BT is fully ready (max 8 seconds)
+    let timeout = 0;
+    while (!(btEnabled = await BluetoothManager.isBluetoothEnabled()) && timeout < 8000) {
+      console.log('Waiting for Bluetooth stack to be ready...');
+      await new Promise(r => setTimeout(r, 500));
+      timeout += 500;
+    }
+    if (!btEnabled) {
+      Alert.alert('Printer', 'Bluetooth could not be enabled. Please enable manually.');
+      return false;
+    }
+
+    // -----------------------------
+    // GET PAIRED DEVICES
+    // -----------------------------
+    console.log('Scanning devices...');
+    const pairedDevices = await BluetoothManager.scanDevices();
+    const devices = normalizeScanResult(pairedDevices);
+     const allDevices = combineDevices(
+  devices?.paired,
+  devices?.found
+);
+
+console.log('All Devices:', allDevices);
+    const matchedDevice = allDevices?.find(d => d.address === printer.address);
+
+    if (!matchedDevice) {
+      Alert.alert('Printer', `Printer ${printer.name} is not paired. Pair it in system settings first.`);
+      return false;
+    }
+
+    // -----------------------------
+    // DISCONNECT PREVIOUS PRINTER
+    // -----------------------------
+    // try {
+    //   console.log('Disconnecting any previous printer...');
+    //   await BluetoothManager.disableBluetooth();
+    //   await new Promise(r => setTimeout(r, 500));
+    // } catch (err) {
+    //   console.log('No previous printer to disconnect or disconnect failed', err);
+    // }
+
+    // -----------------------------
+    // CONNECT
+    // -----------------------------
+    console.log('Connecting to printer:', printer.name, printer.address);
+    try {
+      await BluetoothManager.connect(printer.address);
+    } catch (err) {
+      console.log('Initial connect failed, retrying once...', err);
+      await new Promise(r => setTimeout(r, 1000));
+      await BluetoothManager.connect(printer.address);
+    }
+
+    console.log('Printer connected successfully:', printer.name);
+    await Storage.setItem('LAST_PRINTER_KEY', printer.address);
+    Alert.alert('Printer', `Connected to ${printer.name} successfully!`);
+setConnectingPrinter(false)
+    return true;
+  } catch (err) {
+    setConnectingPrinter(false)
+    console.log('Printer connection error:', err);
+    Alert.alert('Printer', `Unable to connect: ${err.message || err}`);
+    return false;
+  } finally {
+    connectingRef.current = false;
+  }
+};
+
+
+
+// Helper: poll until Bluetooth is fully enabled
+const ensureBluetoothEnabled = async (timeout = 10000) => {
+  try {
+    let enabled = await BluetoothManager.isBluetoothEnabled();
+    if (enabled) return true;
+
+    await BluetoothManager.enableBluetooth();
+
+    const start = Date.now();
+    while (!enabled && Date.now() - start < timeout) {
+      await new Promise(r => setTimeout(r, 500));
+      enabled = await BluetoothManager.isBluetoothEnabled();
+    }
+
+    return enabled;
+  } catch (err) {
+    console.log('Bluetooth enable error', err);
+    return false;
+  }
+};
+
+
+
+
+
+
+
+
+
+
+useEffect(() => {
+  const initPrinter = async () => {
+    try {
+      await requestBluetoothPermission();
+
+      const savedMac = await Storage.getItem('LAST_PRINTER_KEY');
+
+      if (savedMac) {
+        // 🔥 Auto-connect last selected printer
+        await BluetoothManager.connect(savedMac);
+        setPrinterMac(savedMac);
+        setPrinterConnected(true);
+
+        console.log('Auto-connected printer:', savedMac);
+      } else {
+        // 🔥 No saved printer → ask user
+        fetchPairedPrinters();
+      }
+    } catch (e) {
+      console.log('Printer init failed:', e);
+      fetchPairedPrinters(); // fallback
+    }
+  };
+
+  initPrinter();
+}, []);
+
+
+
 
 
 useEffect(() => {
@@ -322,6 +534,7 @@ navigation.navigate("BottomTabs")
 navigation.navigate("BottomTabsStaff")
 }
   }
+  
 const getPrintPayload = () => ({
   text: `
 ==============================
@@ -343,83 +556,53 @@ Price   : ${viewModel?.childform?.price}
     
   }),
 });
+const onPrint = async () => {
+  try {
+    if (!printerConnected) {
+      const connected = await connectPrinter();
+      if (!connected) return;
+    }
 
-// const mockSendToPrinter = (payload) => {
-//   console.log('✅ PRINT TEXT:\n', payload.text);
-//   console.log('✅ PRINT QR:\n', payload.qr);
+    if (!childData?.data) {
+      Alert.alert('Print', 'No child data available');
+      return;
+    }
 
-//   Alert.alert(
-//     'Printer Payload (Test Mode)',
-//     payload.text
-//   );
+    const payload = getPrintPayload();
 
-//   return true; // simulate success
-// };
+    await BluetoothEscposPrinter.printText(
+      payload.text + '\n',
+      { encoding: 'GBK', codepage: 0 }
+    );
+
+    if (childData?.data?.qr_code_base64) {
+      await BluetoothEscposPrinter.printPic(
+        childData.data.qr_code_base64,
+        { width: PAPER_58_WIDTH }
+      );
+    }
+
+    await BluetoothEscposPrinter.printText('\n\n', {});
+    Alert.alert('Print', 'Printed successfully');
+
+  } catch (e) {
+    console.log('Print error:', e);
+    setPrinterConnected(false);
+    Alert.alert('Print Error', e?.message || 'Unknown error');
+  }
+};
+
+
+
 // const onPrint = async () => {
-//   const payload = getPrintPayload();
-//  try {
-//     if (!childData?.data) {
-//       Alert.alert('Print', 'No data available to print');
-//       return;
-//     }
-//   if (USE_MOCK_PRINTER) {
-//     mockSendToPrinter(payload);
-//     return;
-//   }
-//  } catch (e) {
-//     Alert.alert('Print Error', e?.message || 'Unknown error');
-//   }
-//   await BLEPrinter.printText(payload.text);
-//   await BLEPrinter.printQR(payload.qr);
-
-// };
-   
-// const onPrint = async (paperSize = '58') => {
 //   try {
-//     if (!childData?.data) {
-//       Alert.alert('Print', 'No data available to print');
-//       return;
-//     }
+//     const ready = await ensureBluetoothReady();
+//     if (!ready) return;
 
-//     const width = paperSize === '80' ? PAPER_80 : PAPER_58;
-//     const receiptText = buildReceiptText(width);
-//     const qrData = buildQRData();
-
-//     // ✅ METHOD-1: MOCK PRINTER (NO DEVICE REQUIRED)
-//     if (USE_MOCK_PRINTER) {
-//       console.log('🧾 PRINT TEXT:\n', receiptText);
-//       console.log('🔳 QR DATA:', qrData);
-
-//       Alert.alert(
-//         `Print Preview (${paperSize}mm)`,
-//         receiptText
-//       );
-//       return;
-//     }
-
-//     // 🔥 REAL PRINTER (ENABLE LATER)
-//     /*
 //     if (!printerConnected) {
 //       Alert.alert('Printer', 'Printer not connected');
 //       return;
 //     }
-
-//     await BLEPrinter.printText(receiptText);
-//     await BLEPrinter.printQR(qrData, {
-//       size: paperSize === '80' ? 8 : 6,
-//       alignment: 1,
-//     });
-//     await BLEPrinter.printText('\n\n');
-//     */
-
-//   } catch (e) {
-//     Alert.alert('Print Error', e?.message || 'Unknown error');
-//   }
-// };
-
-///final code 
-// const onPrint = async () => {
-//   try {
 //     if (!childData?.data) {
 //       Alert.alert('Print', 'No data available');
 //       return;
@@ -427,104 +610,64 @@ Price   : ${viewModel?.childform?.price}
 
 //     const payload = getPrintPayload();
 
-//     // 🔴 MOCK MODE
-//     if (USE_MOCK_PRINTER) {
-//       console.log('🧾 TEXT:\n', payload.text);
-//       console.log('🔳 QR STRING:\n', payload.qr);
+//     console.log('PRINT STARTED');
+
+//     // 🔴 Ensure SVG ref exists
+//     if (!svgToPngRef.current) {
+//       Alert.alert('Print', 'QR image not ready');
 //       return;
 //     }
 
-//     // 1️⃣ Print receipt text
+//     // 1️⃣ Convert SVG → PNG (ONLY ONCE)
+//     const pngUri = await svgToPngRef.current.convertToPng();
+//     console.log('PNG URI:', pngUri);
+
+//     // ===============================
+//     // 🔴 MOCK MODE (NO PRINTER)
+//     // ===============================
+//     // if (USE_MOCK_PRINTER) {
+//     //   console.log('MOCK MODE ENABLED');
+
+//     //   setPrintedText(payload.text);
+//     //   setPrintedImage(pngUri);
+//     //   setShowPrintPreview(true);
+//     //   return;
+//     // }
+
+//     // ===============================
+//     // 🟢 REAL PRINTER MODE
+//     // ===============================
+
+//     // ⚠️ SAFETY CHECK (avoid native crash)
+//     const isConnected = await BLEPrinter.isConnected?.();
+//     if (!isConnected) {
+//       Alert.alert('Printer', 'Printer not connected');
+//       return;
+//     }
+
+//     // 2️⃣ Print text
 //     await BLEPrinter.printText(payload.text);
 
-//     // 2️⃣ Convert SVG → PNG
-//     const pngUri = await svgToPngRef.current?.convertToPng();
-
+//     // 3️⃣ Print image / QR
 //     if (pngUri) {
-//       // 3️⃣ Print QR IMAGE
-//       await BLEPrinter.printImage(pngUri, {
-//         width: 384, // 58mm printer
-//       });
+//       await BLEPrinter.printImage(pngUri, { width: 384 }); // 58mm
+//       //setPrintedImage(pngUri);
 //     } else {
-//       // fallback
 //       await BLEPrinter.printQR(payload.qr);
+//       //setPrintedImage(null);
 //     }
 
 //     await BLEPrinter.printText('\n\n');
 
+//     // 4️⃣ Show preview after printing
+//     // setPrintedText(payload.text);
+//     // setShowPrintPreview(true);
+
 //   } catch (e) {
+//     console.log('PRINT ERROR:', e);
 //     Alert.alert('Print Error', e?.message || 'Unknown error');
 //   }
 // };
-
-
-const onPrint = async () => {
-  try {
-    if (!childData?.data) {
-      Alert.alert('Print', 'No data available');
-      return;
-    }
-
-    const payload = getPrintPayload();
-
-    console.log('PRINT STARTED');
-
-    // 🔴 Ensure SVG ref exists
-    if (!svgToPngRef.current) {
-      Alert.alert('Print', 'QR image not ready');
-      return;
-    }
-
-    // 1️⃣ Convert SVG → PNG (ONLY ONCE)
-    const pngUri = await svgToPngRef.current.convertToPng();
-    console.log('PNG URI:', pngUri);
-
-    // ===============================
-    // 🔴 MOCK MODE (NO PRINTER)
-    // ===============================
-    // if (USE_MOCK_PRINTER) {
-    //   console.log('MOCK MODE ENABLED');
-
-    //   setPrintedText(payload.text);
-    //   setPrintedImage(pngUri);
-    //   setShowPrintPreview(true);
-    //   return;
-    // }
-
-    // ===============================
-    // 🟢 REAL PRINTER MODE
-    // ===============================
-
-    // ⚠️ SAFETY CHECK (avoid native crash)
-    const isConnected = await BLEPrinter.isConnected?.();
-    if (!isConnected) {
-      Alert.alert('Printer', 'Printer not connected');
-      return;
-    }
-
-    // 2️⃣ Print text
-    await BLEPrinter.printText(payload.text);
-
-    // 3️⃣ Print image / QR
-    if (pngUri) {
-      await BLEPrinter.printImage(pngUri, { width: 384 }); // 58mm
-      //setPrintedImage(pngUri);
-    } else {
-      await BLEPrinter.printQR(payload.qr);
-      //setPrintedImage(null);
-    }
-
-    await BLEPrinter.printText('\n\n');
-
-    // 4️⃣ Show preview after printing
-    // setPrintedText(payload.text);
-    // setShowPrintPreview(true);
-
-  } catch (e) {
-    console.log('PRINT ERROR:', e);
-    Alert.alert('Print Error', e?.message || 'Unknown error');
-  }
-};
 
 
   
@@ -882,6 +1025,45 @@ onPress={() => openPicker('time', 'play_to')}
         </View>
       </View>
     </Modal>
+    <Modal
+  transparent
+  visible={showPrinterModal}
+  animationType="slide"
+>
+  <View style={styles.overlay}>
+    <View style={styles.containermodal}>
+      <Text style={styles.titlemodal}>Select Printer</Text>
+
+      <ScrollView style={{ width: '100%' }}>
+        {printers.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.printerItem}
+            onPress={() => connectPrinter(item)}
+          >
+            <Text style={styles.printerName}>
+              {item.name || 'Unknown Printer'}
+            </Text>
+            <Text style={styles.printerMac}>
+              {item.address}
+            </Text>
+          </TouchableOpacity>
+        ))}
+         
+      </ScrollView>
+   {connectingPrinter && (
+        <Text style={{ marginTop: 10, fontWeight: '600' }}>Connecting...</Text>
+      )}
+      <TouchableOpacity
+        style={styles.printBtn}
+        onPress={() => setShowPrinterModal(false)}
+      >
+        <Text style={styles.printText}>Cancel</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
     <SvgToPng
   ref={svgToPngRef}
   svgBase64={childData?.data?.qr_code_base64}
@@ -1317,8 +1499,9 @@ closeBtn: {
   printBtn: {
     width: "80%",
     backgroundColor: "#CFF7D3",
-    paddingVertical: 14,
-    borderRadius: 25,
+    paddingVertical: 15,
+    borderRadius: 28,
+    marginTop: 16,
     alignItems: "center",
   },
   printText: {
@@ -1326,6 +1509,22 @@ closeBtn: {
     fontSize: 16,
     fontWeight: "600",
   },
+  printerItem: {
+  padding: 15,
+  borderBottomWidth: 1,
+  borderColor: '#eee',
+},
+printerName: {
+  fontSize: 16,
+  fontWeight: '600',
+  color: '#000',
+},
+printerMac: {
+  fontSize: 12,
+  color: '#666',
+  marginTop: 4,
+},
+
 });
 
 export default SessionDetailsScreen;

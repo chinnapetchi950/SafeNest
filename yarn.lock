@@ -5572,6 +5572,11 @@ react-is@^19.1.1:
   resolved "https://registry.npmjs.org/react-is/-/react-is-19.2.3.tgz"
   integrity sha512-qJNJfu81ByyabuG7hPFEbXqNcWSU3+eVus+KJs+0ncpGfMyYdvSmxiJxbWR65lYi1I+/0HBcliO029gc4F+PnA==
 
+react-native-bluetooth-escpos-printer@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.npmjs.org/react-native-bluetooth-escpos-printer/-/react-native-bluetooth-escpos-printer-0.0.5.tgz"
+  integrity sha512-a+GTlz8dctb48wkoJ8woE7gV24NCOoA13J95A+RFEKhjONEWf3/dP5pIqrrlO5fsf/2QYDeMfU3P8bIVQoEqig==
+
 react-native-chart-kit@^6.12.0:
   version "6.12.0"
   resolved "https://registry.npmjs.org/react-native-chart-kit/-/react-native-chart-kit-6.12.0.tgz"
@@ -5680,7 +5685,7 @@ react-native-view-shot@^4.0.3:
   dependencies:
     html2canvas "^1.4.1"
 
-react-native@*, "react-native@^0.0.0-0 || >=0.60 <1.0", "react-native@^0.0.0-0 || >=0.65 <1.0", "react-native@^0.41.2 || ^0.57.0 || ^0.68.0 || ^0.70.0", "react-native@>= 0.50.0", react-native@>=0.35, react-native@>=0.42.0, "react-native@>=0.60.0-rc.0 <1.0.x", react-native@>=0.70, react-native@0.82.1:
+react-native@*, "react-native@^0.0.0-0 || >=0.60 <1.0", "react-native@^0.0.0-0 || >=0.65 <1.0", "react-native@^0.41.2 || ^0.57.0 || ^0.68.0 || ^0.70.0", "react-native@>= 0.50.0", react-native@>=0.35, react-native@>=0.42.0, react-native@>=0.55.4, "react-native@>=0.60.0-rc.0 <1.0.x", react-native@>=0.70, react-native@0.82.1:
   version "0.82.1"
   dependencies:
     "@jest/create-cache-key-function" "^29.7.0"

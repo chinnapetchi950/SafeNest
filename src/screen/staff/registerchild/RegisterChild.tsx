@@ -8,7 +8,8 @@ import {
   Platform,
   ScrollView,
   FlatList,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  Alert
 } from 'react-native';
 import CustomTextField, {
   CommonButton,
@@ -19,6 +20,7 @@ import useFilterBottomSheetViewModel from '../../../viewmodels/staff/CreatingChi
 import DateTimePicker from '@react-native-community/datetimepicker';
 import globalstyles from '../../../styles/globalstyles';
 import DropDownPicker from "react-native-dropdown-picker";
+import moment from 'moment';
 
 import { launchImageLibrary } from 'react-native-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -52,17 +54,39 @@ export const RegisterChildScreen = () => {
       };
       loadRole();
     }, []);
-  const handleDateChange = (event, selectedDate) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      const date = new Date(selectedDate);
-      const formateDate = formatDate(date);
-      const formatted = `${date.getFullYear()}/${String(
-        date.getMonth() + 1,
-      ).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
-      viewModel.handleInputChange('date_of_birth', formateDate);
-    }
-  };
+  // const handleDateChange = (event, selectedDate) => {
+  //   setShowDatePicker(false);
+  //   if (selectedDate) {
+  //     const date = new Date(selectedDate);
+  //     const formateDate = formatDate(date);
+  //     const formatted = `${date.getFullYear()}/${String(
+  //       date.getMonth() + 1,
+  //     ).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+  //     viewModel.handleInputChange('date_of_birth', formateDate);
+  //   }
+  // };
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+  setShowDatePicker(false);
+
+  if (!selectedDate) return;
+
+  const selected = new Date(selectedDate);
+  const maxDOB = getMaxAllowedDOB();
+
+  // ❌ Child younger than 1 month
+  if (selected > maxDOB) {
+    Alert.alert(
+      t('validation.invalidDOBTitle') || 'Invalid Date',
+      t('validation.childMinOneMonth') ||
+        'Child must be at least 1 month old'
+    );
+    return;
+  }
+
+  const formatted = moment(selected).format('YYYY-MM-DD');
+  viewModel.handleInputChange('date_of_birth', formatted);
+};
+
 
   const pickImage = viewModel.pickImages;
 
@@ -79,7 +103,32 @@ export const RegisterChildScreen = () => {
   const removeImage = index => {
     viewModel.removeImage(index);
   };
-
+const showImagePicker = () => {
+  Alert.alert(
+    t('child.uploadPhoto'),
+    t('child.chooseOption'),
+    [
+      {
+        text: t('child.camera'),
+        onPress: viewModel?.openCamera,
+      },
+      {
+        text: t('child.gallery'),
+        onPress: pickImage,
+      },
+      {
+        text: t('common.cancel'),
+        style: 'cancel',
+      },
+    ],
+    { cancelable: true }
+  );
+};
+const getMaxAllowedDOB = () => {
+  const today = new Date();
+  today.setMonth(today.getMonth() - 1);
+  return today;
+};
   const renderItem = ({ item, index }) => (
     <View style={styles.uploadCard}>
       {/* Delete Icon */}
@@ -270,6 +319,7 @@ export const RegisterChildScreen = () => {
                     : new Date()
                 }
                 mode="date"
+                maximumDate={getMaxAllowedDOB()} // ✅ KEY LINE
                 display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                 onChange={handleDateChange}
               />
@@ -375,7 +425,7 @@ export const RegisterChildScreen = () => {
                 {t('child.uploadChildPhoto')}
               </Text>
               {images.length === 0 && (
-                <TouchableOpacity style={styles.emptyBox} onPress={pickImage}>
+                <TouchableOpacity style={styles.emptyBox} onPress={()=> viewModel?.openCamera()}>
                   <Ionicons name={'images-outline'} size={22} color="#3AB54A" />
                   <Text style={styles.addText}>{t('child.addImageHere')}</Text>
                 </TouchableOpacity>
@@ -393,7 +443,7 @@ export const RegisterChildScreen = () => {
               {viewModel.form.pictures.length < 5 &&
                 viewModel.form.pictures.length != 0 && (
                   <TouchableOpacity
-                    onPress={pickImage}
+                    onPress={() =>  viewModel?.openCamera()}
                     style={styles.addMoreBtn}
                   >
         <Text style={styles.addMoreText}>{t('child.addMore')}</Text>

@@ -20,6 +20,7 @@ const ManualHandoverScanner = ({ navigation }) => {
   const [scanning, setScanning] = useState(false);
   const [barcodeData, setBarcodeData] = useState('');
   const [hasPermission, setHasPermission] = useState(false);
+const {t}=useTranslation()
 
   useEffect(() => {
     const requestCameraPermission = async () => {
@@ -47,7 +48,7 @@ const ManualHandoverScanner = ({ navigation }) => {
       }
     };
 
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   requestCameraPermission();
   }, []);
 
@@ -100,7 +101,6 @@ const ManualHandoverScanner = ({ navigation }) => {
       },
     });
   };
-const {t}=useTranslation()
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>

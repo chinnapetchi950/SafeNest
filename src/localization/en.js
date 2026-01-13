@@ -206,6 +206,10 @@ export default {
   addressLabel: "Address",
   playHoursLabel: "Play Hours",
   statusLabel: "Status",
+  uploadPhoto: "Upload Photo",
+  chooseOption: "Choose Option",
+  camera: "Camera",
+  gallery: "Gallery",
   },
 
   confirmation: {

@@ -218,6 +218,10 @@ gameManagement: {
 "addressLabel": "العنوان",
 "playHoursLabel": "ساعات اللعب",
 "statusLabel": "الحالة",
+"uploadPhoto": "رفع الصورة",
+"chooseOption": "اختر خيارًا",
+"camera": "كاميرا",
+"gallery": "معرض",
   },
 
   confirmation: {

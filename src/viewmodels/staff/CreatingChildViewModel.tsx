@@ -546,10 +546,10 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
-import { Alert } from "react-native";
+import { Alert,PermissionsAndroid, Platform } from "react-native";
 import moment from "moment";
 import strings from '../../localization/en';
-import { launchImageLibrary } from "react-native-image-picker";
+import { launchImageLibrary ,launchCamera} from "react-native-image-picker";
 import { useTranslation } from 'react-i18next';
 
 import Storage from "../../utils/storage";
@@ -622,6 +622,29 @@ const [errors, setErrors] = useState({});
       loadUsers();
     }
   };
+const requestCameraPermission = async () => {
+  if (Platform.OS === "android") {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: "Camera Permission",
+          message: "This app needs access to your camera to take photos",
+          buttonNeutral: "Ask Me Later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK",
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  } else {
+    // iOS automatically asks permission at runtime
+    return true;
+  }
+};
 
   const loadUsers = async () => {
     try {
@@ -674,6 +697,44 @@ const [errors, setErrors] = useState({});
   const handleDurationSelect = (duration) => {
     setChildForm((prev) => ({ ...prev, duration }));
   };
+  const formatImage = (item) => ({
+  uri: item.uri,
+  type: item.type || "image/jpeg",
+  fileName: item.fileName || `img_${Date.now()}.jpg`,
+});
+  const openCamera = async () => {
+  if (form.pictures.length >= 5) {
+    Alert.alert("Limit reached", "You can upload only 5 images");
+    return;
+  }
+
+  const hasPermission = await requestCameraPermission();
+  if (!hasPermission) {
+    Alert.alert("Permission Denied", "Camera permission is required to take photos");
+    return;
+  }
+
+  launchCamera(
+    {
+      mediaType: "photo",
+      cameraType: "back",
+      quality: 0.8,
+    },
+    (response) => {
+      if (response.didCancel || response.errorCode) return;
+
+      const asset = response.assets?.[0];
+      if (!asset) return;
+
+      setForm((prev) => ({
+        ...prev,
+        pictures: [...prev.pictures, formatImage(asset)],
+      }));
+    }
+  );
+};
+
+
   /* -------------------- IMAGE PICKER -------------------- */
   const pickImages = () => {
     launchImageLibrary({ mediaType: "photo", selectionLimit: 5 }, (response) => {
@@ -868,6 +929,7 @@ console.log("formdata,",formData);
     isnextButtonDisabled,
     isaddButtonDisabled,
     handleDurationSelect,
+    openCamera
   };
 };
 

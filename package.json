@@ -29,6 +29,7 @@
     "react": "19.1.1",
     "react-i18next": "^16.5.1",
     "react-native": "0.82.1",
+    "react-native-bluetooth-escpos-printer": "^0.0.5",
     "react-native-chart-kit": "^6.12.0",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-image-picker": "^8.2.1",
