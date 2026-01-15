@@ -69,6 +69,25 @@ deleteUsers: async (ids: number[]) => {
 
   return apiClient.post("api/admin/users-delete-multiple", formData, true);
 },
+deleteChildren: async (ids: number[]) => {
+  const role = await Storage.getItem("admin"); // "admin" or "user"
+
+  let url = "";
+
+  if (role === "admin") {
+    url = "api/admin/children-delete-multiple";
+  } else {
+    
+    url = "api/user/children-delete-multiple"; // default
+  }
+
+  const formData = new FormData();
+  ids.forEach((id) => formData.append("child_ids[]", id.toString()));
+  formData.append("_method", "DELETE");
+
+  return apiClient.post(url, formData, true);
+},
+
 getGameList: async (page = 1) => {
   return apiClient.get(`api/admin/game-types?page=${page}`);
 },
@@ -103,6 +122,20 @@ deletenotification:async (id) => {
   form.append("_method", "DELETE");
 
   return apiClient.post(`api/user/notifications/${id}`,form,true);
+},
+markasall_read:
+async () => {
+    
+
+  return apiClient.post(`/api/user/notifications/mark-all-read`);
+},
+singleRead:
+async (id) => {
+  const formData = new FormData();
+    formData.append("_method", 'PATCH');
+   
+
+  return apiClient.post(`/api/user/notifications/${id}/read`,formData,true);
 },
  getSettings:async()=> {
     return apiClient.get("api/admin/whatsapp/settings");

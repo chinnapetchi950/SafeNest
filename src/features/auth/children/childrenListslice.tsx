@@ -17,6 +17,21 @@ export const fetchChildrenList = createAsyncThunk(
     }
   }
 );
+export const deleteChildren = createAsyncThunk(
+  "children/delete-multiple",
+  async (ids: number[], thunkAPI) => {
+    try {
+      const res = await authService.deleteChildren(ids); // role-based API
+      return res.data;
+    } catch (err: any) {
+      console.log("errr========>",err);
+      
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message
+      );
+    }
+  }
+);
 // ----------------------------------------------
 // 🔥 SLICE
 // ----------------------------------------------
@@ -24,36 +39,61 @@ const childlistSlice = createSlice({
   name: "childrenList",
   initialState: {
     loading: false,
-    list: [],
-    error: null,
+  list: [],
+  error: null,
+  deleteLoading: false,
   },
 
   reducers: {},
 
-  extraReducers: (builder) => {
-    builder
+extraReducers: (builder) => {
+  builder
 
-      //Loading
-      .addCase(fetchChildrenList.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
+    // ----------------------------
+    // FETCH CHILDREN
+    // ----------------------------
+    .addCase(fetchChildrenList.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
 
-      //Success
-      .addCase(fetchChildrenList.fulfilled, (state, action) => {
-        state.loading = false;
+    .addCase(fetchChildrenList.fulfilled, (state, action) => {
+      state.loading = false;
+      if (action.payload?.status === true) {
+        state.list = action.payload.data;
+      }
+    })
 
-        if (action.payload?.status === true) {
-          state.list = action.payload.data; // STORE API DATA
-        }
-      })
+    .addCase(fetchChildrenList.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload || "Failed to load data";
+    })
 
-      // Error
-      .addCase(fetchChildrenList.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to load data";
-      });
-  },
+    // ----------------------------
+    // DELETE CHILDREN
+    // ----------------------------
+    .addCase(deleteChildren.pending, (state) => {
+      state.deleteLoading = true;
+      state.error = null;
+    })
+
+    .addCase(deleteChildren.fulfilled, (state, action) => {
+      state.deleteLoading = false;
+
+      if (action.payload?.status === true) {
+        const deletedIds = action.meta.arg; // ids passed to thunk
+        state.list = state.list.filter(
+          (child) => !deletedIds.includes(child.id)
+        );
+      }
+    })
+
+    .addCase(deleteChildren.rejected, (state, action) => {
+      state.deleteLoading = false;
+      state.error = action.payload || "Failed to delete children";
+    });
+},
+
 });
 
 export default childlistSlice.reducer;

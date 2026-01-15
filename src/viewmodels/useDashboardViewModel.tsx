@@ -244,25 +244,50 @@ const childHandoverdata = async (data) => {
     setLoading(false);
   }
 };
-const endChildSession = async (childId) => {
-  try {
-    setLoading(true);
+const endChildSession = (childId) => {
+  Alert.alert(
+    'Confirm',
+    'Are you sure you want to end this session?',
+    [
+      {
+        text: t('common.cancel') || 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: t('common.yes') || 'Yes',
+        onPress: async () => {
+          try {
+            setLoading(true);
 
-    const formData = new FormData();
-    formData.append("_method", "PATCH");
-    // formData.append("qr_data", "12345678"); // whatever you need to send
+            const formData = new FormData();
+            formData.append('_method', 'PATCH');
 
-    const res = await authService.childendSession(childId, formData);
+            const res = await authService.childendSession(childId, formData);
 
-    console.log("END SESSION RES:", res);
-  Alert.alert(t('alerts.success') || 'Success', res.data?.message);
-  loadChildren();
-  } catch (error) {
-    console.log("End Session Error:", error?.response);
-  } finally {
-    setLoading(false);
-  }
+            console.log('END SESSION RES:', res);
+
+            Alert.alert(
+              t('alerts.success') || 'Success',
+              res.data?.message
+            );
+
+            loadChildren();
+          } catch (error) {
+            console.log('End Session Error:', error?.response);
+            Alert.alert(
+              t('alerts.error') || 'Error',
+              error?.response?.data?.message || 'Something went wrong'
+            );
+          } finally {
+            setLoading(false);
+          }
+        },
+      },
+    ],
+    { cancelable: true }
+  );
 };
+
 
   return {
     loading,

@@ -44,7 +44,7 @@ const messages = useSelector((state) => state.createGameType?.messageList || [])
   // MINUTES: 15 → 60
   // ============================
   const minutes = Array.from({ length: 46 }, (_, i) => {
-    const value = i + 15;
+    const value = i + 1;
     return { label: `${value} Min`, value: value };
   });
 

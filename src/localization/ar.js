@@ -46,7 +46,9 @@ export default {
   "no": "لا",
   "cancel": "إلغاء",
   "endSession": "إنهاء الجلسة",
-  "deliver": "تسليم"
+  "deliver": "تسليم",
+  "noSelection": "لا يوجد تحديد",
+    "search": "بحث"
 
   },
 
@@ -222,6 +224,11 @@ gameManagement: {
 "chooseOption": "اختر خيارًا",
 "camera": "كاميرا",
 "gallery": "معرض",
+"selectAtLeastOneChild": "يرجى اختيار طفل واحد على الأقل",
+    "confirmDeleteTitle": "تأكيد الحذف",
+    "confirmDeleteMessage": "هل أنت متأكد من حذف {count} طفل؟",
+    "childDeletedSuccess": "تم حذف الطفل بنجاح",
+    "failedToDeleteChild": "فشل في حذف الطفل"
   },
 
   confirmation: {

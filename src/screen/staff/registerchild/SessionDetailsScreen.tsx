@@ -323,6 +323,7 @@ console.log('All Devices:', allDevices);
 
     console.log('Printer connected successfully:', printer.name);
     await Storage.setItem('LAST_PRINTER_KEY', printer.address);
+    setPrinterConnected(true)
     Alert.alert('Printer', `Connected to ${printer.name} successfully!`);
 setConnectingPrinter(false)
     return true;
@@ -556,11 +557,51 @@ Price   : ${viewModel?.childform?.price}
     
   }),
 });
+// const onPrint = async () => {
+//   try {
+//     console.log(printerConnected,"");
+    
+//     if (!printerConnected) {
+//       const connected = await connectPrinter();
+//       if (!connected) return;
+//     }
+
+//     if (!childData?.data) {
+//       Alert.alert('Print', 'No child data available');
+//       return;
+//     }
+// console.log("BluetoothEscposPrinter",BluetoothEscposPrinter);
+
+//     const payload = getPrintPayload();
+
+//     await BluetoothEscposPrinter.printText(
+//       payload.text + '\n',
+//       { encoding: 'GBK', codepage: 0 }
+//     );
+
+//     if (childData?.data?.qr_code_base64) {
+//       await BluetoothEscposPrinter.printPic(
+//         childData.data.qr_code_base64,
+//         { width: PAPER_58_WIDTH }
+//       );
+//     }
+
+//     await BluetoothEscposPrinter.printText('\n\n', {});
+//     Alert.alert('Print', 'Printed successfully');
+
+//   } catch (e) {
+//     console.log('Print error:', e);
+//     setPrinterConnected(false);
+//     Alert.alert('Print Error', e?.message || 'Unknown error');
+//   }
+// };
+
+
 const onPrint = async () => {
   try {
     if (!printerConnected) {
-      const connected = await connectPrinter();
-      if (!connected) return;
+      Alert.alert('Printer', 'Printer not connected');
+      return;
     }
 
     if (!childData?.data) {
@@ -568,29 +609,69 @@ const onPrint = async () => {
       return;
     }
 
-    const payload = getPrintPayload();
+    // ✅ Initialize printer
+    await BluetoothEscposPrinter.printerInit();
+
+    // ✅ CENTER ALIGN
+    await BluetoothEscposPrinter.printerAlign(
+      BluetoothEscposPrinter.ALIGN.CENTER
+    );
 
     await BluetoothEscposPrinter.printText(
-      payload.text + '\n',
+      'CHILD REGISTRATION\n' +
+      '------------------------------\n',
       { encoding: 'GBK', codepage: 0 }
     );
 
+    // ✅ LEFT ALIGN
+    await BluetoothEscposPrinter.printerAlign(
+      BluetoothEscposPrinter.ALIGN.LEFT
+    );
+
+    await BluetoothEscposPrinter.printText(
+      `Child    : ${childData.data.name}\n` +
+      `Guardian : ${childData.data.guardian_name}\n` +
+      `Phone    : ${childData.data.phone}\n` +
+      `Session  : ${childData.data.play_to}\n` +
+      `Price    : ${viewModel?.childform?.price}\n` +
+      '------------------------------\n',
+      { encoding: 'GBK', codepage: 0 }
+    );
+
+    // ✅ PRINT QR CODE
     if (childData?.data?.qr_code_base64) {
       await BluetoothEscposPrinter.printPic(
         childData.data.qr_code_base64,
-        { width: PAPER_58_WIDTH }
+        {
+          width: BluetoothEscposPrinter.width58, // or width80
+        }
       );
     }
 
-    await BluetoothEscposPrinter.printText('\n\n', {});
-    Alert.alert('Print', 'Printed successfully');
+    // ✅ FEED PAPER (CORRECT METHOD)
+    await BluetoothEscposPrinter.printAndFeed(80);
 
+    Alert.alert('Print', 'Printed successfully');
   } catch (e) {
     console.log('Print error:', e);
-    setPrinterConnected(false);
     Alert.alert('Print Error', e?.message || 'Unknown error');
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

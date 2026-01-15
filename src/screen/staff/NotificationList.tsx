@@ -56,6 +56,43 @@ console.log(pagination);
       setLoadingMore(false);
     }
   };
+const markSingleRead = async (id) => {
+  try {
+         const res = await authService.singleRead(id);
+         console.log("res",res);
+         
+
+    // await apiClient.post(
+    //   `/api/user/notifications/${id}/read`
+    // );
+
+    // Update UI locally
+    setNotifications(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, is_read: true } : item
+      )
+    );
+    
+  } catch (err) {
+    console.log('Mark single read error', err?.response?.data);
+  }
+};
+const markAllRead = async () => {
+  try {
+     const res = await authService.markasall_read();
+    console.log("res,",res);
+    
+
+    // Update UI locally
+    setNotifications(prev =>
+      prev.map(item => ({ ...item, is_read: true }))
+    );
+
+    Alert.alert(t('alerts.success'), 'All notifications marked as read');
+  } catch (err) {
+    console.log('Mark all read error', err?.response?.data);
+  }
+};
 
   /* ---------------- DELETE NOTIFICATION ---------------- */
   const deleteNotification = async (id: number) => {
@@ -87,85 +124,46 @@ console.log(pagination);
       fetchNotifications(page + 1);
     }
   };
-
+const unreadCount = notifications.filter(
+  item => !item.is_read
+).length;
   /* ---------------- RENDER ITEM ---------------- */
-  const renderNotification = ({ item }) => (
-    <TouchableOpacity style={styles.card}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={styles.time}>{timeAgo(item.created_at)}</Text>
-        <View>
-          {/* <Ionicons name="hourglass-outline" size={18} color="#C5A8FF" /> */}
-          <View>
-            <Text style={styles.childName}>{item.title}</Text>
-            <Text style={styles.message}>{item.body}</Text>
-          </View>
-          
-        </View>
-         <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-          marginTop: 10,
-          marginLeft:2
-        }}
-      >
-                <Ionicons name="hourglass-outline" size={18} color="#D69E2E" />
-                </View>
+const renderNotification = ({ item }) => (
+  <TouchableOpacity
+    style={styles.card}
+    onPress={() => markSingleRead(item.id)}
+  >
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <Text style={styles.time}>{timeAgo(item.created_at)}</Text>
+    </View>
 
-      </View>
+    <Text
+      style={[
+        styles.childName,
+        !item.is_read && { fontWeight: '800' } // 🔴 UNREAD = BOLD
+      ]}
+    >
+      {item.title}
+    </Text>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'flex-start',
-          //marginTop: 10,
-        }}
-      >
-        <TouchableOpacity onPress={() => deleteNotification(item.id)}>
-              <Ionicons name="trash-outline" size={18} color="#FF4D4D" />
-            </TouchableOpacity>
-        {/* <Text style={styles.time}>{item.time}</Text> */}
-      </View>
+    <Text
+      style={[
+        styles.message,
+        !item.is_read && { fontWeight: '600' } // 🔴 UNREAD = BOLD
+      ]}
+    >
+      {item.body}
+    </Text>
+
+    <TouchableOpacity
+      style={{ marginTop: 10 }}
+      onPress={() => deleteNotification(item.id)}
+    >
+      <Ionicons name="trash-outline" size={18} color="#FF4D4D" />
     </TouchableOpacity>
-    //     <View style={styles.card}>
-    //       <View style={{flexDirection:'row',
-    //     justifyContent:'space-between',
-    //     alignItems:'center',}}>
-    //     <View style={styles.topRow}>
-    //         <Text style={styles.time}>
-    //           {timeAgo(item?.created_at)}
-    //           {/* {new Date(item.created_at).toLocaleString()} */}
-    //         </Text>
+  </TouchableOpacity>
+);
 
-    //         <TouchableOpacity onPress={() => deleteNotification(item.id)}>
-    //           <Ionicons name="trash-outline" size={18} color="#FF4D4D" />
-    //         </TouchableOpacity>
-    //       </View>
-    //       <View>
-    //  <Text style={styles.title}>{item.title}</Text>
-    //       <Text style={styles.message}>{item.body}</Text>
-    //       </View>
-
-    // <View style={styles.bottomRow}>
-    //         {/* <Ionicons
-    //           name={
-    //             item.is_read
-    //               ? "checkmark-done-outline"
-    //               : "notifications-outline"
-    //           }
-    //           size={18}
-    //           color="#764AF1"
-    //         /> */}
-    //                 <Ionicons name="hourglass-outline" size={18} color="#C5A8FF" />
-
-    //       </View>
-    //       </View>
-
-    //       {/* <Text style={styles.title}>{item.title}</Text>
-    //       <Text style={styles.message}>{item.body}</Text> */}
-
-    //     </View>
-  );
 
   /* ---------------- FOOTER ---------------- */
   const ListFooter = () => {
@@ -196,13 +194,30 @@ console.log(pagination);
       <View style={styles.container}>
         {/* HEADER */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={()=>navigation?.goBack()}>
-          <Ionicons name="arrow-back-outline" size={22} color="#333" />
+  <TouchableOpacity onPress={() => navigation.goBack()}>
+    <Ionicons name="arrow-back-outline" size={22} color="#333" />
+  </TouchableOpacity>
 
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Notifications</Text>
-          <Ionicons name="notifications-outline" size={22} color="#764AF1" />
-        </View>
+  <Text style={styles.headerTitle}>Notifications</Text>
+          <View style={{ position: 'relative' }}>
+    <Ionicons name="notifications-outline" size={22} color="#764AF1" />
+
+    {unreadCount > 0 && (
+      <View style={styles.badge}>
+        <Text style={styles.badgeText}>
+          {unreadCount > 99 ? '99+' : unreadCount}
+        </Text>
+      </View>
+    )}
+  </View>
+
+  {/* <TouchableOpacity onPress={markAllRead}>
+    <Text style={{ color: '#764AF1', fontWeight: '600' }}>
+      Mark all
+    </Text>
+  </TouchableOpacity> */}
+</View>
+
 
         <FlatList
           data={notifications}
@@ -227,6 +242,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
   },
+badge: {
+  position: 'absolute',
+  top: -6,
+  right: -8,
+  backgroundColor: '#FF3B30',
+  borderRadius: 10,
+  minWidth: 18,
+  height: 18,
+  paddingHorizontal: 4,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+badgeText: {
+  color: '#fff',
+  fontSize: 10,
+  fontWeight: '700',
+},
 
   loader: {
     flex: 1,
@@ -318,8 +351,8 @@ const styles = StyleSheet.create({
   },
 
   childName: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '600',
     color: '#764AF1',
     marginTop: 2,
     textAlign: 'right',

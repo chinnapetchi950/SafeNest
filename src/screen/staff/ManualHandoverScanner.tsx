@@ -15,7 +15,10 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { BarcodeScanner, CameraView } from "@pushpendersingh/react-native-scanner";
 import { useTranslation } from 'react-i18next';
 
-const ManualHandoverScanner = ({ navigation }) => {
+const ManualHandoverScanner = ({ navigation,route }) => {
+  const {userid}=route?.params
+console.log(userid,"userid------------>");
+
   const [scanned, setScanned] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [barcodeData, setBarcodeData] = useState('');
@@ -90,9 +93,35 @@ const {t}=useTranslation()
     }
   };
 
-  const handleProceed = () => {
-    if (!scanned) return;
+ const handleProceed = () => {
+  console.log(barcodeData, "scanned");
 
+  if (!scanned || !barcodeData) return;
+
+  try {
+    // 1️⃣ Parse QR data
+    const parsedData = JSON.parse(barcodeData);
+    console.log(parsedData,"parsedData");
+    
+
+    const qrUserId = parsedData.child_id;
+
+    // 2️⃣ Validate user_id existence
+    if (!qrUserId) {
+      Alert.alert("Invalid QR Code", "Child information not found in QR code");
+      return;
+    }
+
+    // 3️⃣ Compare with route userid
+    if (Number(qrUserId) !== Number(userid)) {
+      Alert.alert(
+        "Invalid QR Code",
+        "This QR code does not belong to this child"
+      );
+      return;
+    }
+
+    // ✅ 4️⃣ VALID QR → Proceed
     navigation.navigate("BottomTabsStaff", {
       screen: "Dashboard",
       params: {
@@ -100,7 +129,13 @@ const {t}=useTranslation()
         showHandoverModal: true,
       },
     });
-  };
+
+  } catch (error) {
+    // 5️⃣ Invalid JSON / corrupted QR
+    Alert.alert("Invalid QR Code", "QR code format is invalid");
+  }
+};
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRow}>

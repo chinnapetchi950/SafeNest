@@ -44,7 +44,14 @@ export default {
   no: "No",
   cancel: "Cancel",
   deliver: "Deliver",
-  endSession: "End Session"
+  endSession: "End Session",
+
+  minutes:'Minutes',
+  hours:"Hours",
+  female:'Female',
+  male:'Male',
+noSelection: "No selection",
+
 
   },
 
@@ -210,6 +217,11 @@ export default {
   chooseOption: "Choose Option",
   camera: "Camera",
   gallery: "Gallery",
+  selectAtLeastOneChild: "Please select at least one child",
+confirmDeleteTitle: "Confirm Delete",
+confirmDeleteMessage: "Are you sure you want to delete {count} child(ren)?",
+childDeletedSuccess: "Child deleted successfully",
+failedToDeleteChild: "Failed to delete child"
   },
 
   confirmation: {

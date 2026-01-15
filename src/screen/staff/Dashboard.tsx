@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect,useCallback, useRef, useState } from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -38,6 +38,8 @@ import {
    BluetoothEscposPrinter,
    BluetoothManager 
  } from 'react-native-bluetooth-escpos-printer';
+ import { useFocusEffect } from '@react-navigation/native';
+
 export default function Dashboard({navigation,route}) {
   const viewModel = useDashboardViewModel();
   const { t } = useTranslation();
@@ -86,9 +88,14 @@ useEffect(() => {
     value: i,
   }));
   // load API on mount
-  useEffect(() => {
-    viewModel?.loadChildren();
-  }, []);
+  // useEffect(() => {
+  //   viewModel?.loadChildren();
+  // }, []);
+  useFocusEffect(
+  useCallback(() => {
+    viewModel.loadChildren();
+  }, [])
+);
   useEffect(() => {
     setItems([
       
@@ -184,58 +191,148 @@ useEffect(() => {
 
   //   return () => clearInterval(interval);
   // }, [viewModel?.childList]);
-
- useEffect(() => {
+const expiredSessionIdsRef = useRef(new Set());
+useEffect(() => {
   const interval = setInterval(() => {
     const updatedTimers = {};
     let shouldReload = false;
 
     const getFullName = (child) => {
       if (!child) return '';
-      return [child?.firstname, child?.secondname, child?.thirdname, child?.fourthname]
+      return [
+        child?.firstname,
+        child?.secondname,
+        child?.thirdname,
+        child?.fourthname,
+      ]
         .filter(Boolean)
         .join(' ');
     };
 
+    // Set first username (no change)
     if (viewModel?.childList?.active_children?.length > 0) {
-      setFirstUsername(getFullName(viewModel.childList.active_children[0].user));
+      setFirstUsername(
+        getFullName(viewModel.childList.active_children[0].user)
+      );
     } else if (viewModel?.childList?.expired_children?.length > 0) {
-      setFirstUsername(getFullName(viewModel.childList.expired_children[0].user));
+      setFirstUsername(
+        getFullName(viewModel.childList.expired_children[0].user)
+      );
     }
 
     viewModel?.childList?.active_children?.forEach((child) => {
       const now = moment();
       const sessionDate = moment(child.session_date, 'YYYY-MM-DD');
-      const playToTime = moment(`${child.session_date} ${child.play_to}`, 'YYYY-MM-DD HH:mm:ss');
+      // console.log(sessionDate,child.session_date,"session_date");
+      
+ const playToTime = moment(`${child.session_date} ${child.play_to}`, 'YYYY-MM-DD HH:mm:ss');
+      // const playFromTime = moment(
+      //   `${child.session_date} ${child.play_from}`,
+      //   'YYYY-MM-DD HH:mm:ss'
+      // );
 
-      if (child?.session_status === 'active' && sessionDate.isSame(now, 'day')) {
-        const duration = moment.duration(playToTime.diff(now));
-        if (duration.asMilliseconds() > 0) {
-          const hours = Math.floor(duration.asHours());
-          const minutes = duration.minutes();
-          const seconds = duration.seconds();
-          updatedTimers[child.id] = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
-            .toString()
-            .padStart(2, '0')}`;
+      // // ✅ USE play_duration (more reliable)
+      // const playToTime = playFromTime
+      //   .clone()
+      //   .add(Number(child.play_duration), 'minutes');
+
+      if (
+        child?.session_status === 'active' &&
+        sessionDate.isSame(now, 'day')
+      ) {
+        const diffMs = playToTime.diff(now);
+        // console.log(diffMs,"diffMs");
+        
+
+        if (diffMs > 0) {
+          const d = moment.duration(diffMs);
+          updatedTimers[child.id] =
+            `${Math.floor(d.asHours())}:` +
+            `${d.minutes().toString().padStart(2, '0')}:` +
+            `${d.seconds().toString().padStart(2, '0')}`;
         } else {
           updatedTimers[child.id] = '0:00:00';
-          shouldReload = true;
+
+          // ✅ CALL API ONLY ONCE PER CHILD
+          if (!expiredSessionIdsRef.current.has(child.id)) {
+            expiredSessionIdsRef.current.add(child.id);
+            shouldReload = true;
+          }
         }
       } else {
         updatedTimers[child.id] = '0:00:00';
       }
     });
 
+    // console.log(updatedTimers);
     setTimers(updatedTimers);
 
-    if (shouldReload && !reloadFlag) {
-      setReloadFlag(true); // prevent repeated API calls
-      viewModel.loadChildren().finally(() => setReloadFlag(false));
+    // ✅ SINGLE API CALL (NO LOOP)
+    if (shouldReload) {
+      viewModel.loadChildren();
     }
+
   }, 1000);
 
   return () => clearInterval(interval);
-}, []);
+}, [viewModel?.childList]);
+
+
+//  useEffect(() => {
+//   const interval = setInterval(() => {
+//     const updatedTimers = {};
+//     let shouldReload = false;
+
+//     const getFullName = (child) => {
+//       if (!child) return '';
+//       return [child?.firstname, child?.secondname, child?.thirdname, child?.fourthname]
+//         .filter(Boolean)
+//         .join(' ');
+//     };
+
+//     if (viewModel?.childList?.active_children?.length > 0) {
+//       setFirstUsername(getFullName(viewModel.childList.active_children[0].user));
+//     } else if (viewModel?.childList?.expired_children?.length > 0) {
+//       setFirstUsername(getFullName(viewModel.childList.expired_children[0].user));
+//     }
+
+//     viewModel?.childList?.active_children?.forEach((child) => {
+//       const now = moment();
+//       const sessionDate = moment(child.session_date, 'YYYY-MM-DD');
+//       const playToTime = moment(`${child.session_date} ${child.play_to}`, 'YYYY-MM-DD HH:mm:ss');
+
+//       if (child?.session_status === 'active' && sessionDate.isSame(now, 'day')) {
+//         const duration = moment.duration(playToTime.diff(now));
+//         if (duration.asMilliseconds() > 0) {
+//           const hours = Math.floor(duration.asHours());
+//           const minutes = duration.minutes();
+//           const seconds = duration.seconds();
+//           updatedTimers[child.id] = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
+//             .toString()
+//             .padStart(2, '0')}`;
+//         } else {
+//           updatedTimers[child.id] = '0:00:00';
+//           shouldReload = true;
+//         }
+//       } else {
+//         updatedTimers[child.id] = '0:00:00';
+//       }
+//     });
+// console.log(updatedTimers);
+
+//     setTimers(updatedTimers);
+
+//     if (shouldReload && !reloadFlag) {
+//       setReloadFlag(true); // prevent repeated API calls
+//       viewModel.loadChildren().finally(() => setReloadFlag(false));
+//     }
+//   }, 1000);
+
+//   return () => clearInterval(interval);
+// }, [viewModel?.childList]);
+
+
+
 
 useEffect(() => {
   const initBluetooth = async () => {
@@ -397,7 +494,7 @@ const renderItem = React.useCallback(({ item }) => {
       playtime={item.total_play_duration}
       timer={timers[item.id] || '0:00:00'}
       status={item.session_status}
-      onDeliver={() => navigation.navigate('ManualHandoverScanner')}
+      onDeliver={() => navigation.navigate('ManualHandoverScanner',{userid:item?.id})}
       onEndSession={() => {viewModel.endChildSession(item.id)}}
       onCall={() => {
         onCall(item?.phone);
@@ -572,26 +669,51 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
     phone,
   }) => {
     const isActive = status == 'active';
+    const isTimerCompleted = timer === '0:00:00';
+
     const {t}=useTranslation()
-    function openWhatsApp(phoneNumber: (() => number) | undefined): void {
-  // Basic validation: must be numbers and 10-15 digits (adjust as needed)
-  const cleanedNumber = phoneNumber.replace(/\D/g, ''); // remove non-digits
-  if (!cleanedNumber || cleanedNumber.length < 10 || cleanedNumber.length > 15) {
-    Alert.alert(t('alerts.error') || 'Invalid number', t('validation.phoneInvalid') || 'Please enter a valid phone number');
+
+   const openWhatsApp=(phoneNumber?: string | number)=> {
+  if (!phoneNumber) {
+    Alert.alert(
+      t('alerts.error') || 'Error',
+      t('validation.phoneRequired') || 'Phone number is missing'
+    );
     return;
   }
 
-  const url = `https://wa.me/${cleanedNumber}`; // WhatsApp URL
-  Linking.canOpenURL(url)
+  const cleanedNumber = phoneNumber.toString().replace(/\D/g, '');
+
+  if (cleanedNumber.length < 10 || cleanedNumber.length > 15) {
+    Alert.alert(
+      t('alerts.error') || 'Invalid number',
+      t('validation.phoneInvalid') || 'Please enter a valid phone number'
+    );
+    return;
+  }
+
+  // ✅ WhatsApp App Scheme (BEST)
+  const appUrl = `whatsapp://send?phone=${cleanedNumber}`;
+
+  // 🌐 Web fallback
+  const webUrl = `https://wa.me/${cleanedNumber}`;
+
+  Linking.canOpenURL(appUrl)
     .then((supported) => {
-      if (!supported) {
-        Alert.alert(t('alerts.error') || 'Error', t('settings.whatsappNotInstalled') || 'WhatsApp is not installed on your device');
+      if (supported) {
+        return Linking.openURL(appUrl); // ✅ Opens WhatsApp directly
       } else {
-        return Linking.openURL(url);
+        return Linking.openURL(webUrl); // 🌐 Opens browser
       }
     })
-    .catch((err) => console.error('An error occurred', err));
-};    
+    .catch(() => {
+      Alert.alert(
+        t('alerts.error') || 'Error',
+        t('settings.whatsappNotInstalled') || 'Unable to open WhatsApp'
+      );
+    });
+}
+  
 
     return (
       <View style={styles.card}>
@@ -646,7 +768,7 @@ export const ChildSessionCard: React.FC<ChildSessionCardProps> = React.memo(
           
           <View style={styles.buttonRow}>
             
-            {isActive ? (
+            {isActive&&!isTimerCompleted ? (
               <TouchableOpacity
                 style={[styles.button, styles.endButton]}
                 onPress={onEndSession}

@@ -612,8 +612,12 @@ const [errors, setErrors] = useState({});
   /* -------------------- ROLE CHECK -------------------- */
   useEffect(() => {
     checkRoleAndLoadUsers();
-  }, []);
+      initializeSessionDefaults();
 
+  }, []);
+// useEffect(() => {
+//   initializeSessionDefaults();
+// }, []);
   const checkRoleAndLoadUsers = async () => {
     const storedRole = await Storage.getItem("admin"); // "admin" | "user"
     setRole(storedRole);
@@ -645,7 +649,16 @@ const requestCameraPermission = async () => {
     return true;
   }
 };
-
+const initializeSessionDefaults = () => {
+  const nowPlus2Min = moment().add(2, 'minutes');
+  setChildForm((prev) => ({
+    ...prev,
+    session_date: moment().format("YYYY-MM-DD"), // today
+    play_from: nowPlus2Min.format("HH:mm"),      // current time + 2 min
+    play_to: prev.play_to || "",                 // keep existing if any
+    play_duration: prev.play_duration || "",     // keep existing if any
+  }));
+};
   const loadUsers = async () => {
     try {
       setLoadingUsers(true);
@@ -694,9 +707,19 @@ const requestCameraPermission = async () => {
     setSelectedGender(gender);
     setForm((prev: any) => ({ ...prev, gender }));
   };
-  const handleDurationSelect = (duration) => {
-    setChildForm((prev) => ({ ...prev, duration }));
-  };
+
+  const handleDurationSelect = (duration: number) => {
+  setChildForm((prev) => {
+    const startTime = moment(prev.play_from, "HH:mm");
+    const endTime = startTime.clone().add(duration, "minutes");
+
+    return {
+      ...prev,
+      play_duration: duration,
+      play_to: endTime.format("HH:mm"), // auto-fill end time
+    };
+  });
+};
   const formatImage = (item) => ({
   uri: item.uri,
   type: item.type || "image/jpeg",

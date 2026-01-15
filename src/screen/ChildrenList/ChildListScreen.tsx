@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
+  Alert 
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchBar from "../components/Searchcomponent";
@@ -14,10 +15,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import FilterBottomSheet from "../components/FilterModal";
 import { useSelector } from "react-redux";
-
+import { deleteChildren } from "../../features/auth/children/childrenListslice";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTranslation } from 'react-i18next';
 import Storage from "../../utils/storage";
+import { useDispatch } from "react-redux";
 export default function ChildListScreen() {
   const { t } = useTranslation();
   const [searchText, setSearchText] = useState("");
@@ -37,10 +39,65 @@ const pageSize = 10; // items per page
     const [openMinute, setOpenMinute] = useState(false);
     const [selectedMinute, setSelectedMinute] = useState(null);
       const [firstUsername, setFirstUsername] = useState('');
-    
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
-    
-    
+
+    const dispatch = useDispatch();
+
+    const toggleMenu = (id: number) => {
+  setOpenMenuId(openMenuId === id ? null : id);
+};
+const handleDelete = async (item?: any) => {
+  const idsToDelete = item
+    ? [item.id]
+    : children.filter((c) => c.selected).map((c) => c.id);
+
+  if (idsToDelete.length === 0) {
+    Alert.alert(
+      t("common.noSelection"),
+      t("child.selectAtLeastOneChild")
+    );
+    return;
+  }
+
+  Alert.alert(
+    t("child.confirmDeleteTitle"),
+    t("child.confirmDeleteMessage").replace(
+      "{count}",
+      String(idsToDelete.length)
+    ),
+    [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("common.delete"),
+        style: "destructive",
+        onPress: async () => {
+          try {
+const res = await dispatch(deleteChildren(idsToDelete)).unwrap();
+            
+            // const res = await viewModel.deleteChildren(idsToDelete);
+            if (res?.status === true) {
+              Alert.alert(
+                t("alerts.success"),
+                t("child.childDeletedSuccess")
+              );
+              viewModel.loadChildrenlist();
+              setSelectAll(false);
+            }
+          } catch (err) {
+            console.log(err,"err");
+            
+            Alert.alert(
+              t("alerts.error"),
+              t("child.failedToDeleteChild")
+            );
+          }
+        },
+      },
+    ]
+  );
+};
+
 
 useEffect(() => {
     viewModel.loadChildrenlist();
@@ -216,17 +273,60 @@ const renderCard = ({ item, index }) => {
 
       {/* RIGHT SIDE */}
       <View style={styles.rightBox}>
-        <TouchableOpacity
-          onPress={() => toggleSelect(item.id)}
-          style={[styles.checkbox, item.selected && styles.checkboxChecked]}
-        >
-          {item.selected && <Ionicons name="checkmark" size={16} color="#fff" />}
-        </TouchableOpacity>
+  <TouchableOpacity
+    onPress={() => toggleSelect(item.id)}
+    style={[styles.checkbox, item.selected && styles.checkboxChecked]}
+  >
+    {item.selected && <Ionicons name="checkmark" size={16} color="#fff" />}
+  </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuDots}>
-          <Text style={styles.dots}>⋮</Text>
-        </TouchableOpacity>
-      </View>
+  <TouchableOpacity
+    style={styles.menuDotss}
+    onPress={() => toggleMenu(item.id)}
+  >
+    <Text style={styles.dotss}>⋮</Text>
+  </TouchableOpacity>
+
+  {openMenuId === item.id && (
+    <View style={styles.popupMenu}>
+      <TouchableOpacity
+        onPress={() => {
+          setOpenMenuId(null);
+          // optional edit
+        }}
+      >
+        <Text style={styles.menuItem}>{t("common.edit")}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => {
+          setOpenMenuId(null);
+          handleDelete(item);
+        }}
+      >
+        <Text style={[styles.menuItem, { color: "red" }]}>
+          {t("common.delete")}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  )}
+</View>
+{/* {Array.isArray(children) && children.some(c => c.selected) && (
+  <TouchableOpacity
+    onPress={() => handleDelete()}
+    style={{
+      backgroundColor: "#A278F4",
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 6,
+      alignSelf: "flex-end",
+    }}
+  >
+    <Text style={{ color: "#fff", fontWeight: "bold" }}>
+      {t("child.deleteSelected")}
+    </Text>
+  </TouchableOpacity>
+)} */}
     </View>
   );
 };
@@ -254,7 +354,7 @@ const renderCard = ({ item, index }) => {
           }}
                />
       </View>
-
+ <View style={{ flexDirection: "column", marginVertical: 10 }}>
       {/* Select All */}
       <View style={styles.selectAllRow}>
   <Text style={styles.selectAllText}>{t('userList.selectAll')}</Text>
@@ -269,14 +369,32 @@ const renderCard = ({ item, index }) => {
     <Ionicons name="checkmark" size={16} color="#fff" />
   )}
 </TouchableOpacity>
-      </View>
-
+</View>
+ {Array.isArray(children) && children.some(child => child?.selected)&& (
+    <TouchableOpacity
+      onPress={() => handleDelete()}
+      style={{
+        backgroundColor: "#A278F4",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+        alignSelf: "flex-end",
+       // marginTop: 10,
+      }}
+    >
+  <Text style={{ color: "#fff", fontWeight: "bold" }}>{t('userList.deleteSelected')}</Text>
+    </TouchableOpacity>
+  )}
+      
+</View>
       {/* List */}
       <FlatList
         data={children}
         keyExtractor={(item) => item.id}
         renderItem={renderCard}
         showsVerticalScrollIndicator={false}
+        keyExtractor={(item) => item.id.toString()}
+
         ListEmptyComponent={() => (
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
                 <Text style={{ fontSize: 16, color: "#888" }}>{t('common.noData')}</Text>
@@ -466,6 +584,12 @@ const styles = StyleSheet.create({
     flexDirection:'column'
   },
 
+   rightBox: {
+    width: 100,
+    alignItems: "flex-end",
+    flexDirection:'column'
+  },
+
   checkBox: {
     width: 24,
     height: 24,
@@ -533,6 +657,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  popupMenu: {
+  position: "absolute",
+  right: 10,
+  top: 25,
+  backgroundColor: "#fff",
+  paddingVertical: 6,
+  paddingHorizontal: 10,
+  borderRadius: 6,
+  elevation: 5,
+  shadowColor: "#000",
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  zIndex: 99,
+},
+
+menuItem: {
+  paddingVertical: 6,
+  paddingHorizontal: 4,
+  fontSize: 14,
+},
+
+menuDotss: {
+  padding: 8,
+},
+
+dotss: {
+  fontSize: 20,
+  fontWeight: "bold",
+},
 });
 
 
